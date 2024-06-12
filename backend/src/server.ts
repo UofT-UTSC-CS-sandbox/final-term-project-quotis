@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import User from './models/User';  // User 모델 import
+import Post from './models/Post';  // Post 모델 import
 
 const app = express();
 const PORT = 3000;
@@ -18,7 +19,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     body: req.body
   });
 
-  // res.send 오버라이드
   const originalSend = res.send;
   res.send = function (body) {
     console.log('requested instance:', {
@@ -37,22 +37,26 @@ mongoose.connect('mongodb://localhost:27017/Quotis', {})
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB 연결 에러:', err));
 
-app.post('/register', async (req: Request, res: Response) => {
-  //for store new user into mongo db
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      console.log('No email or password:', { email, password });
-      return res.status(400).json({ message: 'Its mendatory.' });
-    }
-    const newUser = new User({ email, password });
-    await newUser.save(); //this saves user data to mongodb.
-    console.log('New user stored:', newUser);
-    res.status(201).json({ message: '회원 가입 성공', user: newUser });
-  } catch (err) {
-    console.error('회원 가입 실패:', err);
-    res.status(400).json({ message: '회원 가입 실패', error: (err as Error).message });
+app.post('/login', async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email, password });
+  if (user) {
+    res.status(200).json({ message: '로그인 성공', role: user.role, user });
+  } else {
+    res.status(400).json({ message: '이메일 또는 비밀번호가 잘못되었습니다.' });
   }
+});
+
+app.post('/register', async (req: Request, res: Response) => {
+  const { email, password, role } = req.body;
+  const newUser = new User({ email, password, role });
+  await newUser.save();
+  res.status(201).json({ message: '회원 가입 성공', user: newUser });
+});
+
+app.get('/posts', async (req: Request, res: Response) => {
+  const posts = await Post.find();
+  res.status(200).json(posts);
 });
 
 app.listen(PORT, () => {

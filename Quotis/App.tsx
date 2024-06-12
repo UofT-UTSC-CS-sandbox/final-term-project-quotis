@@ -1,26 +1,23 @@
-import React, { useState } from 'react';
-import { View, Button, StyleSheet } from 'react-native';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import Login from './components/Login';
 import Register from './components/Register';
+import UserDashboard from './components/UserDashboard';
+import ProviderDashboard from './components/ProviderDashboard';
+
+const Stack = createStackNavigator();
 
 export default function App() {
-  const [isRegister, setIsRegister] = useState(true);
-
   return (
-    <View style={styles.container}>
-      {isRegister ? <Register /> : <Login />}
-      <Button
-        title={isRegister ? "Switch to Login" : "Switch to Register"}
-        onPress={() => setIsRegister(!isRegister)}
-      />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="UserDashboard" component={UserDashboard} />
+        <Stack.Screen name="ProviderDashboard" component={ProviderDashboard} />
+        {/* 다른 화면들도 여기에 추가 */}
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  }
-});
