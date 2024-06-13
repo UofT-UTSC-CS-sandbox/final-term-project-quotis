@@ -14,7 +14,7 @@
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.3.29",
     "axios": "^1.7.2",
-    "expo": "^51.0.11",
+    "expo": "^51.0.14",
     "expo-status-bar": "~1.12.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
