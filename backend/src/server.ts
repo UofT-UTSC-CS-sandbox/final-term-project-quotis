@@ -2,14 +2,18 @@ import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import User from './models/User';  // User 모델 import
-import Post from './models/Post';  // Post 모델 import
+import path from 'path';
+import multer from 'multer';
+import User from './models/User';
+import Post from './models/Post';
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors()); // 이 설정은 다른 URL에서 POST 메서드를 허용합니다.
-app.use(bodyParser.json()); // 데이터를 JSON 형식으로 처리합니다.
+app.use(cors());
+app.use(bodyParser.json());
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 요청과 응답을 로깅하는 미들웨어
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -20,7 +24,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     body: req.body
   });
 
-  // res.send 오버라이드
   const originalSend = res.send;
   res.send = function (body) {
     console.log('응답 객체:', {
@@ -33,6 +36,18 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   
   next();
 });
+
+// multer 설정
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}_${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
 
 // MongoDB 연결
 mongoose.connect('mongodb+srv://mmtimbawala:aGqX6FnhbrBbP2oD@quotis.xcfhezg.mongodb.net/Quotis?retryWrites=true&w=majority&appName=QUOTIS', {})
@@ -60,10 +75,45 @@ app.post('/register', async (req: Request, res: Response) => {
 
 // 포스트 가져오기 엔드포인트
 app.get('/posts', async (req: Request, res: Response) => {
-  const posts = await Post.find();
+  const posts = await Post.find().populate('createdBy', 'email');
   res.status(200).json(posts);
 });
 
+// 포스트 생성 엔드포인트
+app.post('/posts', upload.single('image'), async (req: Request, res: Response) => {
+  try {
+    const { title, description, category, budget, location, date, time, createdBy } = req.body;
+    if (!title || !description || !category || !budget || !location || !date || !time || !createdBy) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
+    const newPost = new Post({
+      title,
+      description,
+      category,
+      budget,
+      location,
+      date,
+      time,
+      createdBy,
+      image: req.file ? `/uploads/${req.file.filename}` : null,
+    });
+    await newPost.save();
+    res.status(201).json({ message: 'Post created successfully', post: newPost });
+  } catch (err) {
+    res.status(400).json({ message: 'Failed to create post', error: (err as Error).message });
+  }
+});
+
+// 포스트 조회 엔드포인트
+app.get('/posts', async (req: Request, res: Response) => {
+  try {
+    const posts = await Post.find().populate('createdBy', 'email');
+    res.status(200).json(posts);
+  } catch (err) {
+    res.status(400).json({ message: 'Failed to fetch posts', error: (err as Error).message });
+  }
+});
+
 app.listen(PORT, () => {
-  console.log(`server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

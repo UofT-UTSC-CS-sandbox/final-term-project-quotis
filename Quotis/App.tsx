@@ -5,8 +5,9 @@ import Login from './components/Login';
 import Register from './components/Register';
 import UserDashboard from './components/UserDashboard';
 import ProviderDashboard from './components/ProviderDashboard';
-
-const Stack = createStackNavigator();
+import CreatePost from './components/createPost';
+import { RootStackParamList } from '../backend/src/models/types'; // types.ts 파일을 import 합니다.
+const Stack = createStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="UserDashboard" component={UserDashboard} />
         <Stack.Screen name="ProviderDashboard" component={ProviderDashboard} />
+        <Stack.Screen name="CreatePost" component={CreatePost} />
         {/* 다른 화면들도 여기에 추가 */}
       </Stack.Navigator>
     </NavigationContainer>

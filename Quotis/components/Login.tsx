@@ -16,7 +16,7 @@ const Login: React.FC = () => {
     }
     try {
       const response = await axios.post('http://localhost:3000/login', { email, password });
-      if (response.data.role === 'user') {
+      if (response.data.role === 'client') {
         navigation.navigate('UserDashboard');
       } else {
         navigation.navigate('ProviderDashboard');
