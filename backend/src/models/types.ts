@@ -5,8 +5,10 @@ export type RootStackParamList = {
   // 다른 화면들도 여기에 추가
 };
 
-export interface Post {
+export type Post = {
   _id: string;
   title: string;
   description: string;
-}
+  author: string;
+  createdAt: string;
+};

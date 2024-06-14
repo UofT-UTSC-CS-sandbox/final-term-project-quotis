@@ -1,9 +1,15 @@
 import express, { Request, Response } from "express";
 import Post from "../models/Post";
+import { Post as PostType } from "../models/types"; // Import Post type
 
 const router = express.Router();
 
-// Get all posts
+interface PostBody {
+  title: string;
+  description: string;
+  author: string;
+}
+
 router.get("/", async (req: Request, res: Response) => {
   try {
     const posts = await Post.find().populate("author");
@@ -13,8 +19,7 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-// Create a new post
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", async (req: Request<{}, {}, PostBody>, res: Response) => {
   const { title, description, author } = req.body;
   const post = new Post({ title, description, author });
 
