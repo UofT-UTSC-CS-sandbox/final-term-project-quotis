@@ -8,7 +8,7 @@ const UserDashboard: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>User Dashboard</Text>
-      <Button title="Post a Job" onPress={() => navigation.navigate('PostJob')} />
+      <Button title="Post a Job" onPress={() => navigation.navigate('PostJob')}  accessibilityLabel="Button to Post a job" />
       <Button title="View Providers" onPress={() => navigation.navigate('ProvidersList')} />
     </View>
   );

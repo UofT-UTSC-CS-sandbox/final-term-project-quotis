@@ -5,13 +5,17 @@ import Login from './components/Login';
 import Register from './components/Register';
 import UserDashboard from './components/UserDashboard';
 import ProviderDashboard from './components/ProviderDashboard';
+import Profile from './components/Profile'; 
+import UserInfo from './components/UserInfo';
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="Profile">
+      <Stack.Screen name="UserInfo" component={UserInfo} />
+        <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="UserDashboard" component={UserDashboard} />
