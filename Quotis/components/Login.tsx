@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import axios from 'axios';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../../backend/src/models/types'; // RootStackParamList 타입을 정의한 파일
+import React, { useState } from "react";
+import { View, TextInput, Button, StyleSheet, Alert } from "react-native";
+import axios from "axios";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { RootStackParamList } from "../../backend/src/models/types";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const loginUser = async () => {
@@ -15,15 +15,22 @@ const Login: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:3000/login', { email, password });
-      if (response.data.role === 'client') {
-        navigation.navigate('UserDashboard');
+      const response = await axios.post("http://localhost:3000/login", {
+        email,
+        password,
+      });
+      if (response.data.role === "client") {
+        navigation.navigate("UserDashboard", {
+          userId: response.data.user._id,
+        });
       } else {
-        navigation.navigate('ProviderDashboard');
+        navigation.navigate("ProviderDashboard", {
+          userId: response.data.user._id,
+        });
       }
       Alert.alert("Success", response.data.message);
     } catch (error: any) {
-      console.error('Error during login:', error);
+      console.error("Error during login:", error);
       Alert.alert("Error", error.response?.data?.message || "Failed to login.");
     }
   };
@@ -46,7 +53,7 @@ const Login: React.FC = () => {
       <Button title="Login" onPress={loginUser} />
       <Button
         title="Register"
-        onPress={() => navigation.navigate('Register')}
+        onPress={() => navigation.navigate("Register")}
         color="gray"
       />
     </View>
@@ -56,14 +63,14 @@ const Login: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 20,
   },
   input: {
     marginBottom: 12,
     borderWidth: 1,
     padding: 10,
-  }
+  },
 });
 
 export default Login;
