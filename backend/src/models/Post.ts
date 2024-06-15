@@ -1,5 +1,5 @@
 // src/models/Post.ts
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 interface IPost extends Document {
   title: string;
@@ -10,7 +10,7 @@ interface IPost extends Document {
   date: string;
   time: string;
   createdBy: mongoose.Schema.Types.ObjectId;
-  image: string;
+  image?: string;
 }
 
 const PostSchema: Schema = new Schema({
@@ -21,8 +21,12 @@ const PostSchema: Schema = new Schema({
   location: { type: String, required: true },
   date: { type: String, required: true },
   time: { type: String, required: true },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  image: { type: String, required: false }
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  image: { type: String, required: false },
 });
 
-export default mongoose.model<IPost>('Post', PostSchema);
+export default mongoose.model<IPost>("Post", PostSchema);

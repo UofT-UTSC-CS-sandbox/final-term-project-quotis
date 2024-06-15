@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
-import axios from 'axios';
-import { Post } from '../../backend/src/models/types'; // 인터페이스 경로를 맞춰서 가져옵니다.
+import React, { useState, useEffect } from "react";
+import { View, Text, FlatList, StyleSheet } from "react-native";
+import axios from "axios";
+import { Post } from "../../backend/src/models/types"; // 인터페이스 경로를 맞춰서 가져옵니다.
 
 const ProviderDashboard: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -9,10 +9,10 @@ const ProviderDashboard: React.FC = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/posts');
+        const response = await axios.get("http://localhost:3000/posts");
         setPosts(response.data);
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error("Error fetching posts:", error);
       }
     };
 
@@ -24,7 +24,7 @@ const ProviderDashboard: React.FC = () => {
       <Text style={styles.title}>Provider Dashboard</Text>
       <FlatList
         data={posts}
-        keyExtractor={item => item._id}
+        keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <View style={styles.post}>
             <Text>{item.title}</Text>
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   post: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: "#ccc",
   },
 });
 
