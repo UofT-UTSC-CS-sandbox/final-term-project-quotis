@@ -14,12 +14,15 @@ user experience/interface ⇒ 1
 - Didn’t explain the connections between your design components
 - Could spend a bit more time on this part. It wasn’t an appealing design.
 
-Software setup ⇒  0
-
-- No file was found
+Software setup ⇒  3
 
 readme.md ⇒ 3
 
 - generally well-structured and provides a clear overview of the project.
 
 Overall presentation quality ⇒ 3
+
+
+===================================
+
+total 85 / 100
