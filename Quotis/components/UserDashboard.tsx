@@ -13,7 +13,9 @@ import { FontAwesome } from "@expo/vector-icons"; // You may need to install thi
 import styles from "./UserDashboardStyles"; // Import styles from the new file
 import { useRoute, RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
-import { useNavigation } from "@react-navigation/native";
+
+import { useNavigation } from "@react-navigation/native"
+
 
 type UserDashboardRouteProp = RouteProp<RootStackParamList, "UserDashboard">;
 
@@ -21,8 +23,11 @@ const UserDashboard: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [userEmail, setUserEmail] = useState<string>("");
   const route = useRoute<UserDashboardRouteProp>();
+
   const { userId } = route.params; // Getting userId from route params 
   const navigation:any = useNavigation();
+
+  
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -92,9 +97,11 @@ const UserDashboard: React.FC = () => {
           <FontAwesome name="envelope" size={24} color="black" />
           <Text>Inbox</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.navItem} onPress={() => {navigation.navigate('Profile', {
           userId: userId})
           }}>
+
           <FontAwesome name="user" size={24} color="black" />
           <Text>Account</Text>
         </TouchableOpacity>

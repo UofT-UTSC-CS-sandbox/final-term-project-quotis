@@ -5,9 +5,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import UserDashboard from "./components/UserDashboard";
 import ProviderDashboard from "./components/ProviderDashboard";
-import CreatePost from "./components/createPost"; 
-import Profile from './components/Profile'; 
-import UserInfo from './components/UserInfo';
+import Profile from  './components/Profile'; 
 import { RootStackParamList } from "./../backend/src/models/types";
 
 const Stack = createStackNavigator<RootStackParamList>();
