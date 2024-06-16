@@ -5,7 +5,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import UserDashboard from "./components/UserDashboard";
 import ProviderDashboard from "./components/ProviderDashboard";
-import CreatePost from "./components/createPost";
+import Profile from  './components/Profile'; 
 import { RootStackParamList } from "./../backend/src/models/types";
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -13,7 +13,9 @@ const Stack = createStackNavigator<RootStackParamList>();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="Login"> 
+      <Stack.Screen name="UserInfo" component={UserInfo} />
+        <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="UserDashboard" component={UserDashboard} />

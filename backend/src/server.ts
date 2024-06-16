@@ -72,6 +72,8 @@ app.get("/posts", async (req: Request, res: Response) => {
 });
 
 // Get user details by ID endpoint
+
+
 app.get("/user/:id", async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id);

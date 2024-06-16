@@ -5,6 +5,9 @@ export type RootStackParamList = {
   UserDashboard: { userId: string };
   ProviderDashboard: { userId: string };
   CreatePost: undefined;
+  Profile: {userId: string}; 
+  UserInfo: {userId: string};
+
 };
 
 export interface Post {
