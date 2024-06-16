@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 interface IUser extends Document {
   email: string;
   password: string;
-  role: 'user' | 'provider';
+  role: 'client' | 'provider';
 }
 
 const UserSchema: Schema = new Schema({
