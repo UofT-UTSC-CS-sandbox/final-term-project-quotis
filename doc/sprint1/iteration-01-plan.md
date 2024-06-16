@@ -51,6 +51,6 @@ The main features we focused on are:
 
 * **Mock-ups for User Interface (UI) Design**: Created using draw.io for the visual representation of the database schema and Figma for design mock-ups to visualize the UI flow. We also used Canva for logo creation.
 * **Database Schema**: Designed using Figma to create a visual representation of the database schema for Quotis. This diagram facilitated the preparation and correctness of the database design.
-* **API Documentation**: Documented API endpoints for login, registration, posting jobs, and profile management to ensure clear communication between the frontend and backend teams. Tools like Insomnia or Postman were used to provide thorough documentation for the Quotis backend API.
+* **API Documentation**: Documented API endpoints for login, registration, posting jobs, and profile management to ensure clear communication between the frontend and backend teams. Tools like Postman were used to provide thorough documentation for the Quotis backend API.
 * **Contribution Instructions**: Provided guidelines for setting up the development environment, choosing branch names, tracking issues, and using the pull request system. This facilitated an organized and cooperative contribution workflow.
 * **Expo Emulator**: Used on the web to demonstrate our running app and ensure seamless integration of all features.
