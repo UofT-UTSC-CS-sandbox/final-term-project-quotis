@@ -2,42 +2,65 @@
 
 Quotis is a mobile application designed to connect clients with reliable handymen for all sorts of trades work, including plumbing, electrical work, and moving services. We aim to provide a trustworthy and efficient platform where users can find qualified professionals, and service providers can find relevant jobs to make money on the side. Unlike other platforms, Quotis operates on a commission-free model, making it a win-win for both clients and service providers.
 
-![Prototype Image](prototype.png)
+![Prototype Image](Quotis/assets/prototype.png)
 
 ## Motivation
 
 Our motivation for building Quotis stems from the shortcomings observed in current handyman service platforms. These platforms often charge high commission fees and feature unverified workers, leading to inconsistent quality of service. Quotis addresses these issues by offering a commission-free model and a rigorous verification process for service providers. This ensures that clients receive high-quality services and professionals can build their reputation without unnecessary financial burdens.
 
 ## Installation
-To run this project locally, you will need the following tools and programs (the same tools we develop the app with):
 
-- Node.js
-- React Native CLI
-- MongoDB
+To run this project locally, you will need the following tools and programs. Please download them before moving on to the procedure:
 
-### Procedure
+- **Node.js**
+   - Download Node.js from [here](https://nodejs.org/).
+   - **Note**: Installing Node.js will also install npm, which is necessary for setting up the backend, and npx, which will be used to run Expo.
+
+- **Expo CLI**
+   - Expo will be used as a simulator for the app
+   - Install Expo CLI globally by running the following command:
+     ```bash
+     npm install -g expo-cli
+     ```
+
+## Procedure
+
 1. **Clone the repository and switch into it**:
    ```bash
    git clone https://github.com/UofT-UTSC-CS-sandbox/final-term-project-quotis.git
    cd final-term-project-quotis
    ```
 
-2. **Install dependencies**:
+2. **Install dependencies for the backend**:
    ```bash
+   cd backend
    npm install
    ```
 
-3. **Set up MongoDB**:
-   - Make sure MongoDB is installed and running on your local machine. You can download it from [here](https://www.mongodb.com/try/download/community).
-   - Create a `.env` file in the root directory and add your MongoDB connection string:
-     ```env
-     MONGODB_URI=mongodb://localhost:27017/quotis
-     ```
-
-4. **Run the application**:
+3. **Run the backend**:
    ```bash
    npm start
    ```
+
+4. **Using a second terminal, set up the frontend**:
+   ```bash
+   cd final-term-project-quotis/Quotis
+   npm install
+   ```
+   - If you encounter errors with npm install, try:
+     ```bash
+     npm install --legacy-peer-deps
+     ```
+
+5. **Run the application with Expo**:
+   ```bash
+   npx expo start
+   ```
+
+   Once prompted, you will see many ways to simulate the app. Among them are:
+   - Press `w` to open the app in a web browser.
+   - Press `i` to open the app on an iOS simulator. Make sure that you have Xcode installed and configured.
+   
 
 ## Contribution
 We welcome contributions to the Quotis project. Here is the process for contributing:
