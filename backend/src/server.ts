@@ -2,15 +2,16 @@ import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
-import User from "./models/User"; // User model import
-import Post from "./models/Post"; // Post model import
-import postRoutes from "./routes/posts"; // Post routes import
+import bcrypt from "bcrypt";
+import User from "./models/User";
+import Post from "./models/Post";
+import postRoutes from "./routes/posts";
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors()); // This setting allows POST methods from different URLs.
-app.use(bodyParser.json()); // This handles data in JSON format.
+app.use(cors());
+app.use(bodyParser.json());
 
 // Middleware to log requests and responses
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -21,7 +22,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     body: req.body,
   });
 
-  // Override res.send
   const originalSend = res.send;
   res.send = function (body) {
     console.log("Response object:", {
@@ -47,8 +47,8 @@ mongoose
 // Login endpoint
 app.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email, password });
-  if (user) {
+  const user = await User.findOne({ email });
+  if (user && await bcrypt.compare(password, user.password)) {
     res
       .status(200)
       .json({ message: "Login successful", role: user.role, user });
@@ -59,10 +59,36 @@ app.post("/login", async (req: Request, res: Response) => {
 
 // Register endpoint
 app.post("/register", async (req: Request, res: Response) => {
-  const { email, password, role } = req.body;
-  const newUser = new User({ email, password, role });
-  await newUser.save();
-  res.status(201).json({ message: "Registration successful", user: newUser });
+  const { firstName, lastName, email, password, role } = req.body;
+
+  if (!firstName || !lastName || !email || !password || !role) {
+    return res.status(400).send({ message: 'All fields are required.' });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      firstName,
+      lastName,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      role,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    await newUser.save();
+    res.status(201).json({ message: "Registration successful", user: newUser });
+  } catch (err) {
+    const error = err as mongoose.Error.ValidationError & { code?: number };
+
+    if (error.code === 11000) { // Duplicate key error code
+      res.status(400).json({ message: "Email is already associated with an account." });
+    } else {
+      console.error("Error during registration:", error);
+      res.status(500).json({ message: "Failed to register user", error });
+    }
+  }
 });
 
 // Get all posts endpoint
@@ -72,8 +98,6 @@ app.get("/posts", async (req: Request, res: Response) => {
 });
 
 // Get user details by ID endpoint
-
-
 app.get("/user/:id", async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id);
