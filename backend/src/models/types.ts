@@ -7,7 +7,8 @@ export type RootStackParamList = {
   CreatePost: undefined;
   Profile: {userId: string}; 
   UserInfo: {userId: string};
-
+  Services: { userId: string };
+  ServiceSearch: { userId: number; serviceType: string };
 };
 
 export interface Post {
