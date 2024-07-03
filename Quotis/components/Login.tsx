@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert, Image } from "react-native";
+import { View, TextInput, TouchableOpacity, Text, Alert, Image, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import axios from "axios";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
@@ -12,11 +12,11 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: "Company Name",
+      headerTitle: "Quotis",
       headerTitleAlign: "center",
       headerLeft: () => (
         <Image
-          source={require("../assets/prototype.png")} 
+          source={require("../assets/prototype.png")}
           style={{ width: 40, height: 40 }}
         />
       ),
@@ -58,31 +58,39 @@ const Login: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Login</Text>
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.button} onPress={loginUser}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-        <Text style={styles.registerText}>
-          Don't have an account? Register here
-        </Text>
-      </TouchableOpacity>
-    </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.container}>
+          <Text style={styles.header}>Login</Text>
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+            autoCapitalize="none"
+          />
+          <TextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            style={styles.input}
+            secureTextEntry
+          />
+          <TouchableOpacity style={styles.button} onPress={loginUser}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+          <View style={styles.registerContainer}>
+            <Text style={styles.registerText}>Don't have an account? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+              <Text style={styles.registerLinkText}>Register here</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
