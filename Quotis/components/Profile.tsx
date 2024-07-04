@@ -42,8 +42,8 @@ const Profile: React.FC = () => {
                 />
                 <Button 
                     color={"lightblue"}
-                    title="Security"
-                    onPress={do_nothing}  
+                    title="Customer Service"
+                    onPress={()=> {navigation.navigate('CustomerService')}}  
                     accessibilityLabel="Button to access Personal Info"
                 />
                 <Button 
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       padding: 20,
-      backgroundColor: "#e0f7fa",
+      backgroundColor: "lightblue",
     }, 
     button_list: { 
         display:"flex", 

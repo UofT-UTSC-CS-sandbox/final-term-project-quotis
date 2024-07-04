@@ -60,13 +60,15 @@ useEffect(() => {
           Alert.alert("Error", error.response?.data?.message || "Failed to update.");
         }
       };
+
+      const nothing:any  = ()=>{ 
+
+      };
   
-
-
 
   return (
     <View style={styles.container}> 
-      <Text> EDIT PROFILE </Text>
+      <Text style={styles.title}> EDIT PROFILE </Text>
 
     <View style={styles.profilePicContainer}> 
     <Image
@@ -75,6 +77,7 @@ useEffect(() => {
             uri: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
             }}
         />
+        <Button title="change photo" onPress={nothing} color={"lightblue"}/>
     </View> 
     <Text style={styles.title}>First Name </Text>
       <TextInput
@@ -106,7 +109,7 @@ useEffect(() => {
         onChangeText={setAddress}
       />
     <View style={styles.submit}> 
-        <Button title="Submit" onPress={handleSubmit} /> 
+        <Button title="Submit" color={"lightblue"} onPress={handleSubmit} /> 
     </View>
       
     </View>

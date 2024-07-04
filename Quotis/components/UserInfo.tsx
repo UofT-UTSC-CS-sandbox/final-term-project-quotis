@@ -72,8 +72,8 @@ const UserInfo: React.FC = () => {
       </View>
 
       <View style={styles.info}>
-        <Text>Email: {email}</Text>
-        <Text>Address: {address}</Text>  
+        <Text>Email   {email}</Text>
+        <Text>Address   {address}</Text>  
       </View>
       
     </View>
@@ -91,7 +91,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f8f8"
   },   
   title: {
-    fontSize: 20,
+    fontSize: 20, 
+    fontWeight:"bold",
   },
   info:{ 
     display: "flex",
@@ -108,7 +109,8 @@ const styles = StyleSheet.create({
 
   }, 
   name:{ 
-    padding:10,
+    padding:10, 
+    fontWeight:"bold",
   }, 
   image:{ 
     width: 100,
@@ -116,7 +118,11 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     
 },
+important: {
+   fontWeight:"bold",
+}
 });
+
 
 export default UserInfo;
 

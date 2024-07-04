@@ -10,6 +10,7 @@ import { RootStackParamList } from "./../backend/src/models/types";
 import CreatePost from "./components/createPost";
 import UserInfo from "./components/UserInfo";
 import EditUserProfile from "./components/EditUserProfile"
+import CustomerService from "./components/CustomerService"
 
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -25,7 +26,8 @@ export default function App() {
         <Stack.Screen name="UserDashboard" component={UserDashboard} />
         <Stack.Screen name="ProviderDashboard" component={ProviderDashboard} />
         <Stack.Screen name="CreatePost" component={CreatePost} /> 
-        <Stack.Screen name="EditUserProfile" component={EditUserProfile} />
+        <Stack.Screen name="EditUserProfile" component={EditUserProfile} /> 
+        <Stack.Screen name="CustomerService" component={CustomerService} />
       </Stack.Navigator>
     </NavigationContainer>
   );
