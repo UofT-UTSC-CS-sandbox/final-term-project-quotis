@@ -4,7 +4,9 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import User from "./models/User"; // User model import
 import Post from "./models/Post"; // Post model import
+import Quote from "./models/Quote"; // Quote model import
 import postRoutes from "./routes/posts"; // Post routes import
+import quoteRoutes from "./routes/quotes"; // Quote routes import
 
 const app = express();
 const PORT = 3000;
@@ -72,8 +74,6 @@ app.get("/posts", async (req: Request, res: Response) => {
 });
 
 // Get user details by ID endpoint
-
-
 app.get("/user/:id", async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id);
@@ -89,6 +89,9 @@ app.get("/user/:id", async (req: Request, res: Response) => {
 
 // Post routes
 app.use("/posts", postRoutes);
+
+// Quote routes
+app.use("/quotes", quoteRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

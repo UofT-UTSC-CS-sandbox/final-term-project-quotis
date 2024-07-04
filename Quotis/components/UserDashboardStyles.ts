@@ -36,6 +36,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  jobButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#007bff",
+    borderRadius: 5,
+  },
+  jobButtonText: {
+    color: "#fff",
+    textAlign: "center",
+  },
   sectionHeader: {
     fontSize: 20,
     fontWeight: "bold",
@@ -53,6 +63,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 5,
   },
+  viewButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#007bff",
+    borderRadius: 5,
+  },
+  viewButtonText: {
+    color: "#fff",
+    textAlign: "center",
+  },
   navbar: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -67,6 +87,35 @@ const styles = StyleSheet.create({
   navItem: {
     justifyContent: "center",
     alignItems: "center",
+  },
+  quoteContainer: {
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  quoteHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  quoteText: {
+    fontSize: 16,
+  },
+  quoteDetails: {
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#ccc",
+  },
+  postButton: {
+    padding: 10,
+    backgroundColor: "#007bff",
+    borderRadius: 5,
+  },
+  postButtonText: {
+    color: "#fff",
+    textAlign: "center",
   },
 });
 
