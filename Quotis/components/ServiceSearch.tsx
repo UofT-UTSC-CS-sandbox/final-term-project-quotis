@@ -18,7 +18,6 @@ interface Provider {
   postCode: string;
 }
 
-
 const ServiceSearch: React.FC = () => {
   const route = useRoute<ServiceSearchRouteProp>();
   const navigation = useNavigation();
@@ -26,8 +25,6 @@ const ServiceSearch: React.FC = () => {
 
   const [serviceProviders, setServiceProviders] = useState<Provider[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>(serviceType);
-  const [postalCode, setPostalCode] = useState<string>('');
-  const [maxDistance, setMaxDistance] = useState<number>(10); // Max distance in km
 
   useEffect(() => {
     const fetchServiceProviders = async () => {
@@ -41,27 +38,6 @@ const ServiceSearch: React.FC = () => {
 
     fetchServiceProviders();
   }, [selectedFilter]);
-
-  const applyDistanceFilter = async () => {
-    try {
-      const response = await axios.get(`http://localhost:3000/providers?services=${selectedFilter}`);
-      const providers: Provider[] = response.data;
-
-      // Fetch distances using Google Maps API
-      const distances = await axios.get(
-        `https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${postalCode}&destinations=${providers.map((p: Provider) => p.postCode).join('|')}&key=AIzaSyDzKMmVlTGyMHSGeODHXh8KazikdV-TL8A`
-      );
-
-      const filteredProviders = providers.filter((provider, index) => {
-        const distance = distances.data.rows[0].elements[index].distance.value / 1000; // Convert meters to km
-        return distance <= maxDistance;
-      });
-
-      setServiceProviders(filteredProviders);
-    } catch (error) {
-      console.error('Error applying distance filter:', error);
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -84,15 +60,6 @@ const ServiceSearch: React.FC = () => {
         >
           <Text style={styles.filterButtonText}>Electrician</Text>
         </TouchableOpacity>
-      </View>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Enter postal code"
-          value={postalCode}
-          onChangeText={setPostalCode}
-        />
-        <Button title="Apply Filter" onPress={applyDistanceFilter} />
       </View>
       {serviceProviders.length === 0 ? (
         <Text style={styles.noProvidersText}>No Available Providers</Text>
