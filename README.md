@@ -2,7 +2,7 @@
 
 Quotis is a mobile application designed to connect clients with reliable handymen for all sorts of trades work, including plumbing, electrical work, and moving services. We aim to provide a trustworthy and efficient platform where users can find qualified professionals, and service providers can find relevant jobs to make money on the side. Unlike other platforms, Quotis operates on a commission-free model, making it a win-win for both clients and service providers.
 
-![Prototype Image](Quotis/assets/prototype.png)
+<img src="Quotis/assets/prototype.png" alt="Prototype Image" width="250"/>
 
 ## Motivation
 
