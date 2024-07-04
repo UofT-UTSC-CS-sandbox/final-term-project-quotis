@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, TouchableOpacity, Text, Alert, Image, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  Alert,
+  Image,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import axios from "axios";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
@@ -38,10 +48,12 @@ const Login: React.FC = () => {
       return;
     }
     try {
+      console.log("Attempting to log in with:", { email, password });
       const response = await axios.post("http://localhost:3000/login", {
         email: email.toLowerCase(),
         password,
       });
+      console.log("Login response:", response.data);
       if (response.data.role === "client") {
         navigation.navigate("UserDashboard", {
           userId: response.data.user._id,

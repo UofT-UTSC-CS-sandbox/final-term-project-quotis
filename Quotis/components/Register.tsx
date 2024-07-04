@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, Button, Text, TouchableOpacity, Alert, Image, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  View,
+  TextInput,
+  Button,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Image,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import axios from "axios";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
 import styles from "./LoginRegisterStyles";
-import { Picker } from '@react-native-picker/picker';
+import { Picker } from "@react-native-picker/picker";
 
 const Register: React.FC = () => {
   const [firstName, setFirstName] = useState("");
@@ -34,7 +45,14 @@ const Register: React.FC = () => {
   };
 
   const registerUser = async () => {
-    if (!firstName || !lastName || !email || !password || !confirmPassword || !role) {
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !password ||
+      !confirmPassword ||
+      !role
+    ) {
       Alert.alert("Error", "All fields are required.");
       return;
     }
