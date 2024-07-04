@@ -21,7 +21,7 @@ type UserDashboardRouteProp = RouteProp<RootStackParamList, "UserDashboard">;
 
 const UserDashboard: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [userEmail, setUserEmail] = useState<string>("");
+  const [userFirstName, setUserFirstName] = useState<string>("");
   const [quotes, setQuotes] = useState<any[]>([]);
   const route = useRoute<UserDashboardRouteProp>();
 
@@ -34,7 +34,7 @@ const UserDashboard: React.FC = () => {
         const response = await axios.get(
           `http://localhost:3000/user/${userId}`
         );
-        setUserEmail(response.data.email);
+        setUserFirstName(response.data.firstName); // Update to set first name
       } catch (error) {
         console.error("Error fetching user details:", error);
       }
@@ -96,7 +96,7 @@ const UserDashboard: React.FC = () => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>Welcome, {userEmail}</Text>
+          <Text style={styles.headerText}>Welcome, {userFirstName}</Text>
           <TouchableOpacity style={styles.postButton} onPress={() => {}}>
             <Text style={styles.postButtonText}>Make a Post</Text>
           </TouchableOpacity>
