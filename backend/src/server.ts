@@ -1,11 +1,13 @@
-import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
+import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import bcrypt from "bcrypt";
-import User from "./models/User";
-import Post from "./models/Post";
-import postRoutes from "./routes/posts";
+import bcrypt from "bcrypt"; // Import bcrypt for password hashing
+import User from "./models/User"; // User model import
+import Post from "./models/Post"; // Post model import
+import Quote from "./models/Quote"; // Quote model import
+import postRoutes from "./routes/posts"; // Post routes import
+import quoteRoutes from "./routes/quotes"; // Quote routes import
 
 const app = express();
 const PORT = 3000;
@@ -113,6 +115,9 @@ app.get("/user/:id", async (req: Request, res: Response) => {
 
 // Post routes
 app.use("/posts", postRoutes);
+
+// Quote routes
+app.use("/quotes", quoteRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

@@ -9,10 +9,7 @@ productbacklog.md ⇒ 4
 - Comprehensive and well-structured
 - Grouped by categories
 
-user experience/interface ⇒ 1
-
-- Didn’t explain the connections between your design components
-- Could spend a bit more time on this part. It wasn’t an appealing design.
+user experience/interface ⇒ 4
 
 Software setup ⇒  3
 
@@ -25,4 +22,4 @@ Overall presentation quality ⇒ 3
 
 ===================================
 
-total 85 / 100
+total 93 / 100
