@@ -63,6 +63,24 @@ app.post("/register", async (req: Request, res: Response) => {
   const newUser = new User({ email, password, role });
   await newUser.save();
   res.status(201).json({ message: "Registration successful", user: newUser });
+}); 
+
+//Update User information endpoint  
+app.put("/update/:id", async (req: Request, res: Response) => {
+  const updatedData = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatedData },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).send({ message: 'User to update not found' });
+    }
+    res.status(200).json({ message: "Update Successful", user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating user', error });
+  }
 });
 
 // Get all posts endpoint
