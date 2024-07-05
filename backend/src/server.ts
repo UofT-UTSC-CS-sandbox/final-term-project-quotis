@@ -2,17 +2,17 @@ import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
-import bcrypt from "bcrypt"; // Import bcrypt for password hashing
-import User from "./models/User"; // User model import
-import Post from "./models/Post"; // Post model import
-import postRoutes from "./routes/posts"; // Post routes import
-import quoteRoutes from "./routes/quotes"; // Quote routes import
+import bcrypt from "bcrypt";
+import User from "./models/User";
+import Post from "./models/Post";
+import postRoutes from "./routes/posts";
+import quoteRoutes from "./routes/quotes";
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors()); // This setting allows POST methods from different URLs.
-app.use(bodyParser.json()); // This handles data in JSON format.
+app.use(cors());
+app.use(bodyParser.json());
 
 // Middleware to log requests and responses
 app.use((req: Request, res: Response, next: NextFunction) => {
