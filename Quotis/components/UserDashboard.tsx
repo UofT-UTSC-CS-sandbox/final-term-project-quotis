@@ -6,7 +6,6 @@ import {
   FlatList,
   ScrollView,
   TouchableOpacity,
-  StyleSheet,
 } from "react-native";
 import axios from "axios";
 import { Post } from "../../backend/src/models/types"; // Adjust the import path as needed
@@ -66,6 +65,20 @@ const UserDashboard: React.FC = () => {
     fetchQuotes();
   }, [userId]);
 
+  const handleQuoteAction = async (quoteId: string, action: string) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/quotes/${quoteId}/notify`,
+        { action }
+      );
+      if (response.status === 200) {
+        console.log(`Notification added for ${action} action.`);
+      }
+    } catch (error) {
+      console.error(`Error adding notification:`, error);
+    }
+  };  
+
   const QuoteItem: React.FC<{ quote: any }> = ({ quote }) => {
     const [expanded, setExpanded] = useState(false);
 
@@ -84,8 +97,14 @@ const UserDashboard: React.FC = () => {
           <View style={styles.quoteDetails}>
             <Text>Description: {quote.description}</Text>
             <Text>Date Sent: {quote.date_sent}</Text>
-            <Button title="Accept Quote" onPress={() => {}} />
-            <Button title="Decline Quote" onPress={() => {}} />
+            <Button
+              title="Accept Quote"
+              onPress={() => handleQuoteAction(quote._id, "accepted")}
+            />
+            <Button
+              title="Decline Quote"
+              onPress={() => handleQuoteAction(quote._id, "denied")}
+            />
           </View>
         )}
       </View>
