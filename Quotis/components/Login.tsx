@@ -26,7 +26,7 @@ const Login: React.FC = () => {
       headerTitleAlign: "center",
       headerLeft: () => (
         <Image
-          source={require("../assets/prototype.png")}
+          source={require("../assets/logo.png")}
           style={{ width: 40, height: 40 }}
         />
       ),

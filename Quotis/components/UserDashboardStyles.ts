@@ -117,6 +117,28 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
   },
+  notificationContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    marginBottom: 10,
+    flexWrap: "wrap", // Add this line
+  },
+  notificationTextContainer: {
+    flex: 1,
+    marginRight: 10,
+  },
+  notificationText: {
+    fontSize: 16,
+    flexWrap: "wrap",
+  },
+  notificationDate: {
+    fontSize: 14,
+    color: "#666",
+  },
 });
 
 export default styles;
