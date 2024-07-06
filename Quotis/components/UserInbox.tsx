@@ -4,7 +4,7 @@ import axios from "axios";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 import styles from "./UserDashboardStyles";
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from "date-fns";
 
 import { RootStackParamList } from "../../backend/src/models/types";
 
@@ -20,8 +20,10 @@ const UserInbox: React.FC = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/user/${userId}`);
-        setNotifications(response.data.notifications);
+        const response = await axios.get(
+          `http://localhost:3000/user/${userId}`
+        );
+        setNotifications(response.data.notifications.reverse()); // Reverse the notifications array
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
@@ -38,7 +40,9 @@ const UserInbox: React.FC = () => {
       );
       if (response.status === 200) {
         setNotifications((prevNotifications) =>
-          prevNotifications.filter((notification) => notification._id !== notificationId)
+          prevNotifications.filter(
+            (notification) => notification._id !== notificationId
+          )
         );
       }
     } catch (error) {
@@ -47,19 +51,29 @@ const UserInbox: React.FC = () => {
     }
   };
 
-  const NotificationItem: React.FC<{ notification: any }> = ({ notification }) => (
+  const NotificationItem: React.FC<{ notification: any }> = ({
+    notification,
+  }) => (
     <View style={styles.notificationContainer}>
       <View style={styles.notificationTextContainer}>
         <Text style={styles.notificationText}>{notification.message}</Text>
-        <Text style={styles.notificationDate}>{formatDistanceToNow(new Date(notification.date_created), { addSuffix: true })}</Text>
+        <Text style={styles.notificationDate}>
+          {formatDistanceToNow(new Date(notification.date_created), {
+            addSuffix: true,
+          })}
+        </Text>
       </View>
-      <TouchableOpacity onPress={() => handleDeleteNotification(notification._id)}>
+      <TouchableOpacity
+        onPress={() => handleDeleteNotification(notification._id)}
+      >
         <FontAwesome name="close" size={24} color="red" />
       </TouchableOpacity>
     </View>
   );
 
-  const renderHeader = () => <Text style={styles.sectionHeader}>Notifications</Text>;
+  const renderHeader = () => (
+    <Text style={styles.sectionHeader}>Notifications</Text>
+  );
 
   return (
     <View style={styles.container}>
@@ -71,7 +85,10 @@ const UserInbox: React.FC = () => {
         contentContainerStyle={styles.scrollContainer}
       />
       <View style={styles.navbar}>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("UserDashboard", { userId })}>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => navigation.navigate("UserDashboard", { userId })}
+        >
           <FontAwesome name="home" size={24} color="black" />
           <Text>Home</Text>
         </TouchableOpacity>

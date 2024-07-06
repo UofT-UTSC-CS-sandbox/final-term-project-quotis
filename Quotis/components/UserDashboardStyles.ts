@@ -93,15 +93,28 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 10,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#000", // Black border around the quote
+  },
+  pendingQuote: {
+    backgroundColor: "#fff", // White background for pending quotes
+  },
+  acceptedQuote: {
+    backgroundColor: "#cce5ff", // Light blue background for accepted quotes
+  },
+  declinedQuote: {
+    backgroundColor: "#dcdcdc", // Gray background for declined quotes
   },
   quoteHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 10,
+    flexWrap: "wrap", // This ensures text wrapping within the container
   },
   quoteText: {
     fontSize: 16,
+    flex: 1, // This ensures each text element takes equal space
   },
   quoteDetails: {
     paddingTop: 10,
@@ -114,6 +127,26 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   postButtonText: {
+    color: "#fff",
+    textAlign: "center",
+  },
+  acceptButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#28a745",
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#000", // Black border around the button
+  },
+  declineButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#dc3545",
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#000", // Black border around the button
+  },
+  buttonText: {
     color: "#fff",
     textAlign: "center",
   },

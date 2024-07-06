@@ -8,6 +8,7 @@ import { useRoute, RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
 
 import { useNavigation } from "@react-navigation/native";
+import { formatDistanceToNow } from "date-fns"; // Import date-fns
 
 type UserDashboardRouteProp = RouteProp<RootStackParamList, "UserDashboard">;
 
@@ -23,7 +24,9 @@ const UserDashboard: React.FC = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/user/${userId}`);
+        const response = await axios.get(
+          `http://localhost:3000/user/${userId}`
+        );
         setUserFirstName(response.data.firstName); // Update to set first name
       } catch (error) {
         console.error("Error fetching user details:", error);
@@ -41,7 +44,9 @@ const UserDashboard: React.FC = () => {
 
     const fetchQuotes = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/quotes/user/${userId}`);
+        const response = await axios.get(
+          `http://localhost:3000/quotes/user/${userId}`
+        );
         console.log("Fetched quotes:", response.data); // Add this line
         setQuotes(response.data);
       } catch (error) {
@@ -56,9 +61,17 @@ const UserDashboard: React.FC = () => {
 
   const handleQuoteAction = async (quoteId: string, action: string) => {
     try {
-      const response = await axios.post(`http://localhost:3000/quotes/${quoteId}/notify`, { action });
+      const response = await axios.post(
+        `http://localhost:3000/quotes/${quoteId}/notify`,
+        { action }
+      );
       if (response.status === 200) {
         console.log(`Notification added for ${action} action.`);
+        setQuotes((prevQuotes) =>
+          prevQuotes.map((quote) =>
+            quote._id === quoteId ? { ...quote, status: action } : quote
+          )
+        );
       }
     } catch (error) {
       console.error(`Error adding notification:`, error);
@@ -68,11 +81,23 @@ const UserDashboard: React.FC = () => {
   const QuoteItem: React.FC<{ quote: any }> = ({ quote }) => {
     const [expanded, setExpanded] = useState(false);
 
+    const getQuoteStyle = (status: string) => {
+      switch (status) {
+        case "accepted":
+          return styles.acceptedQuote;
+        case "denied":
+          return styles.declinedQuote;
+        default:
+          return styles.pendingQuote;
+      }
+    };
+
     return (
-      <View style={styles.quoteContainer}>
+      <View style={[styles.quoteContainer, getQuoteStyle(quote.status)]}>
         <TouchableOpacity onPress={() => setExpanded(!expanded)}>
           <View style={styles.quoteHeader}>
-            <Text style={styles.quoteText}>Provider: {quote.provider_name}</Text>
+            <Text style={styles.quoteText}>Provider:</Text>
+            <Text style={styles.quoteText}>{quote.provider_name}</Text>
             <Text style={styles.quoteText}>Price: {quote.price_estimate}</Text>
             <Text style={styles.quoteText}>Status: {quote.status}</Text>
           </View>
@@ -80,9 +105,28 @@ const UserDashboard: React.FC = () => {
         {expanded && (
           <View style={styles.quoteDetails}>
             <Text>Description: {quote.description}</Text>
-            <Text>Date Sent: {quote.date_sent}</Text>
-            <Button title="Accept Quote" onPress={() => handleQuoteAction(quote._id, "accepted")} />
-            <Button title="Decline Quote" onPress={() => handleQuoteAction(quote._id, "denied")} />
+            <Text>
+              Date Sent:{" "}
+              {formatDistanceToNow(new Date(quote.date_sent), {
+                addSuffix: true,
+              })}
+            </Text>
+            {quote.status === "pending" && (
+              <>
+                <TouchableOpacity
+                  style={styles.acceptButton}
+                  onPress={() => handleQuoteAction(quote._id, "accepted")}
+                >
+                  <Text style={styles.buttonText}>Accept Quote</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.declineButton}
+                  onPress={() => handleQuoteAction(quote._id, "denied")}
+                >
+                  <Text style={styles.buttonText}>Decline Quote</Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         )}
       </View>
@@ -99,7 +143,9 @@ const UserDashboard: React.FC = () => {
       </View>
       <Text style={styles.location}>1095 Military Trail, Toronto, ON</Text>
       <View style={styles.upcomingJob}>
-        <Text style={styles.upcomingJobText}>You have an upcoming electrical job in:</Text>
+        <Text style={styles.upcomingJobText}>
+          You have an upcoming electrical job in:
+        </Text>
         <Text style={styles.jobTime}>3 days: 2 hrs: 25 min</Text>
         <TouchableOpacity style={styles.jobButton} onPress={() => {}}>
           <Text style={styles.jobButtonText}>View job details</Text>
