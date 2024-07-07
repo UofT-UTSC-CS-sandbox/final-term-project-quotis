@@ -7,7 +7,10 @@ export type RootStackParamList = {
   CreatePost: undefined;
   Profile: {userId: string}; 
   UserInfo: {userId: string};
-  EditUserProfile:{userId: string}
+  EditUserProfile:{userId: string};
+  UserInbox: { userId: string };
+  CustomerService:undefined; 
+  
 
 };
 

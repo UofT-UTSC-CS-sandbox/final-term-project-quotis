@@ -11,6 +11,7 @@ import CreatePost from "./components/createPost";
 import UserInfo from "./components/UserInfo";
 import EditUserProfile from "./components/EditUserProfile"
 import CustomerService from "./components/CustomerService"
+import UserInbox from "./components/UserInbox";
 
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -21,6 +22,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="UserInfo" component={UserInfo} />
         <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="UserInbox" component={UserInbox} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="UserDashboard" component={UserDashboard} />
