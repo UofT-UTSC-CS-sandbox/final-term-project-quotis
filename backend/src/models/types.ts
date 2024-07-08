@@ -1,17 +1,16 @@
-// src/models/types.ts
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   UserDashboard: { userId: string };
   ProviderDashboard: { userId: string };
   CreatePost: undefined;
-  Profile: {userId: string}; 
-  UserInfo: {userId: string};
-  EditUserProfile:{userId: string};
+  Profile: { userId: string };
+  UserInfo: { userId: string };
+  Services: { userId: string };
+  ServiceSearch: { userId: number; serviceType: string };
   UserInbox: { userId: string };
-  CustomerService:undefined; 
-  
-
+  EditUserProfile: { userId: string };
+  CustomerService: undefined;
 };
 
 export interface Post {

@@ -2,10 +2,11 @@ import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
+import User from "./models/User"; // User model import
+import Post from "./models/Post"; // Post model import
+import Provider from "./models/Provider"; // Post model import
+import postRoutes from "./routes/posts"; // Post routes import
 import bcrypt from "bcrypt";
-import User from "./models/User";
-import Post from "./models/Post";
-import postRoutes from "./routes/posts";
 import quoteRoutes from "./routes/quotes";
 
 const app = express();
@@ -72,29 +73,6 @@ app.post("/login", async (req: Request, res: Response) => {
 
 // Register endpoint
 app.post("/register", async (req: Request, res: Response) => {
-<<<<<<< HEAD
-  const { email, password, role } = req.body;
-  const newUser = new User({ email, password, role });
-  await newUser.save();
-  res.status(201).json({ message: "Registration successful", user: newUser });
-}); 
-
-//Update User information endpoint  
-app.put("/update/:id", async (req: Request, res: Response) => {
-  const updatedData = req.body;
-  try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { $set: updatedData },
-      { new: true }
-    );
-    if (!user) {
-      return res.status(404).send({ message: 'User to update not found' });
-    }
-    res.status(200).json({ message: "Update Successful", user });
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating user', error });
-=======
   const { firstName, lastName, email, password, role } = req.body;
   console.log(`Received: ${JSON.stringify(req.body)}`); // Log the received data
 
@@ -118,7 +96,24 @@ app.put("/update/:id", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({ message: "Failed to register user." });
->>>>>>> d45fc3f93abc392b403aadb3d161e24f88bd8215
+  }
+});
+
+//Update User information endpoint
+app.put("/update/:id", async (req: Request, res: Response) => {
+  const updatedData = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatedData },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).send({ message: "User to update not found" });
+    }
+    res.status(200).json({ message: "Update Successful", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating user", error });
   }
 });
 
@@ -139,6 +134,22 @@ app.get("/user/:id", async (req: Request, res: Response) => {
     }
   } catch (err: any) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Get all providers based on the service type
+app.get("/providers", async (req: Request, res: Response) => {
+  const { services } = req.query;
+
+  if (!services) {
+    return res.status(400).json({ error: "Service type is required" });
+  }
+
+  try {
+    const providers = await Provider.find({ services: services });
+    res.status(200).json(providers);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching service providers" });
   }
 });
 
