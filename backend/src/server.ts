@@ -2,10 +2,11 @@ import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
+import User from "./models/User"; // User model import
+import Post from "./models/Post"; // Post model import
+import Provider from "./models/Provider"; // Post model import
+import postRoutes from "./routes/posts"; // Post routes import
 import bcrypt from "bcrypt";
-import User from "./models/User";
-import Post from "./models/Post";
-import postRoutes from "./routes/posts";
 import quoteRoutes from "./routes/quotes";
 
 const app = express();
@@ -115,6 +116,22 @@ app.get("/user/:id", async (req: Request, res: Response) => {
     }
   } catch (err: any) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Get all providers based on the service type
+app.get("/providers", async (req: Request, res: Response) => {
+  const { services } = req.query;
+
+  if (!services) {
+    return res.status(400).json({ error: "Service type is required" });
+  }
+
+  try {
+    const providers = await Provider.find({ services: services });
+    res.status(200).json(providers);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching service providers" });
   }
 });
 

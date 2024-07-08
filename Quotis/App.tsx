@@ -6,9 +6,11 @@ import Register from "./components/Register";
 import UserDashboard from "./components/UserDashboard";
 import ProviderDashboard from "./components/ProviderDashboard";
 import Profile from "./components/Profile";
+import Services from "./components/Services";
 import { RootStackParamList } from "./../backend/src/models/types";
 import CreatePost from "./components/createPost";
 import UserInfo from "./components/UserInfo";
+import ServiceSearch from "./components/ServiceSearch";
 import UserInbox from "./components/UserInbox";
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -25,6 +27,8 @@ export default function App() {
         <Stack.Screen name="UserDashboard" component={UserDashboard} />
         <Stack.Screen name="ProviderDashboard" component={ProviderDashboard} />
         <Stack.Screen name="CreatePost" component={CreatePost} />
+        <Stack.Screen name="Services" component={Services} />
+        <Stack.Screen name="ServiceSearch" component={ServiceSearch} />
       </Stack.Navigator>
     </NavigationContainer>
   );
