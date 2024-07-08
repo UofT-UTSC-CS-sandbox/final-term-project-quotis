@@ -6,12 +6,14 @@ import User from "./models/User"; // User model import
 import Post from "./models/Post"; // Post model import
 import Provider from "./models/Provider"; // Post model import
 import postRoutes from "./routes/posts"; // Post routes import
+import bcrypt from "bcrypt";
+import quoteRoutes from "./routes/quotes";
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors()); // This setting allows POST methods from different URLs.
-app.use(bodyParser.json()); // This handles data in JSON format.
+app.use(cors());
+app.use(bodyParser.json());
 
 // Middleware to log requests and responses
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -48,22 +50,53 @@ mongoose
 // Login endpoint
 app.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email, password });
+  console.log(`Login attempt: email=${email}, password=${password}`);
+
+  const user = await User.findOne({ email });
   if (user) {
-    res
-      .status(200)
-      .json({ message: "Login successful", role: user.role, user });
+    console.log(`User found: ${user.email}`);
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (isMatch) {
+      console.log("Password match");
+      res
+        .status(200)
+        .json({ message: "Login successful", role: user.role, user });
+    } else {
+      console.log("Password mismatch");
+      res.status(400).json({ message: "Incorrect email or password." });
+    }
   } else {
+    console.log("User not found");
     res.status(400).json({ message: "Incorrect email or password." });
   }
 });
 
 // Register endpoint
 app.post("/register", async (req: Request, res: Response) => {
-  const { email, password, role } = req.body;
-  const newUser = new User({ email, password, role });
-  await newUser.save();
-  res.status(201).json({ message: "Registration successful", user: newUser });
+  const { firstName, lastName, email, password, role } = req.body;
+  console.log(`Received: ${JSON.stringify(req.body)}`); // Log the received data
+
+  if (!firstName || !lastName || !email || !password || !role) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  const newUser = new User({
+    firstName,
+    lastName,
+    email,
+    password: hashedPassword,
+    role,
+  });
+
+  try {
+    await newUser.save();
+    res.status(201).json({ message: "Registration successful", user: newUser });
+  } catch (error) {
+    console.error("Error during registration:", error);
+    res.status(500).json({ message: "Failed to register user." });
+  }
 });
 
 // Get all posts endpoint
@@ -73,8 +106,6 @@ app.get("/posts", async (req: Request, res: Response) => {
 });
 
 // Get user details by ID endpoint
-
-
 app.get("/user/:id", async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id);
@@ -93,19 +124,22 @@ app.get("/providers", async (req: Request, res: Response) => {
   const { services } = req.query;
 
   if (!services) {
-    return res.status(400).json({ error: 'Service type is required' });
+    return res.status(400).json({ error: "Service type is required" });
   }
 
   try {
     const providers = await Provider.find({ services: services });
     res.status(200).json(providers);
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching service providers' });
+    res.status(500).json({ error: "Error fetching service providers" });
   }
 });
 
 // Post routes
 app.use("/posts", postRoutes);
+
+// Quote routes
+app.use("/quotes", quoteRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
