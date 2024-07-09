@@ -1,4 +1,3 @@
-// src/models/types.ts
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -10,6 +9,7 @@ export type RootStackParamList = {
   Services: { userId: string };
   ServiceSearch: { userId: number; serviceType: string };
   UserInbox: { userId: string };
+  EditUserProfile: { userId: string }; // Added this line
 };
 
 export interface Post {
