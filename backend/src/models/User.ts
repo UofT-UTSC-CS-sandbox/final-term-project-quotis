@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 interface Notification {
   type: string;
@@ -12,7 +12,7 @@ export interface IUser extends Document {
   lastName: string;
   email: string;
   password: string;
-  role: 'client' | 'provider';
+  role: "client" | "provider";
   createdAt: Date;
   updatedAt: Date;
   notifications: Notification[];
@@ -25,13 +25,16 @@ const NotificationSchema = new Schema({
   message: { type: String, required: true },
 });
 
-const UserSchema: Schema = new Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, required: true },
-  notifications: [NotificationSchema],
-}, { timestamps: true });
+const UserSchema: Schema = new Schema(
+  {
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: { type: String, required: true },
+    notifications: [NotificationSchema],
+  },
+  { timestamps: true }
+);
 
-export default mongoose.model<IUser>('User', UserSchema);
+export default mongoose.model<IUser>("User", UserSchema);

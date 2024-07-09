@@ -179,9 +179,14 @@ const UserDashboard: React.FC = () => {
           <FontAwesome name="home" size={24} color="black" />
           <Text>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => {navigation.navigate('Services', {
-          userId: userId})
-          }}>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => {
+            navigation.navigate("Services", {
+              userId: userId,
+            });
+          }}
+        >
           <FontAwesome name="wrench" size={24} color="black" />
           <Text>Services</Text>
         </TouchableOpacity>
