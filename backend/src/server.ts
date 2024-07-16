@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import User from "./models/User"; // User model import
 import Post from "./models/Post"; // Post model import
-import Provider from "./models/Provider"; // Post model import
+import Provider from "./models/Provider"; // Provider model import
 import postRoutes from "./routes/posts"; // Post routes import
 import bcrypt from "bcrypt";
 import quoteRoutes from "./routes/quotes";
@@ -52,15 +52,19 @@ app.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
   console.log(`Login attempt: email=${email}, password=${password}`);
 
-  const user = await User.findOne({ email });
+  // Check in User collection
+  let user = await User.findOne({ email });
+  if (!user) {
+    // If not found in User collection, check in Provider collection
+    user = await Provider.findOne({ email });
+  }
+
   if (user) {
     console.log(`User found: ${user.email}`);
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
       console.log("Password match");
-      res
-        .status(200)
-        .json({ message: "Login successful", role: user.role, user });
+      res.status(200).json({ message: "Login successful", role: user.role, user });
     } else {
       console.log("Password mismatch");
       res.status(400).json({ message: "Incorrect email or password." });
@@ -82,24 +86,41 @@ app.post("/register", async (req: Request, res: Response) => {
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-  const newUser = new User({
-    firstName,
-    lastName,
-    email,
-    password: hashedPassword,
-    role,
-  });
 
   try {
-    await newUser.save();
-    res.status(201).json({ message: "Registration successful", user: newUser });
+    if (role === "client") {
+      const newUser = new User({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        role,
+      });
+      await newUser.save();
+      res.status(201).json({ message: "Registration successful", user: newUser });
+    } else if (role === "provider") {
+      const newProvider = new Provider({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        services: [], // Initialize with an empty services array or populate as needed
+        description: '', // Add any default value or initialize as needed
+        contact: '', // Add any default value or initialize as needed
+        postCode: '', // Add any default value or initialize as needed
+      });
+      await newProvider.save();
+      res.status(201).json({ message: "Registration successful", user: newProvider });
+    } else {
+      res.status(400).json({ message: "Invalid role" });
+    }
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({ message: "Failed to register user." });
   }
 });
 
-//Update User information endpoint
+// Update User information endpoint
 app.put("/update/:id", async (req: Request, res: Response) => {
   const updatedData = req.body;
   try {
