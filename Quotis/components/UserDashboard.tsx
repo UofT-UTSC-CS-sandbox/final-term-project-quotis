@@ -8,7 +8,7 @@ import { useRoute, RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
 
 import { useNavigation } from "@react-navigation/native";
-import { formatDistanceToNow } from "date-fns"; // Import date-fns
+import { formatDistanceToNow} from "date-fns";
 
 type UserDashboardRouteProp = RouteProp<RootStackParamList, "UserDashboard">;
 
