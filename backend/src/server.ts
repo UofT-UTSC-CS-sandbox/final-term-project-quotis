@@ -8,12 +8,23 @@ import Provider from "./models/Provider"; // Post model import
 import postRoutes from "./routes/posts"; // Post routes import
 import bcrypt from "bcrypt";
 import quoteRoutes from "./routes/quotes";
+import multer from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import AWS from 'aws-sdk';
+import { generateUploadURL } from './s3';
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
-app.use(bodyParser.json());
+app.use(cors()); // This setting allows POST methods from different URLs.
+app.use(bodyParser.json()); // This handles data in JSON format.
+
+// AWS S3 설정
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION
+});
 
 // Middleware to log requests and responses
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -50,80 +61,44 @@ mongoose
 // Login endpoint
 app.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  console.log(`Login attempt: email=${email}, password=${password}`);
-
-  const user = await User.findOne({ email });
-  if (user) {
-    console.log(`User found: ${user.email}`);
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (isMatch) {
-      console.log("Password match");
-      res
-        .status(200)
-        .json({ message: "Login successful", role: user.role, user });
+  try {
+    const user = await User.findOne({ email });
+    if (user && await bcrypt.compare(password, user.password)) {
+      res.status(200).json({ message: "Login successful", role: user.role, user });
     } else {
-      console.log("Password mismatch");
       res.status(400).json({ message: "Incorrect email or password." });
     }
-  } else {
-    console.log("User not found");
-    res.status(400).json({ message: "Incorrect email or password." });
+  } catch (error) {
+    res.status(500).json({ message: "Server error during login." });
   }
 });
 
 // Register endpoint
 app.post("/register", async (req: Request, res: Response) => {
   const { firstName, lastName, email, password, role } = req.body;
-  console.log(`Received: ${JSON.stringify(req.body)}`); // Log the received data
-
-  if (!firstName || !lastName || !email || !password || !role) {
-    return res.status(400).json({ message: "All fields are required." });
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-  const newUser = new User({
-    firstName,
-    lastName,
-    email,
-    password: hashedPassword,
-    role,
-  });
-
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ firstName, lastName, email, password: hashedPassword, role, uid: uuidv4() });
     await newUser.save();
     res.status(201).json({ message: "Registration successful", user: newUser });
   } catch (error) {
-    console.error("Error during registration:", error);
-    res.status(500).json({ message: "Failed to register user." });
-  }
-});
-
-//Update User information endpoint
-app.put("/update/:id", async (req: Request, res: Response) => {
-  const updatedData = req.body;
-  try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { $set: updatedData },
-      { new: true }
-    );
-    if (!user) {
-      return res.status(404).send({ message: "User to update not found" });
-    }
-    res.status(200).json({ message: "Update Successful", user });
-  } catch (error) {
-    res.status(500).json({ message: "Error updating user", error });
+    res.status(500).json({ message: "Server error during registration." });
   }
 });
 
 // Get all posts endpoint
-app.get("/posts", async (req: Request, res: Response) => {
-  const posts = await Post.find();
-  res.status(200).json(posts);
+app.use('/api', postRoutes); // 추가된 부분
+
+app.get('/s3Url', async (req, res) => {
+  try {
+    const url = await generateUploadURL();
+    res.send({ url });
+  } catch (error) {
+    console.error("Error generating upload URL:", error);
+    res.status(500).send({ error: "Failed to generate upload URL" });
+  }
 });
 
-// Get user details by ID endpoint
 app.get("/user/:id", async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id);

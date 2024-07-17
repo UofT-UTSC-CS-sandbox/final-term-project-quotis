@@ -133,12 +133,23 @@ const UserDashboard: React.FC = () => {
     );
   };
 
+  const navigateToCreatePost = () => {
+    navigation.navigate("CreatePost", { userId });
+  };
+
+  const navigateToPostList = () => {
+    navigation.navigate("PostList", { userId });
+  };
+
   const renderHeader = () => (
     <View>
       <View style={styles.header}>
         <Text style={styles.headerText}>Welcome, {userFirstName}</Text>
-        <TouchableOpacity style={styles.postButton} onPress={() => {}}>
+        <TouchableOpacity style={styles.postButton} onPress={navigateToCreatePost}>
           <Text style={styles.postButtonText}>Make a Post</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.postButton} onPress={navigateToPostList}>
+          <Text style={styles.postButtonText}>View Posts</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.location}>1095 Military Trail, Toronto, ON</Text>

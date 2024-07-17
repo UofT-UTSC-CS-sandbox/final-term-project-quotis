@@ -12,7 +12,8 @@ import CreatePost from "./components/createPost";
 import UserInfo from "./components/UserInfo";
 import ServiceSearch from "./components/ServiceSearch";
 import UserInbox from "./components/UserInbox";
-import EditUserProfile from "./components/EditUserProfile"; // Added this line
+import EditUserProfile from "./components/EditUserProfile";
+import PostList from "./components/PostList"; // Added this line
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -31,6 +32,7 @@ export default function App() {
         <Stack.Screen name="Services" component={Services} />
         <Stack.Screen name="ServiceSearch" component={ServiceSearch} />
         <Stack.Screen name="EditUserProfile" component={EditUserProfile} />
+        <Stack.Screen name="PostList" component={PostList} />
       </Stack.Navigator>
     </NavigationContainer>
   );
