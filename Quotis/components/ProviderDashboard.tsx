@@ -1,12 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import axios from "axios";
-import { Post } from "../../backend/src/models/types"; // 인터페이스 경로를 맞춰서 가져옵니다.
+import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from "../../backend/src/models/types"; 
+import { Post } from "../../backend/src/models/types"; 
+
+type ProviderDashboardRouteProp = RouteProp<RootStackParamList, 'ProviderDashboard'>;
 
 const ProviderDashboard: React.FC = () => {
+  const navigation:any = useNavigation();
+  const route = useRoute<ProviderDashboardRouteProp>();
+  const { userId } = route.params;
+
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/user/${userId}`
+        );
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+
     const fetchPosts = async () => {
       try {
         const response = await axios.get("http://localhost:3000/posts");
@@ -16,8 +34,9 @@ const ProviderDashboard: React.FC = () => {
       }
     };
 
+    fetchUserDetails();
     fetchPosts();
-  }, []);
+  }, [userId]);
 
   return (
     <View style={styles.container}>
@@ -32,6 +51,12 @@ const ProviderDashboard: React.FC = () => {
           </View>
         )}
       />
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => navigation.navigate('MyJobs', {userId: userId})}
+      >
+        <Text style={styles.buttonText}>View My Jobs</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -49,6 +74,18 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
+  },
+  button: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: "#007bff",
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

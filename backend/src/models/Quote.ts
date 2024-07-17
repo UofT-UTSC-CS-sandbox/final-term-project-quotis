@@ -7,6 +7,7 @@ export interface IQuote extends Document {
   price_estimate: string;
   status: string;
   user_id: string; // Change this to string
+  provider_id: string;
 }
 
 const QuoteSchema: Schema = new Schema({
@@ -16,6 +17,7 @@ const QuoteSchema: Schema = new Schema({
   price_estimate: { type: String, required: true },
   status: { type: String, required: true },
   user_id: { type: String, required: true }, // Change this to string
+  provider_id: { type: String, required: true },
 });
 
 export default mongoose.model<IQuote>("Quote", QuoteSchema);

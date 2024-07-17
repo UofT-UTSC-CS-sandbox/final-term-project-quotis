@@ -13,6 +13,7 @@ import UserInfo from "./components/UserInfo";
 import ServiceSearch from "./components/ServiceSearch";
 import UserInbox from "./components/UserInbox";
 import EditUserProfile from "./components/EditUserProfile"; // Added this line
+import MyJobs from "./components/MyJobs";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -31,6 +32,7 @@ export default function App() {
         <Stack.Screen name="Services" component={Services} />
         <Stack.Screen name="ServiceSearch" component={ServiceSearch} />
         <Stack.Screen name="EditUserProfile" component={EditUserProfile} />
+        <Stack.Screen name="MyJobs" component={MyJobs} />
       </Stack.Navigator>
     </NavigationContainer>
   );

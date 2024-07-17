@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { RootStackParamList } from "../../backend/src/models/types";
-import { TextInput, Button } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import styles from './ServicesSearchStyles';
 
 type ServiceSearchRouteProp = RouteProp<RootStackParamList, 'ServiceSearch'>;
@@ -25,6 +25,15 @@ const ServiceSearch: React.FC = () => {
 
   const [serviceProviders, setServiceProviders] = useState<Provider[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>(serviceType);
+  const [showFilterMenu, setShowFilterMenu] = useState<boolean>(false);
+  const providerTypes = ['Plumbing', 'Contractor', 'Electrician'];
+
+  const handleFilterPress = (filter: string) => {
+    setSelectedFilter(filter);
+    setShowFilterMenu(false); // Hide the filter menu after selecting
+    // Optionally, fetch providers based on the selected filter
+    // Implement fetch logic here
+  };
 
   useEffect(() => {
     const fetchServiceProviders = async () => {
@@ -38,28 +47,29 @@ const ServiceSearch: React.FC = () => {
 
     fetchServiceProviders();
   }, [selectedFilter]);
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.filterContainer}>
         <TouchableOpacity
           style={styles.filterButton}
-          onPress={() => setSelectedFilter('Plumbing')}
+          onPress={() => setShowFilterMenu(!showFilterMenu)}
         >
-          <Text style={styles.filterButtonText}>Plumbing</Text>
+          <Ionicons name="filter" size={24} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={() => setSelectedFilter('Contractor')}
-        >
-          <Text style={styles.filterButtonText}>Contractor</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={() => setSelectedFilter('Electrician')}
-        >
-          <Text style={styles.filterButtonText}>Electrician</Text>
-        </TouchableOpacity>
+        {showFilterMenu && (
+          <View style={styles.dropdownMenu}>
+            {providerTypes.map((type) => (
+              <TouchableOpacity
+                key={type}
+                style={styles.dropdownItem}
+                onPress={() => handleFilterPress(type)}
+              >
+                <Text style={styles.dropdownItemText}>{type}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
       {serviceProviders.length === 0 ? (
         <Text style={styles.noProvidersText}>No Available Providers</Text>

@@ -5,6 +5,7 @@ import cors from "cors";
 import User from "./models/User"; // User model import
 import Post from "./models/Post"; // Post model import
 import Provider from "./models/Provider"; // Post model import
+import Quote from "./models/Quote"; // Post model import
 import postRoutes from "./routes/posts"; // Post routes import
 import bcrypt from "bcrypt";
 import quoteRoutes from "./routes/quotes";
@@ -150,6 +151,30 @@ app.get("/providers", async (req: Request, res: Response) => {
     res.status(200).json(providers);
   } catch (error) {
     res.status(500).json({ error: "Error fetching service providers" });
+  }
+});
+
+app.get("/jobs", async (req: Request, res: Response) => {
+  const { provider_id, status } = req.query;
+
+  try {
+    const jobs = await Quote.find({ provider_id, status });
+    res.status(200).json(jobs);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching quotes", error });
+  }
+});
+
+
+app.patch('/jobs/:id', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  
+  try {
+    const updatedJob = await Quote.findByIdAndUpdate(id, { status }, { new: true });
+    res.status(200).json(updatedJob);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating job status' });
   }
 });
 
