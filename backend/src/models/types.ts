@@ -7,6 +7,8 @@ export type RootStackParamList = {
   CreatePost: undefined;
   Profile: {userId: string}; 
   UserInfo: {userId: string};
+  EditProviderProfile:{userId:string} 
+  ProviderInfo:{userId:string}
 
 };
 

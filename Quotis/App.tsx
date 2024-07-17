@@ -8,7 +8,9 @@ import ProviderDashboard from "./components/ProviderDashboard";
 import Profile from "./components/Profile";
 import { RootStackParamList } from "./../backend/src/models/types";
 import CreatePost from "./components/createPost";
-import UserInfo from "./components/UserInfo";
+import UserInfo from "./components/UserInfo"; 
+import ProviderInfo from "./components/ProviderInfo";
+import EditProvider from "./components/EditProviderInfo";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -22,7 +24,9 @@ export default function App() {
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="UserDashboard" component={UserDashboard} />
         <Stack.Screen name="ProviderDashboard" component={ProviderDashboard} />
-        <Stack.Screen name="CreatePost" component={CreatePost} />
+        <Stack.Screen name="CreatePost" component={CreatePost} /> 
+        <Stack.Screen name="ProviderInfo" component={ProviderInfo} /> 
+        <Stack.Screen name="EditProviderProfile" component={EditProvider} />
       </Stack.Navigator>
     </NavigationContainer>
   );
