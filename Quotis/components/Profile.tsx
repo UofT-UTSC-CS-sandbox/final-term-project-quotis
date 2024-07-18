@@ -1,8 +1,10 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
-import { View, Text, StyleSheet, Button, Image } from "react-native" 
-import { RootStackParamList } from "../../backend/src/models/types"; 
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Button, Image, FlatList, Alert } from "react-native"
+import { RootStackParamList, Post } from "../../backend/src/models/types";
 import { RouteProp, useRoute } from "@react-navigation/native";
+import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type ProfileRouteProp = RouteProp<RootStackParamList, "Profile">;
 
@@ -11,9 +13,35 @@ const Profile: React.FC = () => {
     const do_nothing: any = ()=> {
 
     } 
-    const navigation:any = useNavigation(); // this is just to have a short hand for the navigation 
+    const navigation: any = useNavigation(); // this is just to have a short hand for the navigation 
     const route = useRoute<ProfileRouteProp>();
     const { userId } = route.params;  
+
+    const [posts, setPosts] = useState<Post[]>([]);
+
+    useEffect(() => {
+      const fetchPosts = async () => {
+        try {
+          const token = await AsyncStorage.getItem('token');
+          if (!token) {
+            Alert.alert('Error', 'No token found');
+            return;
+          }
+
+          const response = await axios.get(`http://localhost:3000/posts/user/${userId}`, {
+            headers: {
+              'x-auth-token': token,
+            },
+          });
+          setPosts(response.data);
+        } catch (error: any) { // 타입을 any로 명시
+          console.error("Error fetching posts:", error.response ? error.response.data : error.message);
+          Alert.alert('Error', 'Failed to fetch posts');
+        }
+      };
+
+      fetchPosts();
+    }, [userId]);
 
     return(
         <View style={styles.container}> 
@@ -60,6 +88,19 @@ const Profile: React.FC = () => {
                     accessibilityLabel="Button to access Personal Info"
                 />
             </View>
+            <View style={styles.container}>
+              <Text style={styles.title}>My Posts</Text>
+              <FlatList
+                data={posts}
+                keyExtractor={(item) => item._id}
+                renderItem={({ item }) => (
+                  <View style={styles.post}>
+                    <Text>{item.title}</Text>
+                    <Text>{item.description}</Text>
+                  </View>
+                )}
+              />
+            </View>
         </View>
     );
 } 
@@ -88,7 +129,16 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-    }
+    },
+    title: {
+      fontSize: 24,
+      marginBottom: 20,
+    },
+    post: {
+      padding: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: "#ccc",
+    },
   }); 
 
   export default Profile;

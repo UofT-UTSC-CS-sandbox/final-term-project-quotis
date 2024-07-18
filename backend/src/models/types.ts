@@ -20,3 +20,12 @@ export interface Post {
   author: string;
   createdAt: string;
 }
+
+import { Request } from 'express';
+
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    // 필요한 다른 속성들 추가
+  };
+}

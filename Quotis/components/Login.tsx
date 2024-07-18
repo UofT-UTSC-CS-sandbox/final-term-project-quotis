@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Added this line to import AsyncStorage
 import styles from "./LoginRegisterStyles";
 
 const Login: React.FC = () => {
@@ -55,10 +56,12 @@ const Login: React.FC = () => {
       });
       console.log("Login response:", response.data);
       if (response.data.role === "client") {
+        await AsyncStorage.setItem('token', response.data.token); // Store the token
         navigation.navigate("UserDashboard", {
           userId: response.data.user._id,
         });
       } else {
+        await AsyncStorage.setItem('token', response.data.token); // Store the token
         navigation.navigate("ProviderDashboard", {
           userId: response.data.user._id,
         });

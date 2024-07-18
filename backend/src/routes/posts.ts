@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import AWS from 'aws-sdk';
 import Post from '../models/Post'; // Post 모델 import
 import dotenv from 'dotenv';
+import { getUserPosts, getAllPosts, likePost } from '../controller/postController'; // Removed .ts extension
+import authenticateToken from '../middleware/auth'; // Corrected import statement
 
 dotenv.config();
 
@@ -74,9 +76,9 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-router.delete('/delete-post/:id', async (req: AuthenticatedRequest, res) => {
+router.delete('/delete-post/:id', async (req: AuthenticatedRequest & Request, res) => {
   const { id } = req.params;
-  const userId = req.user?.id; // 사용자 인증 후 사용자 ID 추출
+  const userId = req.user?.id; // 사용자 인증 후 사자 ID 추출
 
   try {
     const post = await Post.findById(id);
@@ -93,11 +95,16 @@ router.delete('/delete-post/:id', async (req: AuthenticatedRequest, res) => {
   }
 });
 
-// 모든 포스트 가져오기 엔드포인트
-router.get('/', async (req: Request, res: Response) => {
+// 모든 포트 가져오 엔드포인트
+router.get('/', authenticateToken, getAllPosts);
+
+// 유저의 포스트 가져오기 엔드포인트
+router.get('/user/:userId', authenticateToken, getUserPosts);
+
+// 좋아요 추가 엔드포인트
+router.put('/like/:postId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const posts = await Post.find();
-    res.status(200).send(posts);
+    await likePost(req, res);
   } catch (error) {
     res.status(500).send({ error: (error as Error).message });
   }

@@ -9,6 +9,7 @@ import { RootStackParamList } from "../../backend/src/models/types";
 
 import { useNavigation } from "@react-navigation/native";
 import { formatDistanceToNow } from "date-fns"; // Import date-fns
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type UserDashboardRouteProp = RouteProp<RootStackParamList, "UserDashboard">;
 
@@ -35,7 +36,17 @@ const UserDashboard: React.FC = () => {
 
     const fetchPosts = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/posts");
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          console.error('No token found');
+          return;
+        }
+
+        const response = await axios.get(`http://localhost:3000/posts/user/${userId}`, {
+          headers: {
+            'x-auth-token': token,
+          },
+        });
         setPosts(response.data);
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -44,8 +55,19 @@ const UserDashboard: React.FC = () => {
 
     const fetchQuotes = async () => {
       try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          console.error('No token found');
+          return;
+        }
+
         const response = await axios.get(
-          `http://localhost:3000/quotes/user/${userId}`
+          `http://localhost:3000/quotes/user/${userId}`,
+          {
+            headers: {
+              'x-auth-token': token,
+            },
+          }
         );
         console.log("Fetched quotes:", response.data); // Add this line
         setQuotes(response.data);
@@ -61,9 +83,20 @@ const UserDashboard: React.FC = () => {
 
   const handleQuoteAction = async (quoteId: string, action: string) => {
     try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+
       const response = await axios.post(
         `http://localhost:3000/quotes/${quoteId}/notify`,
-        { action }
+        { action },
+        {
+          headers: {
+            'x-auth-token': token,
+          },
+        }
       );
       if (response.status === 200) {
         console.log(`Notification added for ${action} action.`);

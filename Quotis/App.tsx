@@ -13,7 +13,9 @@ import UserInfo from "./components/UserInfo";
 import ServiceSearch from "./components/ServiceSearch";
 import UserInbox from "./components/UserInbox";
 import EditUserProfile from "./components/EditUserProfile";
-import PostList from "./components/PostList"; // Added this line
+import PostList from "./components/PostList";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
