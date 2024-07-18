@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { v4 as uuidv4 } from "uuid";
 
 interface Notification {
   type: string;
@@ -33,6 +34,7 @@ const UserSchema: Schema = new Schema(
     password: { type: String, required: true },
     role: { type: String, required: true },
     notifications: [NotificationSchema],
+    uid: { type: String, default: uuidv4, unique: true }, // Unique UID field added
   },
   { timestamps: true }
 );
