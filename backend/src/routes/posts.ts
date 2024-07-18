@@ -1,19 +1,22 @@
-// src/routes/posts.ts
-import express, { Request as ExpressRequest, Response } from 'express';
-import multer from 'multer';
-import { v4 as uuidv4 } from 'uuid';
-import AWS from 'aws-sdk';
-import Post from '../models/Post'; // Post 모델 import
-import dotenv from 'dotenv';
-import { getUserPosts, getAllPosts, likePost } from '../controller/postController'; // Removed .ts extension
-import authenticateToken from '../middleware/auth'; // Corrected import statement
+import express, { Request as ExpressRequest, Response } from "express";
+import multer from "multer";
+import { v4 as uuidv4 } from "uuid";
+import AWS from "aws-sdk";
+import Post from "../models/Post"; // Post model import
+import dotenv from "dotenv";
+import {
+  getUserPosts,
+  getAllPosts,
+  likePost,
+} from "../controller/postController"; // Removed .ts extension
+import authenticateToken from "../middleware/auth"; // Corrected import statement
 
 dotenv.config();
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-// AWS S3 설정
+// AWS S3 configuration
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -22,16 +25,16 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
-// 파일 업로드 엔드포인트
-router.post('/upload', upload.single('file'), async (req, res) => {
+// File upload endpoint
+router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const file = req.file;
     if (!file) {
-      return res.status(400).send({ error: 'No file uploaded' });
+      return res.status(400).send({ error: "No file uploaded" });
     }
     const bucketName = process.env.AWS_BUCKET_NAME;
     if (!bucketName) {
-      return res.status(500).send({ error: 'Bucket name is not defined' });
+      return res.status(500).send({ error: "Bucket name is not defined" });
     }
     const fileName = `${uuidv4()}-${file.originalname}`;
     const params = {
@@ -47,8 +50,8 @@ router.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-// 포스트 생성 엔드포인트
-router.post('/create-post', async (req, res) => {
+// Post creation endpoint
+router.post("/create-post", async (req, res) => {
   try {
     const { userId, title, photoUrl, description } = req.body;
     const newPost = new Post({
@@ -65,49 +68,57 @@ router.post('/create-post', async (req, res) => {
   }
 });
 
-// DELETE /posts/:id - 포스트 삭제 엔드포인트
-// 예: 권한 검사 로직 추가
-import { Request } from 'express';
+// DELETE /posts/:id - Post deletion endpoint
+import { Request } from "express";
 
-// 사용자 인증 후 사용자 ID 추출
+// After user authentication, extract user ID
 interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
   };
 }
 
-router.delete('/delete-post/:id', async (req: AuthenticatedRequest & Request, res) => {
-  const { id } = req.params;
-  const userId = req.user?.id; // 사용자 인증 후 사자 ID 추출
+router.delete(
+  "/delete-post/:id",
+  async (req: AuthenticatedRequest & Request, res) => {
+    const { id } = req.params;
+    const userId = req.user?.id; // Extract user ID after authentication
 
-  try {
-    const post = await Post.findById(id);
-    if (!post) {
-      return res.status(404).send({ error: 'Post not found' });
+    try {
+      const post = await Post.findById(id);
+      if (!post) {
+        return res.status(404).send({ error: "Post not found" });
+      }
+      if (post.userId.toString() !== userId) {
+        return res
+          .status(403)
+          .send({ error: "Not authorized to delete this post" });
+      }
+      await Post.deleteOne({ _id: id });
+      res.status(200).send({ message: "Post deleted successfully" });
+    } catch (error) {
+      res.status(500).send({ error: "Failed to delete the post" });
     }
-    if (post.userId.toString() !== userId) {
-      return res.status(403).send({ error: 'Not authorized to delete this post' });
+  }
+);
+
+// Fetch all posts endpoint
+router.get("/", authenticateToken, getAllPosts);
+
+// Fetch user posts endpoint
+router.get("/user/:userId", authenticateToken, getUserPosts);
+
+// Add like to post endpoint
+router.put(
+  "/like/:postId",
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      await likePost(req, res);
+    } catch (error) {
+      res.status(500).send({ error: (error as Error).message });
     }
-    await Post.deleteOne({ _id: id });
-    res.status(200).send({ message: 'Post deleted successfully' });
-  } catch (error) {
-    res.status(500).send({ error: 'Failed to delete the post' });
   }
-});
-
-// 모든 포트 가져오 엔드포인트
-router.get('/', authenticateToken, getAllPosts);
-
-// 유저의 포스트 가져오기 엔드포인트
-router.get('/user/:userId', authenticateToken, getUserPosts);
-
-// 좋아요 추가 엔드포인트
-router.put('/like/:postId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    await likePost(req, res);
-  } catch (error) {
-    res.status(500).send({ error: (error as Error).message });
-  }
-});
+);
 
 export default router;

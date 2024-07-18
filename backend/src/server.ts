@@ -2,28 +2,32 @@ import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import { v4 as uuidv4 } from "uuid";
+import AWS from "aws-sdk";
+
 import User from "./models/User"; // User model import
 import Post from "./models/Post"; // Post model import
-import Provider from "./models/Provider"; // Post model import
+import Provider from "./models/Provider"; // Provider model import
 import postRoutes from "./routes/posts"; // Post routes import
-import bcrypt from "bcrypt";
 import quoteRoutes from "./routes/quotes";
-import multer from 'multer';
-import { v4 as uuidv4 } from 'uuid';
-import AWS from 'aws-sdk';
-import { generateUploadURL } from './s3';
+import { generateUploadURL } from "./s3";
+
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors()); // This setting allows POST methods from different URLs.
-app.use(bodyParser.json()); // This handles data in JSON format.
+app.use(cors());
+app.use(bodyParser.json());
 
-// AWS S3 설정
+// AWS S3 configuration
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION
+  region: process.env.AWS_REGION,
 });
 
 // Middleware to log requests and responses
@@ -63,11 +67,36 @@ app.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (user && await bcrypt.compare(password, user.password)) {
-      res.status(200).json({ message: "Login successful", role: user.role, user });
-    } else {
-      res.status(400).json({ message: "Incorrect email or password." });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
+
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { email: user.email, role: user.role },
+      process.env.JWT_SECRET || "default_secret_key",
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    console.log("Token generated and sent:", token);
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      role: user.role,
+      user: {
+        _id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error during login." });
   }
@@ -78,7 +107,14 @@ app.post("/register", async (req: Request, res: Response) => {
   const { firstName, lastName, email, password, role } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ firstName, lastName, email, password: hashedPassword, role, uid: uuidv4() });
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      role,
+      uid: uuidv4(),
+    });
     await newUser.save();
     res.status(201).json({ message: "Registration successful", user: newUser });
   } catch (error) {
@@ -87,9 +123,9 @@ app.post("/register", async (req: Request, res: Response) => {
 });
 
 // Get all posts endpoint
-app.use('/api', postRoutes); // 추가된 부분
+app.use("/api", postRoutes);
 
-app.get('/s3Url', async (req, res) => {
+app.get("/s3Url", async (req, res) => {
   try {
     const url = await generateUploadURL();
     res.send({ url });
