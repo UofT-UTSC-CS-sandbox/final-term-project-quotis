@@ -8,6 +8,7 @@ import {
   getUserPosts,
   getAllPosts,
   likePost,
+  deletePost,
 } from "../controller/postController"; // Removed .ts extension
 import authenticateToken from "../middleware/auth"; // Corrected import statement
 
@@ -80,6 +81,7 @@ interface AuthenticatedRequest extends Request {
 
 router.delete(
   "/delete-post/:id",
+  authenticateToken,
   async (req: AuthenticatedRequest & Request, res) => {
     const { id } = req.params;
     const userId = req.user?.id; // Extract user ID after authentication
@@ -120,5 +122,8 @@ router.put(
     }
   }
 );
+
+// Delete post endpoint
+router.delete("/:postId", authenticateToken, deletePost);
 
 export default router;

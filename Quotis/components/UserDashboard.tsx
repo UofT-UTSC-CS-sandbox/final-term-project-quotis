@@ -177,6 +177,31 @@ const UserDashboard: React.FC = () => {
     navigation.navigate("PostList", { userId });
   };
 
+  const handleDeletePost = async (postId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.delete(
+        `http://localhost:3000/posts/${postId}`, // postId를 사용하여 특정 게시물 삭제
+        {
+          headers: {
+            "x-auth-token": token,
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log("Post deleted successfully");
+        setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
+  };
+
   const renderHeader = () => (
     <View>
       <View style={styles.header}>
@@ -211,6 +236,12 @@ const UserDashboard: React.FC = () => {
           <Text>{post.description}</Text>
           <TouchableOpacity style={styles.viewButton} onPress={() => {}}>
             <Text style={styles.viewButtonText}>View full post</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ backgroundColor: 'red', padding: 10, borderRadius: 5, alignItems: 'center', marginTop: 10 }}
+            onPress={() => handleDeletePost(post._id)}
+          >
+            <Text style={{ color: 'white', fontWeight: 'bold' }}>Delete</Text>
           </TouchableOpacity>
         </View>
       ))}
