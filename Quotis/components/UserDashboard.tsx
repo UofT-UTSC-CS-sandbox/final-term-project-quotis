@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, Button, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, Button, FlatList, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
 import axios from "axios";
 import { Post } from "../../backend/src/models/Post"; // Adjust the import path as needed
 import { FontAwesome } from "@expo/vector-icons"; // You may need to install this package
@@ -12,10 +12,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type UserDashboardRouteProp = RouteProp<RootStackParamList, "UserDashboard">;
 
+
 const UserDashboard: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [userFirstName, setUserFirstName] = useState<string>("");
   const [quotes, setQuotes] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
   const route = useRoute<UserDashboardRouteProp>();
 
   const { userId } = route.params; // Getting userId from route params
@@ -53,6 +55,11 @@ const UserDashboard: React.FC = () => {
       console.error("Error fetching posts:", error);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchPosts().then(() => setRefreshing(false));
+  }, []);
 
   const fetchQuotes = async () => {
     try {
@@ -239,24 +246,31 @@ const UserDashboard: React.FC = () => {
         </TouchableOpacity>
       </View>
       <Text style={styles.sectionHeader}>Current Posts</Text>
-      {posts.map((post) => (
-        <View key={post._id.toString()} style={styles.post}>
-          <Text style={styles.postTitle}>{post.title}</Text>
-          <Text>{post.description}</Text>
-          <TouchableOpacity
-            style={styles.viewButton}
-            onPress={() => navigateToUserPost(post._id.toString(), userId)}
-          >
-            <Text style={styles.viewButtonText}>View full post</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ backgroundColor: 'red', padding: 10, borderRadius: 5, alignItems: 'center', marginTop: 10 }}
-            onPress={() => handleDeletePost(post._id.toString())} // Convert ObjectId to string
-          >
-            <Text style={{ color: 'white', fontWeight: 'bold' }}>Delete</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
+      <ScrollView 
+        horizontal 
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {posts.map((post) => (
+          <View key={post._id.toString()} style={styles.post}>
+            <Text style={styles.postTitle}>{post.title}</Text>
+            <Text>{post.description}</Text>
+            <TouchableOpacity
+              style={styles.viewButton}
+              onPress={() => navigateToUserPost(post._id.toString(), userId)}
+            >
+              <Text style={styles.viewButtonText}>View full post</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{ backgroundColor: 'red', padding: 10, borderRadius: 5, alignItems: 'center', marginTop: 10 }}
+              onPress={() => handleDeletePost(post._id.toString())}
+            >
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
       <Text style={[styles.sectionHeader, { marginBottom: 20 }]}>Quotes</Text>
     </View>
   );
