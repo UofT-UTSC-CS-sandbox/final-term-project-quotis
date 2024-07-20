@@ -7,6 +7,7 @@ import { RootStackParamList } from "../../backend/src/models/types";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import * as ImageManipulator from 'expo-image-manipulator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type CreatePostRouteProp = RouteProp<RootStackParamList, "CreatePost">;
 type NavigationProp = StackNavigationProp<RootStackParamList, "CreatePost">;
@@ -114,7 +115,8 @@ const CreatePost: React.FC = () => {
             title: title,
             photoUrl: imageUrl,
             description: description,
-          });
+          }, 
+          );
           
           Alert.alert('Success', 'Post created successfully!');
           setPhotoUri(null);
