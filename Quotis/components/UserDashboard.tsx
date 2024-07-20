@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, Button, FlatList, TouchableOpacity } from "react-native";
 import axios from "axios";
 import { Post } from "../../backend/src/models/Post"; // Adjust the import path as needed
 import { FontAwesome } from "@expo/vector-icons"; // You may need to install this package
 import styles from "./UserDashboardStyles"; // Import styles from the new file
-import { useRoute, RouteProp } from "@react-navigation/native";
+import { useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
-
 import { useNavigation } from "@react-navigation/native";
 import { formatDistanceToNow } from "date-fns"; // Import date-fns
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -22,67 +21,73 @@ const UserDashboard: React.FC = () => {
   const { userId } = route.params; // Getting userId from route params
   const navigation: any = useNavigation();
 
+  const fetchUserDetails = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/user/${userId}`
+      );
+      setUserFirstName(response.data.firstName); // Update to set first name
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
+
+  const fetchPosts = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.get(
+        `http://localhost:3000/posts/user/${userId}`,
+        {
+          headers: {
+            "x-auth-token": token,
+          },
+        }
+      );
+      setPosts(response.data); //나중에 여기에 포스트 블록구현
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
+
+  const fetchQuotes = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.get(
+        `http://localhost:3000/quotes/user/${userId}`,
+        {
+          headers: {
+            "x-auth-token": token,
+          },
+        }
+      );
+      console.log("Fetched quotes:", response.data); // Add this line
+      setQuotes(response.data);
+    } catch (error) {
+      console.error("Error fetching quotes:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
-        );
-        setUserFirstName(response.data.firstName); // Update to set first name
-      } catch (error) {
-        console.error("Error fetching user details:", error);
-      }
-    };
-
-    const fetchPosts = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
-
-        const response = await axios.get(
-          `http://localhost:3000/posts/user/${userId}`,
-          {
-            headers: {
-              "x-auth-token": token,
-            },
-          }
-        );
-        setPosts(response.data); //나중에 여기에 포스트 블록구현
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      }
-    };
-
-    const fetchQuotes = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
-
-        const response = await axios.get(
-          `http://localhost:3000/quotes/user/${userId}`,
-          {
-            headers: {
-              "x-auth-token": token,
-            },
-          }
-        );
-        console.log("Fetched quotes:", response.data); // Add this line
-        setQuotes(response.data);
-      } catch (error) {
-        console.error("Error fetching quotes:", error);
-      }
-    };
-
     fetchUserDetails();
     fetchPosts();
     fetchQuotes();
   }, [userId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPosts();
+    }, [userId])
+  );
 
   const handleQuoteAction = async (quoteId: string, action: string) => {
     try {

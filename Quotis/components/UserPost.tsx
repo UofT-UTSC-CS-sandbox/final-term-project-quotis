@@ -10,13 +10,14 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import * as ImageManipulator from 'expo-image-manipulator';
 
 type UserPostRouteProp = RouteProp<RootStackParamList, "UserPost">;
+type NavigationProp = StackNavigationProp<RootStackParamList, "UserPost">;
 
 const UserPost: React.FC = () => {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
 
   const route = useRoute<UserPostRouteProp>();
   const [post, setPost] = useState<Post | null>(null);
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const { postId, userId } = route.params;
 
   const [title, setTitle] = useState<string>("");
@@ -120,9 +121,10 @@ const UserPost: React.FC = () => {
               description: description,
             });
             
-            Alert.alert('Success', 'Post update successfully!');
+            Alert.alert('Success', 'Post updated successfully!');
+            navigation.navigate("UserDashboard", { userId });
           } catch (error) {
-            console.error('Error update post:', error);
+            console.error('Error updating post:', error);
             Alert.alert('Error', 'Failed to update post.');
           }
         }
