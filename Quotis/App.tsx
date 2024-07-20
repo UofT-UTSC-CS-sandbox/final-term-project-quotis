@@ -15,6 +15,8 @@ import ServiceSearch from "./components/ServiceSearch";
 import UserInbox from "./components/UserInbox";
 import EditUserProfile from "./components/EditUserProfile";
 import PostList from "./components/PostList";
+import ProviderInbox from "./components/ProviderInbox";
+import ProviderProfile from "./components/ProviderProfile";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -37,6 +39,8 @@ export default function App() {
         <Stack.Screen name="EditUserProfile" component={EditUserProfile} />
         <Stack.Screen name="PostList" component={PostList} />
         <Stack.Screen name="UserPost" component={UserPost} />
+        <Stack.Screen name="ProviderInbox" component={ProviderInbox} />
+        <Stack.Screen name="ProviderProfile" component={ProviderProfile} />
       </Stack.Navigator>
     </NavigationContainer>
   );
