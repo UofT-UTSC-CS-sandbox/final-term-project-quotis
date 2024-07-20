@@ -9,6 +9,7 @@ import { RootStackParamList } from "../../backend/src/models/types";
 import { useNavigation } from "@react-navigation/native";
 import { formatDistanceToNow } from "date-fns"; // Import date-fns
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import getTimeDuration from '../common/TimeGenerator'; // TimeGenerator imported
 
 type UserDashboardRouteProp = RouteProp<RootStackParamList, "UserDashboard">;
 
@@ -256,6 +257,7 @@ const UserDashboard: React.FC = () => {
           <View key={post._id.toString()} style={styles.post}>
             <Text style={styles.postTitle}>{post.title}</Text>
             <Text>{post.description}</Text>
+            <Text>{getTimeDuration(new Date(post.createdAt))} ago</Text> {/* 포스트 생성 시간 표시 */}
             <TouchableOpacity
               style={styles.viewButton}
               onPress={() => navigateToUserPost(post._id.toString(), userId)}
