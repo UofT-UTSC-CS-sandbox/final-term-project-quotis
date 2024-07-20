@@ -21,8 +21,7 @@ const app = express();
 const PORT = 3000;
 
 app.use(cors());
-app.use(bodyParser.json({ limit: '10mb' })); // JSON body limit set to 10MB
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true })); // URL-encoded body limit set to 10MB
+app.use(bodyParser.json());
 
 // AWS S3 configuration
 AWS.config.update({

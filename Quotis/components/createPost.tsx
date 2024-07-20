@@ -6,7 +6,6 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import * as ImageManipulator from 'expo-image-manipulator';
 
 type CreatePostRouteProp = RouteProp<RootStackParamList, "CreatePost">;
 type NavigationProp = StackNavigationProp<RootStackParamList, "CreatePost">;
@@ -43,8 +42,11 @@ const CreatePost: React.FC = () => {
       quality: 1,
     });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setPhotoUri(result.assets[0].uri);
+    if (!result.canceled) {
+      const selectedImage = result.assets[0];
+      if (selectedImage.uri) {
+        setPhotoUri(selectedImage.uri);
+      }
     }
   };
 
@@ -80,33 +82,15 @@ const CreatePost: React.FC = () => {
     }
   };
 
-  const resizeImage = async (uri: string) => {
-    try {
-      const manipResult = await ImageManipulator.manipulateAsync(
-        uri,
-        [{ resize: { width: 800 } }], // 원하는 크기로 조정
-        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-      );
-      return manipResult.uri;
-    } catch (error) {
-      console.error('Error resizing image:', error);
-      Alert.alert('Error', 'Failed to resize image.');
-      return null;
-    }
-  };
-
   const createPost = async () => {
     if (!photoUri || !title || !description) {
       Alert.alert('Error', 'Please fill in all fields and select an image.');
       return;
     }
 
-    const resizedUri = await resizeImage(photoUri);
-    if (!resizedUri) return;
-
     const uploadUrl = await getUploadUrl();
     if (uploadUrl) {
-      const imageUrl = await uploadImage(uploadUrl, resizedUri);
+      const imageUrl = await uploadImage(uploadUrl, photoUri);
       if (imageUrl) {
         try {
           await axios.post('http://localhost:3000/posts/create-post', {

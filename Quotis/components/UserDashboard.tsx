@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Button, FlatList, TouchableOpacity } from "react-native";
 import axios from "axios";
-import { Post } from "../../backend/src/models/Post"; // Adjust the import path as needed
+import { Post } from "../../backend/src/models/types"; // Adjust the import path as needed
 import { FontAwesome } from "@expo/vector-icons"; // You may need to install this package
 import styles from "./UserDashboardStyles"; // Import styles from the new file
 import { useRoute, RouteProp } from "@react-navigation/native";
@@ -50,7 +50,7 @@ const UserDashboard: React.FC = () => {
             },
           }
         );
-        setPosts(response.data); //나중에 여기에 포스트 블록구현
+        setPosts(response.data);
       } catch (error) {
         console.error("Error fetching posts:", error);
       }
@@ -177,35 +177,6 @@ const UserDashboard: React.FC = () => {
     navigation.navigate("PostList", { userId });
   };
 
-  const navigateToUserPost = (postId: string, userId: string) => {
-    navigation.navigate("UserPost", { postId, userId });
-  };
-
-  const handleDeletePost = async (postId: string) => {
-    try {
-      const token = await AsyncStorage.getItem("token");
-      if (!token) {
-        console.error("No token found");
-        return;
-      }
-
-      const response = await axios.delete(
-        `http://localhost:3000/posts/${postId}`,
-        {
-          headers: {
-            "x-auth-token": token,
-          },
-        }
-      );
-      if (response.status === 200) {
-        console.log("Post deleted successfully");
-        setPosts((prevPosts) => prevPosts.filter((post) => post._id.toString() !== postId));
-      }
-    } catch (error) {
-      console.error("Error deleting post:", error);
-    }
-  };
-
   const renderHeader = () => (
     <View>
       <View style={styles.header}>
@@ -235,20 +206,11 @@ const UserDashboard: React.FC = () => {
       </View>
       <Text style={styles.sectionHeader}>Current Posts</Text>
       {posts.map((post) => (
-        <View key={post._id.toString()} style={styles.post}>
+        <View key={post._id} style={styles.post}>
           <Text style={styles.postTitle}>{post.title}</Text>
           <Text>{post.description}</Text>
-          <TouchableOpacity
-            style={styles.viewButton}
-            onPress={() => navigateToUserPost(post._id.toString(), userId)}
-          >
+          <TouchableOpacity style={styles.viewButton} onPress={() => {}}>
             <Text style={styles.viewButtonText}>View full post</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ backgroundColor: 'red', padding: 10, borderRadius: 5, alignItems: 'center', marginTop: 10 }}
-            onPress={() => handleDeletePost(post._id.toString())} // Convert ObjectId to string
-          >
-            <Text style={{ color: 'white', fontWeight: 'bold' }}>Delete</Text>
           </TouchableOpacity>
         </View>
       ))}

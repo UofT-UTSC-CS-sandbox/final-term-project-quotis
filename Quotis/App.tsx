@@ -5,7 +5,6 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import UserDashboard from "./components/UserDashboard";
 import ProviderDashboard from "./components/ProviderDashboard";
-import UserPost from "./components/UserPost";
 import Profile from "./components/Profile";
 import Services from "./components/Services";
 import { RootStackParamList } from "./../backend/src/models/types";
@@ -36,7 +35,6 @@ export default function App() {
         <Stack.Screen name="ServiceSearch" component={ServiceSearch} />
         <Stack.Screen name="EditUserProfile" component={EditUserProfile} />
         <Stack.Screen name="PostList" component={PostList} />
-        <Stack.Screen name="UserPost" component={UserPost} />
       </Stack.Navigator>
     </NavigationContainer>
   );

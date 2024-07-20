@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export interface Post extends Document {
-  _id: mongoose.Schema.Types.ObjectId;
+export interface IPost extends Document {
   userId: mongoose.Schema.Types.ObjectId; // 사용자 ID 참조
   title: string;
   description: string;
@@ -11,7 +10,6 @@ export interface Post extends Document {
 }
 
 const PostSchema = new Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
@@ -20,4 +18,4 @@ const PostSchema = new Schema({
   likes: { type: Number, default: 0 } // 좋아요 수 초기값 0
 });
 
-export default mongoose.model<Post>('Post', PostSchema);
+export default mongoose.model<IPost>('Post', PostSchema);
