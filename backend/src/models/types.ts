@@ -11,15 +11,17 @@ export type RootStackParamList = {
   ServiceSearch: { userId: number; serviceType: string };
   UserInbox: { userId: string };
   EditUserProfile: { userId: string }; // Added this line
+  UserPost: { postId: string ,userId: string };
 };
 
-export interface Post {
-  _id: string;
-  title: string;
-  description: string;
-  author: string;
-  createdAt: string;
-}
+// export interface Post {
+//   _id: string;
+//   userID: string;
+//   title: string;
+//   description: string;
+//   author: string;
+//   createdAt: string;
+// }
 
 import { Request } from 'express';
 
