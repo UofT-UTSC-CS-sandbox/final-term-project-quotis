@@ -8,12 +8,12 @@ import axios from 'axios';
 
 
 // I need to pass this page a prop of the basic info of who logged in 
-type UserInfoRouteProp = RouteProp<RootStackParamList, "UserInfo">;
+type ProviderInfoRouteProp = RouteProp<RootStackParamList, "ProviderInfo">;
 
-const UserInfo: React.FC = () => {  
+const ProviderInfo: React.FC = () => {  
   
 
-  const route = useRoute<UserInfoRouteProp>();
+  const route = useRoute<ProviderInfoRouteProp>();
   const { userId } = route.params;  
   const [email, setEmail] = useState<string>("defaultEmail");
   const [firstName, setFirstName] = useState<string>("default"); 
@@ -64,7 +64,7 @@ const UserInfo: React.FC = () => {
         <Button 
                     color={"lightblue"}
                     title="Edit Profile"
-                    onPress={()=>{navigation.navigate('EditUserProfile', {
+                    onPress={()=>{navigation.navigate('EditProviderInfo', {
                       userId: userId})}} 
                     accessibilityLabel="Button to access edit UserInfo"
                     />  
@@ -74,6 +74,15 @@ const UserInfo: React.FC = () => {
       <View style={styles.info}>
         <Text>Email   {email}</Text>
         <Text>Address   {address}</Text>  
+      </View> 
+      <View style={styles.verifybutton}>
+
+        <Button
+        color={'lightblue'}
+        title='Get Verified' 
+        onPress={()=>{navigation.navigate('Verification')}}
+        />
+
       </View>
       
     </View>
@@ -120,11 +129,14 @@ const styles = StyleSheet.create({
 },
 important: {
    fontWeight:"bold",
+}, 
+verifybutton:{ 
+    padding: 10,
 }
 });
 
 
-export default UserInfo;
+export default ProviderInfo;
 
 /*Changes to implement
 1) Make it that you can edit the information all on that page  

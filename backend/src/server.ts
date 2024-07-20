@@ -12,6 +12,7 @@ import quoteRoutes from "./routes/quotes";
 const app = express();
 const PORT = 3000;
 
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -157,7 +158,9 @@ app.get("/providers", async (req: Request, res: Response) => {
 app.use("/posts", postRoutes);
 
 // Quote routes
-app.use("/quotes", quoteRoutes);
+app.use("/quotes", quoteRoutes); 
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

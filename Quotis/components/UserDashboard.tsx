@@ -136,6 +136,17 @@ const UserDashboard: React.FC = () => {
   const renderHeader = () => (
     <View>
       <View style={styles.header}>
+      <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => {
+            navigation.navigate("Profile", {
+              userId: userId,
+            });
+          }}
+        >
+          <FontAwesome name="user" size={24} color="black" />
+          <Text>Account</Text>
+        </TouchableOpacity>
         <Text style={styles.headerText}>Welcome, {userFirstName}</Text>
         <TouchableOpacity style={styles.postButton} onPress={() => {}}>
           <Text style={styles.postButtonText}>Make a Post</Text>

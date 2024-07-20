@@ -10,6 +10,9 @@ export type RootStackParamList = {
   ServiceSearch: { userId: number; serviceType: string };
   UserInbox: { userId: string };
   EditUserProfile: { userId: string }; // Added this line
+  ProviderInfo: { userId: string };
+  Verification: undefined;
+  EditProviderInfo: {userId:string}
 };
 
 export interface Post {

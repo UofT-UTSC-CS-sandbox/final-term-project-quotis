@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
-import { View, Text, StyleSheet, Button, Image } from "react-native" 
+import { View, Text, StyleSheet, Button, Image, Dimensions } from "react-native" 
 import { RootStackParamList } from "../../backend/src/models/types"; 
 import { RouteProp, useRoute } from "@react-navigation/native";
 
@@ -28,35 +28,35 @@ const Profile: React.FC = () => {
         </View>
             <View style={styles.button_list}> 
                 <Button 
-                    color={"lighblue"}
+                    color={"lightblue"}
                     title="Personal"
                     onPress={()=>{navigation.navigate('UserInfo', {
                         userId: userId})}} // passsing userid to the user information page
                     accessibilityLabel="Button to access Personal Info"
                 /> 
                 <Button 
-                    color={"lighblue"}
+                    color={"lightblue"}
                     title="Settings" 
                     onPress={()=>{navigation.navigate('UserDashboard')}}  
                     accessibilityLabel="Button to access Settings"
                 />
                 <Button 
-                    color={"lighblue"}
-                    title="Security"
-                    onPress={do_nothing}  
+                    color={"lightblue"}
+                    title="Customer Service"
+                    onPress={()=> {navigation.navigate('CustomerService')}}  
                     accessibilityLabel="Button to access Personal Info"
                 />
                 <Button 
-                    color={"lighblue"}
+                    color={"lightblue"}
                     title="History"
                     onPress={do_nothing}  
                     accessibilityLabel="Button to access Personal Info"
                     /> 
                     
                 <Button 
-                    color={"lighblue"}
+                    color={"lightblue"}
                     title="Log-Out"
-                    onPress={do_nothing}  
+                    onPress={()=>{navigation.navigate('Login')}}  
                     accessibilityLabel="Button to access Personal Info"
                 />
             </View>
@@ -64,6 +64,7 @@ const Profile: React.FC = () => {
     );
 } 
 
+const {height, width} = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     container: {
@@ -75,8 +76,10 @@ const styles = StyleSheet.create({
         display:"flex", 
         padding: 20,
         flexDirection:"column",  
-        justifyContent:"center" , 
+        justifyContent:"space-evenly" , 
         alignItems:"center",
+      
+        height: height*0.7,
     }, 
     pfp:{ 
         display:"flex", 
