@@ -256,6 +256,11 @@ const ProviderDashboard: React.FC = () => {
           <View key={post._id.toString()} style={styles.post}>
             <Text style={styles.postTitle}>{post.title}</Text>
             <Text>{post.description}</Text>
+            <Text>
+              {formatDistanceToNow(new Date(post.createdAt), {
+                addSuffix: true,
+              })}
+            </Text>
             <TouchableOpacity
               style={styles.viewButton}
               onPress={() => navigateToUserPost(post._id.toString(), userId)}
