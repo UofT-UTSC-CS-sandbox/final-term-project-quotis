@@ -10,18 +10,21 @@ const styles = StyleSheet.create({
     paddingBottom: 80, // Add extra space to avoid content being hidden behind the navbar
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: 10,
   },
   headerText: {
     fontSize: 24,
     fontWeight: "bold",
+    marginTop: 20, // Added margin
   },
   location: {
     fontSize: 16,
     marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around", // Center buttons
+    marginBottom: 20, // Added margin
   },
   upcomingJob: {
     padding: 10,
@@ -52,11 +55,20 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
+  postContainer: {
+    flexDirection: "column", // Ensure posts are in a column
+    alignItems: "center", // Center posts horizontally
+    width: "100%",
+    alignSelf: "center",
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
   post: {
     padding: 10,
     backgroundColor: "#fff",
     borderRadius: 10,
     marginBottom: 10,
+    width: "100%", // Ensure posts take full width
   },
   postTitle: {
     fontSize: 18,
@@ -64,13 +76,29 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   viewButton: {
-    marginTop: 10,
+    marginTop: 20,
     padding: 10,
     backgroundColor: "#007bff",
     borderRadius: 5,
+    width: "80%",
+    margin: "auto",
   },
   viewButtonText: {
     color: "#fff",
+    textAlign: "center",
+  },
+  deleteButton: {
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 5,
+    alignSelf: "stretch", // Ensure button takes full width
+    marginTop: 10, // Add margin top for spacing
+    width: "80%",
+    margin: "auto",
+  },
+  deleteButtonText: {
+    color: "white",
+    fontWeight: "bold",
     textAlign: "center",
   },
   navbar: {
