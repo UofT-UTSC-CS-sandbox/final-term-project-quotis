@@ -5,6 +5,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import UserDashboard from "./components/UserDashboard";
 import ProviderDashboard from "./components/ProviderDashboard";
+import UserPost from "./components/UserPost";
 import Profile from "./components/Profile";
 import Services from "./components/Services";
 import { RootStackParamList } from "./../backend/src/models/types";
@@ -17,6 +18,8 @@ import ProviderInfo from "./components/ProviderInfo";
 import Verification from "./components/Verification";
 import EditProviderInfo from "./components/EditProviderInfo";
 import PostList from "./components/PostList";
+import ProviderInbox from "./components/ProviderInbox";
+import ProviderProfile from "./components/ProviderProfile";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -41,6 +44,9 @@ export default function App() {
         <Stack.Screen name="Verification" component={Verification} /> 
         <Stack.Screen name="EditProviderInfo" component={EditProviderInfo} />
         <Stack.Screen name="PostList" component={PostList} />
+        <Stack.Screen name="UserPost" component={UserPost} />
+        <Stack.Screen name="ProviderInbox" component={ProviderInbox} />
+        <Stack.Screen name="ProviderProfile" component={ProviderProfile} />
       </Stack.Navigator>
     </NavigationContainer>
   );

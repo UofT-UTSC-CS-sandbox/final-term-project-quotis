@@ -1,15 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Button, FlatList, TouchableOpacity } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  Button,
+  FlatList,
+  TouchableOpacity,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 import axios from "axios";
-import { Post } from "../../backend/src/models/types"; // Adjust the import path as needed
+import { Post } from "../../backend/src/models/Post"; // Adjust the import path as needed
 import { FontAwesome } from "@expo/vector-icons"; // You may need to install this package
 import styles from "./UserDashboardStyles"; // Import styles from the new file
-import { useRoute, RouteProp } from "@react-navigation/native";
+import { useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
-
 import { useNavigation } from "@react-navigation/native";
-import { formatDistanceToNow } from "date-fns"; // Import date-fns
+import { formatDistanceToNow, max } from "date-fns"; // Import date-fns
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FullWindowOverlay } from "react-native-screens";
 
 type UserDashboardRouteProp = RouteProp<RootStackParamList, "UserDashboard">;
 
@@ -17,72 +25,82 @@ const UserDashboard: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [userFirstName, setUserFirstName] = useState<string>("");
   const [quotes, setQuotes] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
   const route = useRoute<UserDashboardRouteProp>();
 
   const { userId } = route.params; // Getting userId from route params
   const navigation: any = useNavigation();
 
+  const fetchUserDetails = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/user/${userId}`);
+      setUserFirstName(response.data.firstName); // Update to set first name
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
+
+  const fetchPosts = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.get(
+        `http://localhost:3000/posts/user/${userId}`,
+        {
+          headers: {
+            "x-auth-token": token,
+          },
+        }
+      );
+      setPosts(response.data); //나중에 여기에 포스트 블록구현
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchPosts().then(() => setRefreshing(false));
+  }, []);
+
+  const fetchQuotes = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.get(
+        `http://localhost:3000/quotes/user/${userId}`,
+        {
+          headers: {
+            "x-auth-token": token,
+          },
+        }
+      );
+      console.log("Fetched quotes:", response.data); // Add this line
+      setQuotes(response.data);
+    } catch (error) {
+      console.error("Error fetching quotes:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
-        );
-        setUserFirstName(response.data.firstName); // Update to set first name
-      } catch (error) {
-        console.error("Error fetching user details:", error);
-      }
-    };
-
-    const fetchPosts = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
-
-        const response = await axios.get(
-          `http://localhost:3000/posts/user/${userId}`,
-          {
-            headers: {
-              "x-auth-token": token,
-            },
-          }
-        );
-        setPosts(response.data);
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      }
-    };
-
-    const fetchQuotes = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
-
-        const response = await axios.get(
-          `http://localhost:3000/quotes/user/${userId}`,
-          {
-            headers: {
-              "x-auth-token": token,
-            },
-          }
-        );
-        console.log("Fetched quotes:", response.data); // Add this line
-        setQuotes(response.data);
-      } catch (error) {
-        console.error("Error fetching quotes:", error);
-      }
-    };
-
     fetchUserDetails();
     fetchPosts();
     fetchQuotes();
   }, [userId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPosts();
+    }, [userId])
+  );
 
   const handleQuoteAction = async (quoteId: string, action: string) => {
     try {
@@ -177,10 +195,54 @@ const UserDashboard: React.FC = () => {
     navigation.navigate("PostList", { userId });
   };
 
+  const navigateToUserPost = (postId: string, userId: string) => {
+    navigation.navigate("UserPost", { postId, userId });
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.delete(
+        `http://localhost:3000/posts/${postId}`,
+        {
+          headers: {
+            "x-auth-token": token,
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log("Post deleted successfully");
+        setPosts((prevPosts) =>
+          prevPosts.filter((post) => post._id.toString() !== postId)
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
+  };
+
   const renderHeader = () => (
     <View>
       <View style={styles.header}>
         <Text style={styles.headerText}>Welcome, {userFirstName}</Text>
+      </View>
+      <Text style={styles.location}>1095 Military Trail, Toronto, ON</Text>
+
+      <View style={styles.upcomingJob}>
+        <Text style={styles.upcomingJobText}>
+          You have an upcoming electrical job in:
+        </Text>
+        <Text style={styles.jobTime}>3 days: 2 hrs: 25 min</Text>
+        <TouchableOpacity style={styles.jobButton} onPress={() => {}}>
+          <Text style={styles.jobButtonText}>View job details</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.postButton}
           onPress={navigateToCreatePost}
@@ -194,26 +256,34 @@ const UserDashboard: React.FC = () => {
           <Text style={styles.postButtonText}>View Posts</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.location}>1095 Military Trail, Toronto, ON</Text>
-      <View style={styles.upcomingJob}>
-        <Text style={styles.upcomingJobText}>
-          You have an upcoming electrical job in:
-        </Text>
-        <Text style={styles.jobTime}>3 days: 2 hrs: 25 min</Text>
-        <TouchableOpacity style={styles.jobButton} onPress={() => {}}>
-          <Text style={styles.jobButtonText}>View job details</Text>
-        </TouchableOpacity>
-      </View>
+
       <Text style={styles.sectionHeader}>Current Posts</Text>
-      {posts.map((post) => (
-        <View key={post._id} style={styles.post}>
-          <Text style={styles.postTitle}>{post.title}</Text>
-          <Text>{post.description}</Text>
-          <TouchableOpacity style={styles.viewButton} onPress={() => {}}>
-            <Text style={styles.viewButtonText}>View full post</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
+      <ScrollView
+        horizontal
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        contentContainerStyle={styles.postContainer} // Add this line
+      >
+        {posts.map((post) => (
+          <View key={post._id.toString()} style={styles.post}>
+            <Text style={styles.postTitle}>{post.title}</Text>
+            <Text>{post.description}</Text>
+            <TouchableOpacity
+              style={styles.viewButton}
+              onPress={() => navigateToUserPost(post._id.toString(), userId)}
+            >
+              <Text style={styles.viewButtonText}>View full post</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteButton} // Updated style
+              onPress={() => handleDeletePost(post._id.toString())}
+            >
+              <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
       <Text style={[styles.sectionHeader, { marginBottom: 20 }]}>Quotes</Text>
     </View>
   );
