@@ -13,7 +13,10 @@ import CreatePost from "./components/createPost";
 import UserInfo from "./components/UserInfo";
 import ServiceSearch from "./components/ServiceSearch";
 import UserInbox from "./components/UserInbox";
-import EditUserProfile from "./components/EditUserProfile";
+import EditUserProfile from "./components/EditUserProfile"; // Added this line
+import ProviderInfo from "./components/ProviderInfo";
+import Verification from "./components/Verification";
+import EditProviderInfo from "./components/EditProviderInfo";
 import PostList from "./components/PostList";
 import ProviderInbox from "./components/ProviderInbox";
 import ProviderProfile from "./components/ProviderProfile";
@@ -36,7 +39,10 @@ export default function App() {
         <Stack.Screen name="CreatePost" component={CreatePost} />
         <Stack.Screen name="Services" component={Services} />
         <Stack.Screen name="ServiceSearch" component={ServiceSearch} />
-        <Stack.Screen name="EditUserProfile" component={EditUserProfile} />
+        <Stack.Screen name="EditUserProfile" component={EditUserProfile} /> 
+        <Stack.Screen name="ProviderInfo" component={ProviderInfo} />
+        <Stack.Screen name="Verification" component={Verification} /> 
+        <Stack.Screen name="EditProviderInfo" component={EditProviderInfo} />
         <Stack.Screen name="PostList" component={PostList} />
         <Stack.Screen name="UserPost" component={UserPost} />
         <Stack.Screen name="ProviderInbox" component={ProviderInbox} />

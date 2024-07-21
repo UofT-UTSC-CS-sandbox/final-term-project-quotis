@@ -20,6 +20,7 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
+
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' })); // JSON body limit set to 10MB
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true })); // URL-encoded body limit set to 10MB
@@ -123,6 +124,24 @@ app.post("/register", async (req: Request, res: Response) => {
   }
 });
 
+//Update User information endpoint
+app.put("/update/:id", async (req: Request, res: Response) => {
+  const updatedData = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatedData },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).send({ message: "User to update not found" });
+    }
+    res.status(200).json({ message: "Update Successful", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating user", error });
+  }
+});
+
 // Get all posts endpoint
 app.use("/api", postRoutes);
 
@@ -169,7 +188,9 @@ app.get("/providers", async (req: Request, res: Response) => {
 app.use("/posts", postRoutes);
 
 // Quote routes
-app.use("/quotes", quoteRoutes);
+app.use("/quotes", quoteRoutes); 
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

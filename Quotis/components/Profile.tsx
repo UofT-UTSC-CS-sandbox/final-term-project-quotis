@@ -8,6 +8,7 @@ import {
   Image,
   FlatList,
   Alert,
+  Dimensions
 } from "react-native";
 import { RootStackParamList, Post } from "../../backend/src/models/types";
 import { RouteProp, useRoute } from "@react-navigation/native";
@@ -68,7 +69,7 @@ const Profile: React.FC = () => {
       </View>
       <View style={styles.button_list}>
         <Button
-          color={"lighblue"}
+          color={"blue"}
           title="Personal"
           onPress={() => {
             navigation.navigate("UserInfo", {
@@ -77,83 +78,51 @@ const Profile: React.FC = () => {
           }} // passsing userid to the user information page
           accessibilityLabel="Button to access Personal Info"
         />
-        <Button
-          color={"lighblue"}
-          title="Settings"
-          onPress={() => {
-            navigation.navigate("UserDashboard");
-          }}
-          accessibilityLabel="Button to access Settings"
+        <Button 
+                color={"blue"}
+                title="Customer Service"
+                onPress={()=> {navigation.navigate('CustomerService')}}  
+                accessibilityLabel="Button to access Personal Info"
         />
         <Button
-          color={"lighblue"}
-          title="Security"
-          onPress={do_nothing}
-          accessibilityLabel="Button to access Personal Info"
-        />
-        <Button
-          color={"lighblue"}
-          title="History"
-          onPress={do_nothing}
-          accessibilityLabel="Button to access Personal Info"
-        />
-
-        <Button
-          color={"lighblue"}
+          color={"blue"}
           title="Log-Out"
-          onPress={do_nothing}
+          onPress={()=>{navigation.naviagate('Login')}}
           accessibilityLabel="Button to access Personal Info"
+        
         />
-      </View>
-      <View style={styles.container}>
-        <Text style={styles.title}>My Posts</Text>
-        <FlatList
-          data={posts}
-          keyExtractor={(item) => item._id}
-          renderItem={({ item }) => (
-            <View style={styles.post}>
-              <Text>{item.title}</Text>
-              <Text>{item.description}</Text>
+        </View>
+           
             </View>
-          )}
-        />
-      </View>
-    </View>
-  );
-};
+    );
+} 
+
+const {height, width} = Dimensions.get('window');
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "lightblue",
-  },
-  button_list: {
-    display: "flex",
-    padding: 20,
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  pfp: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  post: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-});
+    container: {
+      flex: 1,
+      padding: 20,
+    }, 
+    button_list: { 
+        display:"flex", 
+        padding: 20,
+        flexDirection:"column",  
+        justifyContent:"space-evenly" , 
+        alignItems:"center",
+        height: height*0.7,
+        minWidth: width*0.4,
+    }, 
+    pfp:{ 
+        display:"flex", 
+        justifyContent:"center", 
+        alignItems:"center",
+    }, 
+    image:{ 
+            width: 50,
+            height: 50,
+    
+    },
+})
 
 export default Profile;

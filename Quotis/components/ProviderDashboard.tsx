@@ -13,6 +13,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 type ProviderDashboardRouteProp = RouteProp<RootStackParamList, "ProviderDashboard">;
 
 
+import { useNavigation } from "@react-navigation/native";
+
+type UserDashboardRouteProp = RouteProp<RootStackParamList, "ProviderDashboard">;
 const ProviderDashboard: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [userFirstName, setUserFirstName] = useState<string>("");
@@ -333,3 +336,4 @@ const ProviderDashboard: React.FC = () => {
 };
 
 export default ProviderDashboard;
+

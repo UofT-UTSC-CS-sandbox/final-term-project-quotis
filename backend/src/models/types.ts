@@ -11,10 +11,14 @@ export type RootStackParamList = {
   ServiceSearch: { userId: number; serviceType: string };
   UserInbox: { userId: string };
   EditUserProfile: { userId: string }; // Added this line
-  UserPost: { postId: string ,userId: string };
+  ProviderInfo: { userId: string };
+  Verification: undefined;
+  EditProviderInfo: { userId: string };
+  UserPost: { postId: string, userId: string };
   ProviderProfile: { userId: string };
   ProviderInbox: { userId: string };
 };
+
 //this may not use.
 export interface Post {
   _id: string;
