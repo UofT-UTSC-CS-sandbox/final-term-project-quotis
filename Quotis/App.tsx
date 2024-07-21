@@ -16,6 +16,9 @@ import EditUserProfile from "./components/EditUserProfile"; // Added this line
 import ProviderInfo from "./components/ProviderInfo";
 import Verification from "./components/Verification";
 import EditProviderInfo from "./components/EditProviderInfo";
+import PostList from "./components/PostList";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -37,7 +40,7 @@ export default function App() {
         <Stack.Screen name="ProviderInfo" component={ProviderInfo} />
         <Stack.Screen name="Verification" component={Verification} /> 
         <Stack.Screen name="EditProviderInfo" component={EditProviderInfo} />
-
+        <Stack.Screen name="PostList" component={PostList} />
       </Stack.Navigator>
     </NavigationContainer>
   );
