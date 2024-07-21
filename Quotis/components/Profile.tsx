@@ -69,7 +69,7 @@ const Profile: React.FC = () => {
       </View>
       <View style={styles.button_list}>
         <Button
-          color={"lighblue"}
+          color={"blue"}
           title="Personal"
           onPress={() => {
             navigation.navigate("UserInfo", {
@@ -78,62 +78,22 @@ const Profile: React.FC = () => {
           }} // passsing userid to the user information page
           accessibilityLabel="Button to access Personal Info"
         />
-        <Button
-          color={"lighblue"}
-          title="Settings"
-          onPress={() => {
-            navigation.navigate("UserDashboard");
-          }}
-          accessibilityLabel="Button to access Settings"
+        <Button 
+                color={"blue"}
+                title="Customer Service"
+                onPress={()=> {navigation.navigate('CustomerService')}}  
+                accessibilityLabel="Button to access Personal Info"
         />
         <Button
-          color={"lighblue"}
-          title="Security"
-          onPress={do_nothing}
+          color={"blue"}
+          title="Log-Out"
+          onPress={()=>{navigation.naviagate('Login')}}
           accessibilityLabel="Button to access Personal Info"
-        />
-        <Button
-          color={"lighblue"}
-          title="History"
-          onPress={do_nothing}
-          accessibilityLabel="Button to access Personal Info"
+        
         />
         </View>
-            <View style={styles.button_list}> 
-                <Button 
-                    color={"lightblue"}
-                    title="Personal"
-                    onPress={()=>{navigation.navigate('UserInfo', {
-                        userId: userId})}} // passsing userid to the user information page
-                    accessibilityLabel="Button to access Personal Info"
-                /> 
-                <Button 
-                    color={"lightblue"}
-                    title="Settings" 
-                    onPress={()=>{navigation.navigate('UserDashboard')}}  
-                    accessibilityLabel="Button to access Settings"
-                />
-                <Button 
-                    color={"lightblue"}
-                    title="Customer Service"
-                    onPress={()=> {navigation.navigate('CustomerService')}}  
-                    accessibilityLabel="Button to access Personal Info"
-                />
-                <Button 
-                    color={"lightblue"}
-                    title="History"
-                    onPress={do_nothing}  
-                    accessibilityLabel="Button to access Personal Info"
-                    /> 
-                    
-                <Button 
-                    color={"lightblue"}
-                    title="Log-Out"
-                    onPress={()=>{navigation.navigate('Login')}}  
-                    accessibilityLabel="Button to access Personal Info"
-                />
+           
             </View>
-        </View>
     );
 } 
 
@@ -143,7 +103,6 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       padding: 20,
-      backgroundColor: "lightblue",
     }, 
     button_list: { 
         display:"flex", 
@@ -151,8 +110,8 @@ const styles = StyleSheet.create({
         flexDirection:"column",  
         justifyContent:"space-evenly" , 
         alignItems:"center",
-      
         height: height*0.7,
+        minWidth: width*0.4,
     }, 
     pfp:{ 
         display:"flex", 
