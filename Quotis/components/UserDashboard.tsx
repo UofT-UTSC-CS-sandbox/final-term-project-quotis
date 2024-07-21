@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, Button, FlatList, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  FlatList,
+  TouchableOpacity,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 import axios from "axios";
 import { Post } from "../../backend/src/models/Post"; // Adjust the import path as needed
 import { FontAwesome } from "@expo/vector-icons"; // You may need to install this package
@@ -7,11 +15,11 @@ import styles from "./UserDashboardStyles"; // Import styles from the new file
 import { useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
 import { useNavigation } from "@react-navigation/native";
-import { formatDistanceToNow } from "date-fns"; // Import date-fns
+import { formatDistanceToNow, max } from "date-fns"; // Import date-fns
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FullWindowOverlay } from "react-native-screens";
 
 type UserDashboardRouteProp = RouteProp<RootStackParamList, "UserDashboard">;
-
 
 const UserDashboard: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -25,9 +33,7 @@ const UserDashboard: React.FC = () => {
 
   const fetchUserDetails = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:3000/user/${userId}`
-      );
+      const response = await axios.get(`http://localhost:3000/user/${userId}`);
       setUserFirstName(response.data.firstName); // Update to set first name
     } catch (error) {
       console.error("Error fetching user details:", error);
@@ -211,7 +217,9 @@ const UserDashboard: React.FC = () => {
       );
       if (response.status === 200) {
         console.log("Post deleted successfully");
-        setPosts((prevPosts) => prevPosts.filter((post) => post._id.toString() !== postId));
+        setPosts((prevPosts) =>
+          prevPosts.filter((post) => post._id.toString() !== postId)
+        );
       }
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -222,6 +230,19 @@ const UserDashboard: React.FC = () => {
     <View>
       <View style={styles.header}>
         <Text style={styles.headerText}>Welcome, {userFirstName}</Text>
+      </View>
+      <Text style={styles.location}>1095 Military Trail, Toronto, ON</Text>
+
+      <View style={styles.upcomingJob}>
+        <Text style={styles.upcomingJobText}>
+          You have an upcoming electrical job in:
+        </Text>
+        <Text style={styles.jobTime}>3 days: 2 hrs: 25 min</Text>
+        <TouchableOpacity style={styles.jobButton} onPress={() => {}}>
+          <Text style={styles.jobButtonText}>View job details</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.postButton}
           onPress={navigateToCreatePost}
@@ -235,22 +256,14 @@ const UserDashboard: React.FC = () => {
           <Text style={styles.postButtonText}>View Posts</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.location}>1095 Military Trail, Toronto, ON</Text>
-      <View style={styles.upcomingJob}>
-        <Text style={styles.upcomingJobText}>
-          You have an upcoming electrical job in:
-        </Text>
-        <Text style={styles.jobTime}>3 days: 2 hrs: 25 min</Text>
-        <TouchableOpacity style={styles.jobButton} onPress={() => {}}>
-          <Text style={styles.jobButtonText}>View job details</Text>
-        </TouchableOpacity>
-      </View>
+
       <Text style={styles.sectionHeader}>Current Posts</Text>
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        contentContainerStyle={styles.postContainer} // Add this line
       >
         {posts.map((post) => (
           <View key={post._id.toString()} style={styles.post}>
@@ -263,10 +276,10 @@ const UserDashboard: React.FC = () => {
               <Text style={styles.viewButtonText}>View full post</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ backgroundColor: 'red', padding: 10, borderRadius: 5, alignItems: 'center', marginTop: 10 }}
+              style={styles.deleteButton} // Updated style
               onPress={() => handleDeletePost(post._id.toString())}
             >
-              <Text style={{ color: 'white', fontWeight: 'bold' }}>Delete</Text>
+              <Text style={styles.deleteButtonText}>Delete</Text>
             </TouchableOpacity>
           </View>
         ))}
