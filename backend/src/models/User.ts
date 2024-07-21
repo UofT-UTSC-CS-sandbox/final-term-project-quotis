@@ -12,7 +12,6 @@ export interface IUser extends Document {
   lastName: string;
   email: string;
   password: string;
-  role: "client" | "provider";
   createdAt: Date;
   updatedAt: Date;
   notifications: Notification[];
@@ -31,7 +30,6 @@ const UserSchema: Schema = new Schema(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, required: true },
     notifications: [NotificationSchema],
   },
   { timestamps: true }

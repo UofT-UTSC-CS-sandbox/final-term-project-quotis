@@ -54,9 +54,11 @@ app.post("/login", async (req: Request, res: Response) => {
 
   // Check in User collection
   let user = await User.findOne({ email });
+  let role = "client";
   if (!user) {
     // If not found in User collection, check in Provider collection
     user = await Provider.findOne({ email });
+    role = "provider";
   }
 
   if (user) {
@@ -64,7 +66,7 @@ app.post("/login", async (req: Request, res: Response) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
       console.log("Password match");
-      res.status(200).json({ message: "Login successful", role: user.role, user });
+      res.status(200).json({ message: "Login successful", user, role });
     } else {
       console.log("Password mismatch");
       res.status(400).json({ message: "Incorrect email or password." });
@@ -75,48 +77,89 @@ app.post("/login", async (req: Request, res: Response) => {
   }
 });
 
-// Register endpoint
-app.post("/register", async (req: Request, res: Response) => {
-  const { firstName, lastName, email, password, role } = req.body;
+// Register user endpoint
+app.post("/register/user", async (req: Request, res: Response) => {
+  const { firstName, lastName, email, password } = req.body;
   console.log(`Received: ${JSON.stringify(req.body)}`); // Log the received data
 
-  if (!firstName || !lastName || !email || !password || !role) {
+  if (!firstName || !lastName || !email || !password) {
     return res.status(400).json({ message: "All fields are required." });
+  }
+
+  // Check if email exists in User or Provider collections
+  const userExists = await User.findOne({ email });
+  const providerExists = await Provider.findOne({ email });
+
+  if (userExists || providerExists) {
+    return res.status(400).json({ message: "Email already exists." });
   }
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
   try {
-    if (role === "client") {
-      const newUser = new User({
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        role,
-      });
-      await newUser.save();
-      res.status(201).json({ message: "Registration successful", user: newUser });
-    } else if (role === "provider") {
-      const newProvider = new Provider({
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        services: [], // Initialize with an empty services array or populate as needed
-        description: '', // Add any default value or initialize as needed
-        contact: '', // Add any default value or initialize as needed
-        postCode: '', // Add any default value or initialize as needed
-      });
-      await newProvider.save();
-      res.status(201).json({ message: "Registration successful", user: newProvider });
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+    });
+    console.log(`New user created: ${JSON.stringify(newUser)}`);
+    await newUser.save();
+    console.log("User saved successfully");
+    res.status(201).json({ message: "Registration successful", user: newUser });
+  } catch (err) {
+    console.error("Error during registration:", err); // Log the error
+    if (err instanceof Error) {
+      res.status(500).json({ message: "Failed to register user.", error: err.message });
     } else {
-      res.status(400).json({ message: "Invalid role" });
+      res.status(500).json({ message: "Failed to register user.", error: "Unknown error" });
     }
-  } catch (error) {
-    console.error("Error during registration:", error);
-    res.status(500).json({ message: "Failed to register user." });
+  }
+});
+
+// Register provider endpoint
+app.post("/register/provider", async (req: Request, res: Response) => {
+  const { firstName, lastName, email, password } = req.body;
+  console.log(`Received: ${JSON.stringify(req.body)}`); // Log the received data
+
+  if (!firstName || !lastName || !email || !password) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  // Check if email exists in User or Provider collections
+  const userExists = await User.findOne({ email });
+  const providerExists = await Provider.findOne({ email });
+
+  if (userExists || providerExists) {
+    return res.status(400).json({ message: "Email already exists." });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  try {
+    const newProvider = new Provider({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      services: [], // Initialize with an empty services array or populate as needed
+      description: '', // Add any default value or initialize as needed
+      contact: '', // Add any default value or initialize as needed
+      postCode: '', // Add any default value or initialize as needed
+    });
+    console.log(`New provider created: ${JSON.stringify(newProvider)}`);
+    await newProvider.save();
+    console.log("Provider saved successfully");
+    res.status(201).json({ message: "Registration successful", user: newProvider });
+  } catch (err) {
+    console.error("Error during registration:", err); // Log the error
+    if (err instanceof Error) {
+      res.status(500).json({ message: "Failed to register provider.", error: err.message });
+    } else {
+      res.status(500).json({ message: "Failed to register provider.", error: "Unknown error" });
+    }
   }
 });
 
@@ -133,8 +176,13 @@ app.put("/update/:id", async (req: Request, res: Response) => {
       return res.status(404).send({ message: "User to update not found" });
     }
     res.status(200).json({ message: "Update Successful", user });
-  } catch (error) {
-    res.status(500).json({ message: "Error updating user", error });
+  } catch (err) {
+    console.error("Error updating user:", err);
+    if (err instanceof Error) {
+      res.status(500).json({ message: "Error updating user", error: err.message });
+    } else {
+      res.status(500).json({ message: "Error updating user", error: "Unknown error" });
+    }
   }
 });
 
@@ -154,6 +202,7 @@ app.get("/user/:id", async (req: Request, res: Response) => {
       res.status(404).json({ message: "User not found" });
     }
   } catch (err: any) {
+    console.error("Error fetching user by ID:", err);
     res.status(500).json({ message: err.message });
   }
 });
