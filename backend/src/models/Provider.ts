@@ -9,6 +9,7 @@ interface IProvider extends Document {
   firstName: string;
   lastName: string;
   postCode: string;
+  role: "provider";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,6 +23,7 @@ const ProviderSchema: Schema = new Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   postCode: { type: String, required: false }, // Make optional
+  role: { type: String, required: true, enum: ["provider"], default: "provider" },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

@@ -5,7 +5,6 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { v4 as uuidv4 } from "uuid";
 import AWS from "aws-sdk";
 
 import User from "./models/User"; // User model import
@@ -19,7 +18,6 @@ dotenv.config();
 
 const app = express();
 const PORT = 3000;
-
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' })); // JSON body limit set to 10MB
@@ -83,37 +81,33 @@ app.post("/login", async (req: Request, res: Response) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
       console.log("Password match");
-      res.status(200).json({ message: "Login successful", user, role });
+      const token = jwt.sign(
+        { email: user.email, role: user.role },
+        process.env.JWT_SECRET || "default_secret_key",
+        { expiresIn: "1h" }
+      );
+      console.log("Token generated and sent:", token);
+      res.status(200).json({
+        message: "Login successful",
+        token,
+        role: user.role,
+        user: {
+          _id: user._id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+      });
     } else {
       console.log("Password mismatch");
       res.status(400).json({ message: "Incorrect email or password." });
     }
-
-    const token = jwt.sign(
-      { email: user.email, role: user.role },
-      process.env.JWT_SECRET || "default_secret_key",
-      {
-        expiresIn: "1h",
-      }
-    );
-
-    console.log("Token generated and sent:", token);
-
-    res.status(200).json({
-      message: "Login successful",
-      token,
-      role: user.role,
-      user: {
-        _id: user._id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error during login." });
+  } else {
+    console.log("User not found");
+    res.status(400).json({ message: "Incorrect email or password." });
   }
 });
+
 // Register user endpoint
 app.post("/register/user", async (req: Request, res: Response) => {
   const { firstName, lastName, email, password } = req.body;
@@ -135,13 +129,12 @@ app.post("/register/user", async (req: Request, res: Response) => {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   try {
-
     const newUser = new User({
       firstName,
       lastName,
       email,
       password: hashedPassword,
-
+      role: "client",
     });
     console.log(`New user created: ${JSON.stringify(newUser)}`);
     await newUser.save();
@@ -183,6 +176,7 @@ app.post("/register/provider", async (req: Request, res: Response) => {
       lastName,
       email,
       password: hashedPassword,
+      role: "provider",
       services: [], // Initialize with an empty services array or populate as needed
       description: '', // Add any default value or initialize as needed
       contact: '', // Add any default value or initialize as needed
@@ -273,8 +267,6 @@ app.use("/posts", postRoutes);
 
 // Quote routes
 app.use("/quotes", quoteRoutes); 
-
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
