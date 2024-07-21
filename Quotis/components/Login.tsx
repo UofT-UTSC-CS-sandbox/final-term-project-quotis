@@ -54,6 +54,7 @@ const Login: React.FC = () => {
         password,
       });
       console.log("Login response:", response.data);
+
       if (response.data.role === "client") {
         navigation.navigate("UserDashboard", {
           userId: response.data.user._id,
