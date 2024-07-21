@@ -8,20 +8,19 @@ import {
   Image,
   FlatList,
   Alert,
-  Dimensions
 } from "react-native";
 import { RootStackParamList, Post } from "../../backend/src/models/types";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type ProfileRouteProp = RouteProp<RootStackParamList, "Profile">;
+type ProviderProfileRouteProp = RouteProp<RootStackParamList, "ProviderProfile">;
 
-const Profile: React.FC = () => {
+const ProviderProfile: React.FC = () => {
   /*Do nothing is a void filler function for buttons that allow buttons when pressed to do nothing */
   const do_nothing: any = () => {};
   const navigation: any = useNavigation(); // this is just to have a short hand for the navigation
-  const route = useRoute<ProfileRouteProp>();
+  const route = useRoute<ProviderProfileRouteProp>();
   const { userId } = route.params;
 
   const [posts, setPosts] = useState<Post[]>([]);
@@ -69,7 +68,7 @@ const Profile: React.FC = () => {
       </View>
       <View style={styles.button_list}>
         <Button
-          color={"blue"}
+          color={"lighblue"}
           title="Personal"
           onPress={() => {
             navigation.navigate("UserInfo", {
@@ -78,51 +77,83 @@ const Profile: React.FC = () => {
           }} // passsing userid to the user information page
           accessibilityLabel="Button to access Personal Info"
         />
-        <Button 
-                color={"blue"}
-                title="Customer Service"
-                onPress={()=> {navigation.navigate('CustomerService')}}  
-                accessibilityLabel="Button to access Personal Info"
+        <Button
+          color={"lighblue"}
+          title="Settings"
+          onPress={() => {
+            navigation.navigate("ProviderProviderDashboard");
+          }}
+          accessibilityLabel="Button to access Settings"
         />
         <Button
-          color={"blue"}
-          title="Log-Out"
-          onPress={()=>{navigation.naviagate('Login')}}
+          color={"lighblue"}
+          title="Security"
+          onPress={do_nothing}
           accessibilityLabel="Button to access Personal Info"
-        
         />
-        </View>
-           
-            </View>
-    );
-} 
+        <Button
+          color={"lighblue"}
+          title="History"
+          onPress={do_nothing}
+          accessibilityLabel="Button to access Personal Info"
+        />
 
-const {height, width} = Dimensions.get('window');
+        <Button
+          color={"lighblue"}
+          title="Log-Out"
+          onPress={do_nothing}
+          accessibilityLabel="Button to access Personal Info"
+        />
+      </View>
+      <View style={styles.container}>
+        <Text style={styles.title}>My Posts</Text>
+        <FlatList
+          data={posts}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <View style={styles.post}>
+              <Text>{item.title}</Text>
+              <Text>{item.description}</Text>
+            </View>
+          )}
+        />
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 20,
-    }, 
-    button_list: { 
-        display:"flex", 
-        padding: 20,
-        flexDirection:"column",  
-        justifyContent:"space-evenly" , 
-        alignItems:"center",
-        height: height*0.7,
-        minWidth: width*0.4,
-    }, 
-    pfp:{ 
-        display:"flex", 
-        justifyContent:"center", 
-        alignItems:"center",
-    }, 
-    image:{ 
-            width: 50,
-            height: 50,
-    
-    },
-})
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: "lightblue",
+  },
+  button_list: {
+    display: "flex",
+    padding: 20,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pfp: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+  },
+  post: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+});
 
-export default Profile;
+export default ProviderProfile;

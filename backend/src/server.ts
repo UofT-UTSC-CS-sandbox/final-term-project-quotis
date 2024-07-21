@@ -2,18 +2,35 @@ import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import { v4 as uuidv4 } from "uuid";
+import AWS from "aws-sdk";
+
 import User from "./models/User"; // User model import
 import Post from "./models/Post"; // Post model import
 import Provider from "./models/Provider"; // Provider model import
 import postRoutes from "./routes/posts"; // Post routes import
-import bcrypt from "bcrypt";
 import quoteRoutes from "./routes/quotes";
+import { generateUploadURL } from "./s3";
+
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
 
+
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' })); // JSON body limit set to 10MB
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true })); // URL-encoded body limit set to 10MB
+
+// AWS S3 configuration
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
 
 // Middleware to log requests and responses
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -71,12 +88,32 @@ app.post("/login", async (req: Request, res: Response) => {
       console.log("Password mismatch");
       res.status(400).json({ message: "Incorrect email or password." });
     }
-  } else {
-    console.log("User not found");
-    res.status(400).json({ message: "Incorrect email or password." });
+
+    const token = jwt.sign(
+      { email: user.email, role: user.role },
+      process.env.JWT_SECRET || "default_secret_key",
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    console.log("Token generated and sent:", token);
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      role: user.role,
+      user: {
+        _id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error during login." });
   }
 });
-
 // Register user endpoint
 app.post("/register/user", async (req: Request, res: Response) => {
   const { firstName, lastName, email, password } = req.body;
@@ -98,11 +135,13 @@ app.post("/register/user", async (req: Request, res: Response) => {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   try {
+
     const newUser = new User({
       firstName,
       lastName,
       email,
       password: hashedPassword,
+
     });
     console.log(`New user created: ${JSON.stringify(newUser)}`);
     await newUser.save();
@@ -187,12 +226,18 @@ app.put("/update/:id", async (req: Request, res: Response) => {
 });
 
 // Get all posts endpoint
-app.get("/posts", async (req: Request, res: Response) => {
-  const posts = await Post.find();
-  res.status(200).json(posts);
+app.use("/api", postRoutes);
+
+app.get("/s3Url", async (req, res) => {
+  try {
+    const url = await generateUploadURL();
+    res.send({ url });
+  } catch (error) {
+    console.error("Error generating upload URL:", error);
+    res.status(500).send({ error: "Failed to generate upload URL" });
+  }
 });
 
-// Get user details by ID endpoint
 app.get("/user/:id", async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id);
@@ -227,7 +272,9 @@ app.get("/providers", async (req: Request, res: Response) => {
 app.use("/posts", postRoutes);
 
 // Quote routes
-app.use("/quotes", quoteRoutes);
+app.use("/quotes", quoteRoutes); 
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
