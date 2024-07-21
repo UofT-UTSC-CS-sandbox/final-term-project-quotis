@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, Button, FlatList, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  FlatList,
+  TouchableOpacity,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 import axios from "axios";
 import { Post } from "../../backend/src/models/Post"; // Adjust the import path as needed
 import { FontAwesome } from "@expo/vector-icons"; // You may need to install this package
@@ -10,12 +18,15 @@ import { useNavigation } from "@react-navigation/native";
 import { formatDistanceToNow } from "date-fns"; // Import date-fns
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type ProviderDashboardRouteProp = RouteProp<RootStackParamList, "ProviderDashboard">;
+type ProviderDashboardRouteProp = RouteProp<
+  RootStackParamList,
+  "ProviderDashboard"
+>;
 
-
-import { useNavigation } from "@react-navigation/native";
-
-type UserDashboardRouteProp = RouteProp<RootStackParamList, "ProviderDashboard">;
+type UserDashboardRouteProp = RouteProp<
+  RootStackParamList,
+  "ProviderDashboard"
+>;
 const ProviderDashboard: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [userFirstName, setUserFirstName] = useState<string>("");
@@ -28,9 +39,7 @@ const ProviderDashboard: React.FC = () => {
 
   const fetchUserDetails = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:3000/user/${userId}`
-      );
+      const response = await axios.get(`http://localhost:3000/user/${userId}`);
       setUserFirstName(response.data.firstName); // Update to set first name
     } catch (error) {
       console.error("Error fetching user details:", error);
@@ -45,14 +54,11 @@ const ProviderDashboard: React.FC = () => {
         return;
       }
 
-      const response = await axios.get(
-        `http://localhost:3000/posts`,
-        {
-          headers: {
-            "x-auth-token": token,
-          },
-        }
-      );
+      const response = await axios.get(`http://localhost:3000/posts`, {
+        headers: {
+          "x-auth-token": token,
+        },
+      });
       setPosts(response.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -203,7 +209,6 @@ const ProviderDashboard: React.FC = () => {
     //     console.error("No token found");
     //     return;
     //   }
-
     //   const response = await axios.put(
     //     `http://localhost:3000/posts/${postId}`, //need to fix it , make it noticication goes to inbox user.
     //     {
@@ -249,8 +254,8 @@ const ProviderDashboard: React.FC = () => {
         </TouchableOpacity>
       </View>
       <Text style={styles.sectionHeader}>All Posts</Text>
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -271,10 +276,18 @@ const ProviderDashboard: React.FC = () => {
               <Text style={styles.viewButtonText}>View full post</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ backgroundColor: 'red', padding: 10, borderRadius: 5, alignItems: 'center', marginTop: 10 }}
+              style={{
+                backgroundColor: "red",
+                padding: 10,
+                borderRadius: 5,
+                alignItems: "center",
+                marginTop: 10,
+              }}
               onPress={() => handleNotificationPost(post._id.toString())}
             >
-              <Text style={{ color: 'white', fontWeight: 'bold' }}>Notification</Text>
+              <Text style={{ color: "white", fontWeight: "bold" }}>
+                Notification
+              </Text>
             </TouchableOpacity>
           </View>
         ))}
@@ -336,4 +349,3 @@ const ProviderDashboard: React.FC = () => {
 };
 
 export default ProviderDashboard;
-
