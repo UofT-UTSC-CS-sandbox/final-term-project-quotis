@@ -23,10 +23,6 @@ type ProviderDashboardRouteProp = RouteProp<
   "ProviderDashboard"
 >;
 
-type UserDashboardRouteProp = RouteProp<
-  RootStackParamList,
-  "ProviderDashboard"
->;
 const ProviderDashboard: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [userFirstName, setUserFirstName] = useState<string>("");

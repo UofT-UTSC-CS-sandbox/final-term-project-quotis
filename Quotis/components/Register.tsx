@@ -71,6 +71,7 @@ const Register: React.FC = () => {
         lastName,
         email: email.toLowerCase(),
         password,
+        role, // Include role in the request body
       });
       Alert.alert("Success", response.data.message);
       navigation.navigate("Login");

@@ -16,14 +16,15 @@ const ProviderInbox: React.FC = () => {
   const navigation: any = useNavigation();
 
   const { userId } = route.params;
+  const userType = "provider"; // Assuming the user type is 'provider'
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
+          `http://localhost:3000/notifications/${userType}/${userId}/notifications`
         );
-        setNotifications(response.data.notifications.reverse()); // Reverse the notifications array
+        setNotifications(response.data.reverse()); // Reverse the notifications array
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
@@ -36,7 +37,7 @@ const ProviderInbox: React.FC = () => {
     try {
       console.log(`Attempting to delete notification: ${notificationId}`);
       const response = await axios.delete(
-        `http://localhost:3000/quotes/user/${userId}/notifications/${notificationId}`
+        `http://localhost:3000/notifications/${userType}/${userId}/notifications/${notificationId}`
       );
       if (response.status === 200) {
         setNotifications((prevNotifications) =>

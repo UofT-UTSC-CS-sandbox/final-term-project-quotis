@@ -15,9 +15,8 @@ import styles from "./UserDashboardStyles"; // Import styles from the new file
 import { useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
 import { useNavigation } from "@react-navigation/native";
-import { formatDistanceToNow, max } from "date-fns"; // Import date-fns
+import { formatDistanceToNow } from "date-fns"; // Import date-fns
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FullWindowOverlay } from "react-native-screens";
 
 type UserDashboardRouteProp = RouteProp<RootStackParamList, "UserDashboard">;
 
@@ -56,7 +55,7 @@ const UserDashboard: React.FC = () => {
           },
         }
       );
-      setPosts(response.data); //나중에 여기에 포스트 블록구현
+      setPosts(response.data); // Update with fetched posts
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -102,7 +101,7 @@ const UserDashboard: React.FC = () => {
     }, [userId])
   );
 
-  const handleQuoteAction = async (quoteId: string, action: string) => {
+  const handleQuoteAction = async (quoteId: string, action: string, providerName: string) => {
     try {
       const token = await AsyncStorage.getItem("token");
       if (!token) {
@@ -110,9 +109,17 @@ const UserDashboard: React.FC = () => {
         return;
       }
 
+      const message = action === "accepted" 
+        ? `You have accepted a quote from ${providerName}`
+        : `You have denied a quote from ${providerName}`;
+
       const response = await axios.post(
-        `http://localhost:3000/quotes/${quoteId}/notify`,
-        { action },
+        `http://localhost:3000/notifications/client/${userId}/notify`,
+        {
+          action: "quote",
+          entityId: quoteId,
+          message,
+        },
         {
           headers: {
             "x-auth-token": token,
@@ -169,13 +176,13 @@ const UserDashboard: React.FC = () => {
               <>
                 <TouchableOpacity
                   style={styles.acceptButton}
-                  onPress={() => handleQuoteAction(quote._id, "accepted")}
+                  onPress={() => handleQuoteAction(quote._id, "accepted", quote.provider_name)}
                 >
                   <Text style={styles.buttonText}>Accept Quote</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.declineButton}
-                  onPress={() => handleQuoteAction(quote._id, "denied")}
+                  onPress={() => handleQuoteAction(quote._id, "denied", quote.provider_name)}
                 >
                   <Text style={styles.buttonText}>Decline Quote</Text>
                 </TouchableOpacity>
