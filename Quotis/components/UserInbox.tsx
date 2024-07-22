@@ -16,14 +16,15 @@ const UserInbox: React.FC = () => {
   const navigation: any = useNavigation();
 
   const { userId } = route.params;
+  const userType = "client"; // Assuming the user type is 'client', update this based on your app logic
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
+          `http://localhost:3000/notifications/${userType}/${userId}/notifications`
         );
-        setNotifications(response.data.notifications.reverse()); // Reverse the notifications array
+        setNotifications(response.data.reverse()); // Reverse the notifications array
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
@@ -36,7 +37,7 @@ const UserInbox: React.FC = () => {
     try {
       console.log(`Attempting to delete notification: ${notificationId}`);
       const response = await axios.delete(
-        `http://localhost:3000/quotes/user/${userId}/notifications/${notificationId}`
+        `http://localhost:3000/notifications/${userType}/${userId}/notifications/${notificationId}`
       );
       if (response.status === 200) {
         setNotifications((prevNotifications) =>
@@ -92,7 +93,11 @@ const UserInbox: React.FC = () => {
           <FontAwesome name="home" size={24} color="black" />
           <Text>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => {}}>
+        <TouchableOpacity style={styles.navItem} onPress={() => {
+          navigation.navigate("Services", {
+            userId: userId,
+          });
+        }}>
           <FontAwesome name="wrench" size={24} color="black" />
           <Text>Services</Text>
         </TouchableOpacity>
