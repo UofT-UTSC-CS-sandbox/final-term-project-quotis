@@ -11,6 +11,7 @@ export type RootStackParamList = {
   ServiceSearch: { userId: number; serviceType: string };
   UserInbox: { userId: string };
   EditUserProfile: { userId: string }; // Added this line
+  MyJobs: { userId: string };
   ProviderInfo: { userId: string };
   Verification: undefined;
   EditProviderInfo: { userId: string };

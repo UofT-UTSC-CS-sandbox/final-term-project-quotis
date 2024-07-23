@@ -9,11 +9,12 @@ import UserPost from "./components/UserPost";
 import Profile from "./components/Profile";
 import Services from "./components/Services";
 import { RootStackParamList } from "./../backend/src/models/types";
-import CreatePost from "./components/createPost";
+import CreatePost from "./components/CreatePost";
 import UserInfo from "./components/UserInfo";
 import ServiceSearch from "./components/ServiceSearch";
 import UserInbox from "./components/UserInbox";
-import EditUserProfile from "./components/EditUserProfile"; // Added this line
+import EditUserProfile from "./components/EditUserProfile";
+import MyJobs from "./components/MyJobs";
 import ProviderInfo from "./components/ProviderInfo";
 import Verification from "./components/Verification";
 import EditProviderInfo from "./components/EditProviderInfo";
@@ -39,9 +40,10 @@ export default function App() {
         <Stack.Screen name="CreatePost" component={CreatePost} />
         <Stack.Screen name="Services" component={Services} />
         <Stack.Screen name="ServiceSearch" component={ServiceSearch} />
-        <Stack.Screen name="EditUserProfile" component={EditUserProfile} /> 
+        <Stack.Screen name="EditUserProfile" component={EditUserProfile} />
+        <Stack.Screen name="MyJobs" component={MyJobs} />
         <Stack.Screen name="ProviderInfo" component={ProviderInfo} />
-        <Stack.Screen name="Verification" component={Verification} /> 
+        <Stack.Screen name="Verification" component={Verification} />
         <Stack.Screen name="EditProviderInfo" component={EditProviderInfo} />
         <Stack.Screen name="PostList" component={PostList} />
         <Stack.Screen name="UserPost" component={UserPost} />

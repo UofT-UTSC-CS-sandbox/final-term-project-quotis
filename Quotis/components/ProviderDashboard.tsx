@@ -24,14 +24,14 @@ type ProviderDashboardRouteProp = RouteProp<
 >;
 
 const ProviderDashboard: React.FC = () => {
+  const navigation: any = useNavigation();
+  const route = useRoute<ProviderDashboardRouteProp>();
+  const { userId } = route.params;
+
   const [posts, setPosts] = useState<Post[]>([]);
   const [userFirstName, setUserFirstName] = useState<string>("");
   const [quotes, setQuotes] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const route = useRoute<ProviderDashboardRouteProp>();
-
-  const { userId } = route.params; // Getting userId from route params
-  const navigation: any = useNavigation();
 
   const fetchUserDetails = async () => {
     try {
@@ -338,6 +338,13 @@ const ProviderDashboard: React.FC = () => {
         >
           <FontAwesome name="user" size={24} color="black" />
           <Text>Account</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.navItem} 
+          onPress={() => navigation.navigate('MyJobs', {userId: userId})}
+        >
+          <FontAwesome name="briefcase" size={24} color="black" />
+          <Text>My Jobs</Text>
         </TouchableOpacity>
       </View>
     </View>

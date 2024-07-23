@@ -5,7 +5,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { RootStackParamList } from "../../backend/src/models/types";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import styles from './ServicesStyles';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 type ServicesRouteProp = RouteProp<RootStackParamList, "Services">;
 
