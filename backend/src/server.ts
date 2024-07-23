@@ -2,6 +2,8 @@ import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
+import dotenv from "dotenv";
+import AWS from "aws-sdk";
 import User from "./models/User"; // User model import
 import Post from "./models/Post"; // Post model import
 import Provider from "./models/Provider"; // Post model import
@@ -9,12 +11,25 @@ import Quote from "./models/Quote"; // Post model import
 import postRoutes from "./routes/posts"; // Post routes import
 import bcrypt from "bcrypt";
 import quoteRoutes from "./routes/quotes";
+import loginRegisterRoutes from "./routes/loginregister";
+import notificationRoutes from "./routes/notifications"; // Import notification routes
+import { generateUploadURL } from "./s3";
+
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
+// AWS S3 configuration
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
 
 // Middleware to log requests and responses
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -25,7 +40,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     body: req.body,
   });
 
-  // Override res.send
   const originalSend = res.send;
   res.send = function (body) {
     console.log("Response object:", {
@@ -40,67 +54,16 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // MongoDB connection
+const mongoURI = process.env.DATABASE_URL;
+if (!mongoURI) {
+  throw new Error("MongoDB connection URL is missing in environment variables");
+}
 mongoose
-  .connect(
-    "mongodb+srv://mmtimbawala:aGqX6FnhbrBbP2oD@quotis.xcfhezg.mongodb.net/Quotis?retryWrites=true&w=majority&appName=QUOTIS",
-    {}
-  )
+  .connect(mongoURI, {})
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Login endpoint
-app.post("/login", async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  console.log(`Login attempt: email=${email}, password=${password}`);
-
-  const user = await User.findOne({ email });
-  if (user) {
-    console.log(`User found: ${user.email}`);
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (isMatch) {
-      console.log("Password match");
-      res
-        .status(200)
-        .json({ message: "Login successful", role: user.role, user });
-    } else {
-      console.log("Password mismatch");
-      res.status(400).json({ message: "Incorrect email or password." });
-    }
-  } else {
-    console.log("User not found");
-    res.status(400).json({ message: "Incorrect email or password." });
-  }
-});
-
-// Register endpoint
-app.post("/register", async (req: Request, res: Response) => {
-  const { firstName, lastName, email, password, role } = req.body;
-  console.log(`Received: ${JSON.stringify(req.body)}`); // Log the received data
-
-  if (!firstName || !lastName || !email || !password || !role) {
-    return res.status(400).json({ message: "All fields are required." });
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-  const newUser = new User({
-    firstName,
-    lastName,
-    email,
-    password: hashedPassword,
-    role,
-  });
-
-  try {
-    await newUser.save();
-    res.status(201).json({ message: "Registration successful", user: newUser });
-  } catch (error) {
-    console.error("Error during registration:", error);
-    res.status(500).json({ message: "Failed to register user." });
-  }
-});
-
-//Update User information endpoint
+// Update User information endpoint
 app.put("/update/:id", async (req: Request, res: Response) => {
   const updatedData = req.body;
   try {
@@ -113,18 +76,30 @@ app.put("/update/:id", async (req: Request, res: Response) => {
       return res.status(404).send({ message: "User to update not found" });
     }
     res.status(200).json({ message: "Update Successful", user });
-  } catch (error) {
-    res.status(500).json({ message: "Error updating user", error });
+  } catch (err) {
+    console.error("Error updating user:", err);
+    if (err instanceof Error) {
+      res.status(500).json({ message: "Error updating user", error: err.message });
+    } else {
+      res.status(500).json({ message: "Error updating user", error: "Unknown error" });
+    }
   }
 });
 
 // Get all posts endpoint
-app.get("/posts", async (req: Request, res: Response) => {
-  const posts = await Post.find();
-  res.status(200).json(posts);
+app.use("/api", postRoutes);
+
+app.get("/s3Url", async (req, res) => {
+  try {
+    const url = await generateUploadURL();
+    res.send({ url });
+  } catch (error) {
+    console.error("Error generating upload URL:", error);
+    res.status(500).send({ error: "Failed to generate upload URL" });
+  }
 });
 
-// Get user details by ID endpoint
+// Return the user
 app.get("/user/:id", async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id);
@@ -134,6 +109,7 @@ app.get("/user/:id", async (req: Request, res: Response) => {
       res.status(404).json({ message: "User not found" });
     }
   } catch (err: any) {
+    console.error("Error fetching user by ID:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -182,7 +158,13 @@ app.patch('/jobs/:id', async (req, res) => {
 app.use("/posts", postRoutes);
 
 // Quote routes
-app.use("/quotes", quoteRoutes);
+app.use("/quotes", quoteRoutes); 
+
+// Use loginregister routes
+app.use("/", loginRegisterRoutes);
+
+// Use notifications routes
+app.use("/notifications", notificationRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

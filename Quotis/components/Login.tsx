@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "./LoginRegisterStyles";
 
 const Login: React.FC = () => {
@@ -53,15 +54,24 @@ const Login: React.FC = () => {
         email: email.toLowerCase(),
         password,
       });
-      console.log("Login response:", response.data);
-      if (response.data.role === "client") {
-        navigation.navigate("UserDashboard", {
-          userId: response.data.user._id,
-        });
+
+      console.log("Login response:", response.data); // Log the response data
+
+      const token = response.data.token;
+      if (token) {
+        console.log("Token received:", token); // Log the token
+        await AsyncStorage.setItem("token", token); // Store the token
+        if (response.data.role === "client") {
+          navigation.navigate("UserDashboard", {
+            userId: response.data.user._id,
+          });
+        } else {
+          navigation.navigate("ProviderDashboard", {
+            userId: response.data.user._id,
+          });
+        }
       } else {
-        navigation.navigate("ProviderDashboard", {
-          userId: response.data.user._id,
-        });
+        throw new Error("Token is undefined");
       }
     } catch (error: any) {
       console.error("Error during login:", error);

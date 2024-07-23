@@ -58,15 +58,15 @@ const Services: React.FC = () => {
             <FontAwesome name="home" size={24} color="black" />
             <Text>Home</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Services', { userId: userId })}>
+          <TouchableOpacity style={styles.navItem} onPress={() => {} }>
             <FontAwesome name="wrench" size={24} color="black" />
             <Text>Services</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => {}}>
+          <TouchableOpacity style={styles.navItem} onPress={() => {navigation.navigate('UserInbox', { userId: userId })}}>
             <FontAwesome name="envelope" size={24} color="black" />
             <Text>Inbox</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile', { userId: userId })}>
+          <TouchableOpacity style={styles.navItem} onPress={() => { navigation.navigate('Profile', { userId: userId }) }}>
             <FontAwesome name="user" size={24} color="black" />
             <Text>Account</Text>
           </TouchableOpacity>

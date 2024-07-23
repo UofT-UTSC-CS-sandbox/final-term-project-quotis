@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 interface Notification {
   type: string;
-  quote_id?: string; // Make quote_id optional
+  entity_id?: string; // Rename quote_id to entity_id
   date_created: Date;
   message: string;
 }
@@ -12,15 +12,15 @@ export interface IUser extends Document {
   lastName: string;
   email: string;
   password: string;
-  role: "client" | "provider";
   createdAt: Date;
   updatedAt: Date;
   notifications: Notification[];
+  role: string; // Add the role property
 }
 
 const NotificationSchema = new Schema({
   type: { type: String, required: true },
-  quote_id: { type: String, required: false }, // Make quote_id optional
+  entity_id: { type: String, required: false }, // Rename quote_id to entity_id
   date_created: { type: Date, required: true },
   message: { type: String, required: true },
 });
@@ -31,8 +31,8 @@ const UserSchema: Schema = new Schema(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, required: true },
     notifications: [NotificationSchema],
+    role: { type: String, required: true }, // Add role to the schema
   },
   { timestamps: true }
 );
