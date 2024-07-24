@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
+import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
+import axios from "axios";
 import { RootStackParamList } from "../../backend/src/models/types";
-import styles from './MyJobsStyles';
+import styles from "./MyJobsStyles";
+import { FontAwesome } from "@expo/vector-icons"; // Import FontAwesome
 
-type MyJobsRouteProp = RouteProp<RootStackParamList, 'MyJobs'>;
+type MyJobsRouteProp = RouteProp<RootStackParamList, "MyJobs">;
 
 interface Quote {
   _id: string;
@@ -20,7 +21,7 @@ interface Quote {
 
 const MyJobs: React.FC = () => {
   const route = useRoute<MyJobsRouteProp>();
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
   const { userId } = route.params;
 
   const [acceptedQuotes, setAcceptedQuotes] = useState<Quote[]>([]);
@@ -28,22 +29,29 @@ const MyJobs: React.FC = () => {
 
   const fetchAcceptedQuotes = async () => {
     try {
-      let status = showAcceptedJobs ? 'accepted' : 'cancelled'; // Determine which status to fetch
-      const response = await axios.get(`http://localhost:3000/jobs?provider_id=${userId}&status=${status}`);
+      let status = showAcceptedJobs ? "accepted" : "cancelled"; // Determine which status to fetch
+      const response = await axios.get(
+        `http://localhost:3000/jobs?provider_id=${userId}&status=${status}`
+      );
       setAcceptedQuotes(response.data);
     } catch (error) {
-      console.error(`Error fetching ${showAcceptedJobs ? 'accepted' : 'cancelled'} quotes:`, error);
+      console.error(
+        `Error fetching ${showAcceptedJobs ? "accepted" : "cancelled"} quotes:`,
+        error
+      );
     }
   };
 
   const cancelJob = async (jobId: string) => {
     try {
-      await axios.patch(`http://localhost:3000/jobs/${jobId}`, { status: 'cancelled' });
+      await axios.patch(`http://localhost:3000/jobs/${jobId}`, {
+        status: "cancelled",
+      });
       fetchAcceptedQuotes(); // Refresh the list of accepted or cancelled quotes
-      Alert.alert('Job Cancelled', 'The job has been successfully cancelled.');
+      Alert.alert("Job Cancelled", "The job has been successfully cancelled.");
     } catch (error) {
-      console.error('Error cancelling job:', error);
-      Alert.alert('Error', 'Failed to cancel the job. Please try again later.');
+      console.error("Error cancelling job:", error);
+      Alert.alert("Error", "Failed to cancel the job. Please try again later.");
     }
   };
 
@@ -55,21 +63,43 @@ const MyJobs: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.toggleButtonContainer}>
         <TouchableOpacity
-          style={[styles.toggleButton, showAcceptedJobs ? styles.activeToggle : null]}
+          style={[
+            styles.toggleButton,
+            showAcceptedJobs ? styles.activeToggle : null,
+          ]}
           onPress={() => setShowAcceptedJobs(true)}
         >
-          <Text style={[styles.toggleButtonText, showAcceptedJobs ? styles.activeToggleText : null]}>Accepted Jobs</Text>
+          <Text
+            style={[
+              styles.toggleButtonText,
+              showAcceptedJobs ? styles.activeToggleText : null,
+            ]}
+          >
+            Accepted Jobs
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.toggleButton, !showAcceptedJobs ? styles.activeToggle : null]}
+          style={[
+            styles.toggleButton,
+            !showAcceptedJobs ? styles.activeToggle : null,
+          ]}
           onPress={() => setShowAcceptedJobs(false)}
         >
-          <Text style={[styles.toggleButtonText, !showAcceptedJobs ? styles.activeToggleText : null]}>Cancelled Jobs</Text>
+          <Text
+            style={[
+              styles.toggleButtonText,
+              !showAcceptedJobs ? styles.activeToggleText : null,
+            ]}
+          >
+            Cancelled Jobs
+          </Text>
         </TouchableOpacity>
       </View>
 
       {acceptedQuotes.length === 0 ? (
-        <Text style={styles.noJobsText}>No {showAcceptedJobs ? 'Accepted' : 'Cancelled'} Jobs</Text>
+        <Text style={styles.noJobsText}>
+          No {showAcceptedJobs ? "Accepted" : "Cancelled"} Jobs
+        </Text>
       ) : (
         <FlatList
           data={acceptedQuotes}
@@ -93,6 +123,44 @@ const MyJobs: React.FC = () => {
           )}
         />
       )}
+      <View style={styles.navbar}>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => navigation.navigate("ProviderDashboard", { userId })}
+        >
+          <FontAwesome name="home" size={24} color="black" />
+          <Text>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => navigation.navigate("MyJobs", { userId })}
+        >
+          <FontAwesome name="briefcase" size={24} color="black" />
+          <Text>My Jobs</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => {
+            navigation.navigate("ProviderInbox", {
+              userId: userId,
+            });
+          }}
+        >
+          <FontAwesome name="envelope" size={24} color="black" />
+          <Text>Inbox</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => {
+            navigation.navigate("ProviderProfile", {
+              userId: userId,
+            });
+          }}
+        >
+          <FontAwesome name="user" size={24} color="black" />
+          <Text>Account</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

@@ -101,7 +101,11 @@ const UserDashboard: React.FC = () => {
     }, [userId])
   );
 
-  const handleQuoteAction = async (quoteId: string, action: string, providerName: string) => {
+  const handleQuoteAction = async (
+    quoteId: string,
+    action: string,
+    providerName: string
+  ) => {
     try {
       const token = await AsyncStorage.getItem("token");
       if (!token) {
@@ -109,9 +113,10 @@ const UserDashboard: React.FC = () => {
         return;
       }
 
-      const message = action === "accepted" 
-        ? `You have accepted a quote from ${providerName}`
-        : `You have denied a quote from ${providerName}`;
+      const message =
+        action === "accepted"
+          ? `You have accepted a quote from ${providerName}`
+          : `You have denied a quote from ${providerName}`;
 
       const response = await axios.post(
         `http://localhost:3000/notifications/client/${userId}/notify`,
@@ -176,13 +181,21 @@ const UserDashboard: React.FC = () => {
               <>
                 <TouchableOpacity
                   style={styles.acceptButton}
-                  onPress={() => handleQuoteAction(quote._id, "accepted", quote.provider_name)}
+                  onPress={() =>
+                    handleQuoteAction(
+                      quote._id,
+                      "accepted",
+                      quote.provider_name
+                    )
+                  }
                 >
                   <Text style={styles.buttonText}>Accept Quote</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.declineButton}
-                  onPress={() => handleQuoteAction(quote._id, "denied", quote.provider_name)}
+                  onPress={() =>
+                    handleQuoteAction(quote._id, "denied", quote.provider_name)
+                  }
                 >
                   <Text style={styles.buttonText}>Decline Quote</Text>
                 </TouchableOpacity>
