@@ -6,8 +6,8 @@ import dotenv from "dotenv";
 import AWS from "aws-sdk";
 import User from "./models/User"; // User model import
 import Post from "./models/Post"; // Post model import
-import Provider from "./models/Provider"; // Post model import
-import Quote from "./models/Quote"; // Post model import
+import Provider from "./models/Provider"; // Provider model import
+import Quote from "./models/Quote"; // Quote model import
 import postRoutes from "./routes/posts"; // Post routes import
 import bcrypt from "bcrypt";
 import quoteRoutes from "./routes/quotes";
@@ -21,8 +21,8 @@ const app = express();
 const PORT = 3000;
 
 app.use(cors());
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
 // AWS S3 configuration
 AWS.config.update({
@@ -79,9 +79,13 @@ app.put("/update/:id", async (req: Request, res: Response) => {
   } catch (err) {
     console.error("Error updating user:", err);
     if (err instanceof Error) {
-      res.status(500).json({ message: "Error updating user", error: err.message });
+      res
+        .status(500)
+        .json({ message: "Error updating user", error: err.message });
     } else {
-      res.status(500).json({ message: "Error updating user", error: "Unknown error" });
+      res
+        .status(500)
+        .json({ message: "Error updating user", error: "Unknown error" });
     }
   }
 });
@@ -130,6 +134,22 @@ app.get("/providers", async (req: Request, res: Response) => {
   }
 });
 
+// Get provider details by ID
+app.get("/providers/:id", async (req: Request, res: Response) => {
+  try {
+    const provider = await Provider.findById(req.params.id);
+    if (provider) {
+      res.status(200).json(provider);
+    } else {
+      res.status(404).json({ message: "Provider not found" });
+    }
+  } catch (err: any) {
+    console.error("Error fetching provider by ID:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get all jobs based on provider_id and status
 app.get("/jobs", async (req: Request, res: Response) => {
   const { provider_id, status } = req.query;
 
@@ -137,20 +157,24 @@ app.get("/jobs", async (req: Request, res: Response) => {
     const jobs = await Quote.find({ provider_id, status });
     res.status(200).json(jobs);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching quotes", error });
+    res.status(500).json({ message: "Error fetching jobs", error });
   }
 });
 
-
-app.patch('/jobs/:id', async (req, res) => {
+// Update job status
+app.patch("/jobs/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
-  
+
   try {
-    const updatedJob = await Quote.findByIdAndUpdate(id, { status }, { new: true });
+    const updatedJob = await Quote.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
     res.status(200).json(updatedJob);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating job status' });
+    res.status(500).json({ message: "Error updating job status" });
   }
 });
 
@@ -158,12 +182,12 @@ app.patch('/jobs/:id', async (req, res) => {
 app.use("/posts", postRoutes);
 
 // Quote routes
-app.use("/quotes", quoteRoutes); 
+app.use("/quotes", quoteRoutes);
 
-// Use loginregister routes
+// Login and Register routes
 app.use("/", loginRegisterRoutes);
 
-// Use notifications routes
+// Notification routes
 app.use("/notifications", notificationRoutes);
 
 app.listen(PORT, () => {

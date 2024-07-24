@@ -1,13 +1,14 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    paddingBottom: 60, // Adjusted to provide space for the navbar
   },
   toggleButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginBottom: 20,
   },
   toggleButton: {
@@ -15,23 +16,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#007bff',
-    backgroundColor: '#ffffff',
+    borderColor: "#007bff",
+    backgroundColor: "#ffffff",
   },
   activeToggle: {
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
   },
   toggleButtonText: {
     fontSize: 16,
-    textAlign: 'center',
-    color: '#007bff', // Default text color
+    textAlign: "center",
+    color: "#007bff", // Default text color
   },
   activeToggleText: {
-    color: '#ffffff', // Text color for active toggle
+    color: "#ffffff", // Text color for active toggle
   },
   noJobsText: {
     fontSize: 18,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 20,
   },
   jobItem: {
@@ -39,22 +40,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 10,
   },
   jobTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   cancelButton: {
     marginTop: 10,
-    backgroundColor: '#dc3545',
+    backgroundColor: "#dc3545",
     padding: 10,
     borderRadius: 5,
   },
   cancelButtonText: {
-    color: '#fff',
-    textAlign: 'center',
+    color: "#fff",
+    textAlign: "center",
+  },
+  navbar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderColor: "#ccc",
+    position: "absolute",
+    bottom: 30,
+    width: "110%",
+    backgroundColor: "#fff",
+  },
+  navItem: {
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

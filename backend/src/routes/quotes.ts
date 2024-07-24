@@ -1,14 +1,14 @@
 import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import Quote, { IQuote } from "../models/Quote";
+import Provider from "../models/Provider";
 
 const router = express.Router();
 
 // Interface for the request body
 interface QuoteBody {
   user_id: string;
-  provider_name: string;
-  date_sent: string;
+  provider_id: string;
   description: string;
   price_estimate: string;
   status: string;
@@ -25,29 +25,47 @@ router.get("/user/:user_id", async (req: Request, res: Response) => {
 });
 
 // Route to create a new quote
-router.post("/", async (req: Request<{}, {}, QuoteBody>, res: Response) => {
-  const {
+router.post("/", async (req: Request, res: Response) => {
+  const { user_id, provider_id, description, price_estimate, status } =
+    req.body;
+
+  console.log("Received quote data:", {
     user_id,
-    provider_name,
-    date_sent,
-    description,
-    price_estimate,
-    status,
-  } = req.body;
-  const quote = new Quote({
-    user_id,
-    provider_name,
-    date_sent,
+    provider_id,
     description,
     price_estimate,
     status,
   });
 
+  if (
+    !mongoose.Types.ObjectId.isValid(user_id) ||
+    !mongoose.Types.ObjectId.isValid(provider_id)
+  ) {
+    return res.status(400).json({ message: "Invalid user_id or provider_id" });
+  }
+
   try {
-    const newQuote = await quote.save();
-    res.status(201).json(newQuote);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+    const provider = await Provider.findById(provider_id);
+    if (!provider) {
+      console.log("Provider not found for id:", provider_id);
+      return res.status(404).json({ message: "Provider not found" });
+    }
+
+    const quote = new Quote({
+      user_id,
+      provider_id,
+      provider_name: `${provider.firstName} ${provider.lastName}`,
+      description,
+      price_estimate,
+      status: "pending",
+      date_sent: new Date(),
+    });
+
+    const savedQuote = await quote.save();
+    res.status(201).json(savedQuote);
+  } catch (error) {
+    console.error("Error creating quote:", error);
+    res.status(500).json({ message: "Error creating quote" });
   }
 });
 

@@ -3,34 +3,42 @@ export type RootStackParamList = {
   Register: undefined;
   UserDashboard: { userId: string };
   ProviderDashboard: { userId: string };
-  CreatePost: { userId: string }; // 여기서 userId를 매개변수로 정의합니다.
+  CreatePost: { userId: string };
   PostList: { userId: string };
   Profile: { userId: string };
   UserInfo: { userId: string };
-  Services: { userId: string };
-  ServiceSearch: { userId: number; serviceType: string };
+  ServiceSearch: { userId: string; serviceType: string };
   UserInbox: { userId: string };
-  EditUserProfile: { userId: string }; // Added this line
+  EditUserProfile: { userId: string };
   MyJobs: { userId: string };
   ProviderInfo: { userId: string };
   Verification: undefined;
   EditProviderInfo: { userId: string };
-  UserPost: { postId: string, userId: string };
+  UserPost: { postId: string; userId: string };
   ProviderProfile: { userId: string };
   ProviderInbox: { userId: string };
+  Services: { userId: string };
+  QuoteForm: { postId: string; providerId: string; userId: string };
 };
 
-//this may not use.
 export interface Post {
   _id: string;
-  userID: string;
+  userId: string;
   title: string;
   description: string;
-  author: string;
+  photoUrl: string;
   createdAt: string;
+  likes: number;
 }
 
-import { Request } from 'express';
+export interface PostWithUser extends Post {
+  user: {
+    firstName: string;
+    lastName: string;
+  };
+}
+
+import { Request } from "express";
 
 export interface AuthenticatedRequest extends Request {
   user?: {
