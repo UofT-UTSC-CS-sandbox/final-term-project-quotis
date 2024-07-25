@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderWidth: 1,
     borderColor: "#000", // Black border around the quote
+    position: "relative", // Add this line for absolute positioning of the delete button
   },
   pendingQuote: {
     backgroundColor: "#fff", // White background for pending quotes
@@ -199,6 +200,26 @@ const styles = StyleSheet.create({
   notificationDate: {
     fontSize: 14,
     color: "#666",
+  },
+  deleteQuoteButton: {
+    position: "absolute",
+    top: -18,
+    right: -12,
+    padding: 5,
+    backgroundColor: "white",
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: "black",
+    width: 30,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteQuoteButtonText: {
+    color: "black",
+    fontWeight: "bold",
+    textAlign: "center",
+    fontSize: 16,
   },
 });
 

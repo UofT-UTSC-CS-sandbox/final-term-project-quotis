@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   RefreshControl,
+  Alert,
 } from "react-native";
 import axios from "axios";
 import { Post } from "../../backend/src/models/Post"; // Adjust the import path as needed
@@ -113,18 +114,64 @@ const UserDashboard: React.FC = () => {
         return;
       }
 
-      const message =
-        action === "accepted"
-          ? `You have accepted a quote from ${providerName}`
-          : `You have denied a quote from ${providerName}`;
+      const status = action === "accepted" ? "accepted" : "denied";
 
-      const response = await axios.post(
-        `http://localhost:3000/notifications/client/${userId}/notify`,
+      // Update the quote status in the database
+      const response = await axios.patch(
+        `http://localhost:3000/quotes/${quoteId}/status`,
+        { status },
         {
-          action: "quote",
-          entityId: quoteId,
-          message,
-        },
+          headers: {
+            "x-auth-token": token,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        console.log(`Quote ${action} successfully.`);
+
+        // Optionally send a notification
+        const message =
+          action === "accepted"
+            ? `You have accepted a quote from ${providerName}`
+            : `You have denied a quote from ${providerName}`;
+
+        await axios.post(
+          `http://localhost:3000/notifications/client/${userId}/notify`,
+          {
+            action: "quote",
+            entityId: quoteId,
+            message,
+          },
+          {
+            headers: {
+              "x-auth-token": token,
+            },
+          }
+        );
+
+        // Update the state
+        setQuotes((prevQuotes) =>
+          prevQuotes.map((quote) =>
+            quote._id === quoteId ? { ...quote, status } : quote
+          )
+        );
+      }
+    } catch (error) {
+      console.error(`Error updating quote status:`, error);
+    }
+  };
+
+  const handleDeleteQuote = async (quoteId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.delete(
+        `http://localhost:3000/quotes/${quoteId}`,
         {
           headers: {
             "x-auth-token": token,
@@ -132,15 +179,13 @@ const UserDashboard: React.FC = () => {
         }
       );
       if (response.status === 200) {
-        console.log(`Notification added for ${action} action.`);
+        console.log("Quote deleted successfully");
         setQuotes((prevQuotes) =>
-          prevQuotes.map((quote) =>
-            quote._id === quoteId ? { ...quote, status: action } : quote
-          )
+          prevQuotes.filter((quote) => quote._id.toString() !== quoteId)
         );
       }
     } catch (error) {
-      console.error(`Error adding notification:`, error);
+      console.error("Error deleting quote:", error);
     }
   };
 
@@ -166,6 +211,24 @@ const UserDashboard: React.FC = () => {
             <Text style={styles.quoteText}>{quote.provider_name}</Text>
             <Text style={styles.quoteText}>Price: {quote.price_estimate}</Text>
             <Text style={styles.quoteText}>Status: {quote.status}</Text>
+            <TouchableOpacity
+              onPress={() =>
+                Alert.alert(
+                  "Confirm Delete",
+                  "Are you sure you want to remove this quote?",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Yes",
+                      onPress: () => handleDeleteQuote(quote._id),
+                    },
+                  ]
+                )
+              }
+              style={styles.deleteQuoteButton}
+            >
+              <Text style={styles.deleteQuoteButtonText}>X</Text>
+            </TouchableOpacity>
           </View>
         </TouchableOpacity>
         {expanded && (
