@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import Quote, { IQuote } from "../models/Quote";
 import Provider from "../models/Provider";
+import auth from "../middleware/auth";
 
 const router = express.Router();
 
@@ -66,6 +67,46 @@ router.post("/", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error creating quote:", error);
     res.status(500).json({ message: "Error creating quote" });
+  }
+});
+
+// Route to delete a quote by ID
+router.delete("/:id", auth, async (req: Request, res: Response) => {
+  try {
+    const quote = await Quote.findById(req.params.id);
+    if (!quote) {
+      return res.status(404).json({ msg: "Quote not found" });
+    }
+    await quote.deleteOne();
+    res.json({ msg: "Quote removed" });
+  } catch (err) {
+    const error = err as Error;
+    console.error(error.message);
+    res.status(500).send("Server error");
+  }
+});
+
+// Route to update quote status
+router.patch("/:id/status", auth, async (req: Request, res: Response) => {
+  const { status } = req.body;
+  try {
+    const quote = await Quote.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    if (!quote) {
+      return res.status(404).json({ msg: "Quote not found" });
+    }
+    res.json(quote);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error(err.message);
+      res.status(500).send("Server error");
+    } else {
+      console.error("Unknown error", err);
+      res.status(500).send("Server error");
+    }
   }
 });
 
