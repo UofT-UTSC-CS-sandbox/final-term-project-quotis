@@ -26,6 +26,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
   },
+  alternativeSwitchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
 });
 
 export default styles;

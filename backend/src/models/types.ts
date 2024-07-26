@@ -18,7 +18,12 @@ export type RootStackParamList = {
   ProviderProfile: { userId: string };
   ProviderInbox: { userId: string };
   Services: { userId: string };
-  QuoteForm: { postId: string; providerId: string; userId: string };
+  QuoteForm: {
+    postId: string;
+    providerId: string;
+    userId: string;
+    jobDate: string;
+  }; // Add jobDate here
 };
 
 export interface Post {
@@ -29,6 +34,7 @@ export interface Post {
   photoUrl: string;
   createdAt: string;
   likes: number;
+  jobDate: string; // Add this line
 }
 
 export interface PostWithUser extends Post {

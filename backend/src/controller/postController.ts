@@ -1,7 +1,7 @@
-import Post from '../models/Post';
-import { Request, Response } from 'express';
-import { AuthenticatedRequest } from '../models/types';
-import AWS from 'aws-sdk';
+import Post from "../models/Post";
+import { Request, Response } from "express";
+import { AuthenticatedRequest } from "../models/types";
+import AWS from "aws-sdk";
 
 // S3 설정
 const s3 = new AWS.S3({
@@ -43,23 +43,27 @@ export const getPIDPost = async (req: Request, res: Response) => {
 export const updatePost = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
-    const updateData = req.body; // 업데이트할 데이터 가져오기
+    const updateData = req.body;
     const post = await Post.findById(postId);
 
     if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+      return res.status(404).json({ error: "Post not found" });
     }
 
-    // 사진 URL이 업데이트 데이터에 포함되지 않은 경우, 기존 사진 URL 유지
     if (!updateData.photoUrl) {
       updateData.photoUrl = post.photoUrl;
     } else {
-      const key = post.photoUrl.split('/').pop()!;
+      const key = post.photoUrl.split("/").pop()!;
       await deleteS3Object(key);
     }
 
-    // 포스트 업데이트
-    const updatedPost = await Post.findByIdAndUpdate(postId, updateData, { new: true });
+    if (updateData.jobDate) {
+      updateData.jobDate = new Date(updateData.jobDate); // Ensure jobDate is a Date object
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(postId, updateData, {
+      new: true,
+    });
 
     res.status(200).json(updatedPost);
   } catch (error: any) {
@@ -83,12 +87,12 @@ export const likePost = async (req: AuthenticatedRequest, res: Response) => {
     const postId = req.params.postId;
     const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+      return res.status(404).json({ error: "Post not found" });
     }
     post.likes += 1;
     await post.save();
 
-    res.status(200).json({ message: 'Post liked successfully' });
+    res.status(200).json({ message: "Post liked successfully" });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -101,20 +105,20 @@ export const deletePost = async (req: Request, res: Response) => {
     const post = await Post.findById(postId);
 
     if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+      return res.status(404).json({ error: "Post not found" });
     }
 
     // S3에서 이미지 삭제
-    const key = post.photoUrl.split('/').pop()!;
-    console.log('Deleting from S3 with key:', key); // 디버깅을 위한 로그 추가
+    const key = post.photoUrl.split("/").pop()!;
+    console.log("Deleting from S3 with key:", key); // 디버깅을 위한 로그 추가
 
     await deleteS3Object(key);
 
     // 데이터베이스에서 포스트 삭제
     await post.deleteOne();
-    res.status(200).json({ message: 'Post and image deleted successfully' });
+    res.status(200).json({ message: "Post and image deleted successfully" });
   } catch (error: any) {
-    console.error('Error deleting post:', error); // 에러 로그 추가
+    console.error("Error deleting post:", error); // 에러 로그 추가
     res.status(500).json({ error: error.message });
   }
 };

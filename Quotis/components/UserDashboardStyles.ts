@@ -221,6 +221,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
   },
+  postDate: {
+    fontSize: 15,
+    color: "black",
+    marginBottom: 10, // Adjust the margin as needed
+  },
 });
 
 export default styles;
