@@ -58,9 +58,9 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 // Post creation endpoint
 router.post("/create-post", async (req, res) => {
   try {
-    const { userId, title, photoUrl, description } = req.body;
+    const { userId, title, photoUrl, description, jobDate } = req.body;
     const newPost = new Post({
-      _id: new mongoose.Types.ObjectId(), // _id generated
+      _id: new mongoose.Types.ObjectId(),
       userId,
       title,
       photoUrl,
@@ -68,9 +68,12 @@ router.post("/create-post", async (req, res) => {
       likes: 0,
       createdAt: new Date(),
       quotes: [],
+      jobDate: new Date(jobDate), // Add this line
     });
     await newPost.save();
-    res.status(201).send({ message: "Post created successfully", post: newPost });
+    res
+      .status(201)
+      .send({ message: "Post created successfully", post: newPost });
   } catch (error) {
     res.status(500).send({ error: (error as Error).message });
   }
@@ -133,7 +136,7 @@ router.put(
 // Delete post endpoint
 router.delete("/:postId", authenticateToken, deletePost);
 //get post by postId,  for UserPost.tsx
-router.get("/:postId", authenticateToken, getPIDPost); 
+router.get("/:postId", authenticateToken, getPIDPost);
 router.put("/:postId", authenticateToken, updatePost);
 
 export default router;

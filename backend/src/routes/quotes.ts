@@ -13,6 +13,9 @@ interface QuoteBody {
   description: string;
   price_estimate: string;
   status: string;
+  provider_date: Date;
+  client_date: Date;
+  alternative_date?: Date; // Optional field for alternative date
 }
 
 // Route to get quotes by user ID
@@ -27,8 +30,16 @@ router.get("/user/:user_id", async (req: Request, res: Response) => {
 
 // Route to create a new quote
 router.post("/", async (req: Request, res: Response) => {
-  const { user_id, provider_id, description, price_estimate, status } =
-    req.body;
+  const {
+    user_id,
+    provider_id,
+    description,
+    price_estimate,
+    status,
+    provider_date,
+    client_date,
+    alternative_date,
+  } = req.body;
 
   console.log("Received quote data:", {
     user_id,
@@ -36,6 +47,9 @@ router.post("/", async (req: Request, res: Response) => {
     description,
     price_estimate,
     status,
+    provider_date,
+    client_date,
+    alternative_date,
   });
 
   if (
@@ -60,6 +74,9 @@ router.post("/", async (req: Request, res: Response) => {
       price_estimate,
       status: "pending",
       date_sent: new Date(),
+      provider_date,
+      client_date,
+      alternative_date, // Add this line
     });
 
     const savedQuote = await quote.save();
