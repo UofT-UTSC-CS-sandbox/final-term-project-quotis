@@ -16,7 +16,6 @@ import MyJobs from "./components/MyJobs";
 import ProviderInfo from "./components/ProviderInfo";
 import Verification from "./components/Verification";
 import EditProviderInfo from "./components/EditProviderInfo";
-import PostList from "./components/PostList";
 import ProviderInbox from "./components/ProviderInbox";
 import ProviderProfile from "./components/ProviderProfile";
 import QuoteForm from "./components/QuoteForm";
@@ -44,7 +43,6 @@ export default function App() {
         <Stack.Screen name="ProviderInfo" component={ProviderInfo} />
         <Stack.Screen name="Verification" component={Verification} />
         <Stack.Screen name="EditProviderInfo" component={EditProviderInfo} />
-        <Stack.Screen name="PostList" component={PostList} />
         <Stack.Screen name="UserPost" component={UserPost} />
         <Stack.Screen name="ProviderInbox" component={ProviderInbox} />
         <Stack.Screen name="ProviderProfile" component={ProviderProfile} />

@@ -35,6 +35,11 @@ const styles = StyleSheet.create({
     color: "#888",
     marginBottom: 10,
   },
+  actualPostTime: {
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 10,
+  },
   sendQuoteButton: {
     backgroundColor: "#007bff",
     padding: 10,
@@ -57,6 +62,11 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingBottom: 20,
+  },
+  errorText: {
+    color: "red",
+    textAlign: "center",
+    marginVertical: 10,
   },
 });
 

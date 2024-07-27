@@ -6,8 +6,11 @@ export interface IQuote extends Document {
   description: string;
   price_estimate: string;
   status: string;
-  user_id: string; // Change this to string
+  user_id: string;
   provider_id: string;
+  provider_date: Date; // Provider's proposed date
+  client_date: Date; // Client's preferred date
+  alternative_date?: Date; // Provider's alternative date (optional)
 }
 
 const QuoteSchema: Schema = new Schema({
@@ -16,8 +19,11 @@ const QuoteSchema: Schema = new Schema({
   description: { type: String, required: true },
   price_estimate: { type: String, required: true },
   status: { type: String, required: true },
-  user_id: { type: String, required: true }, // Change this to string
+  user_id: { type: String, required: true },
   provider_id: { type: String, required: true },
+  provider_date: { type: Date, required: true },
+  client_date: { type: Date, required: true },
+  alternative_date: { type: Date }, // Optional field for alternative date
 });
 
 export default mongoose.model<IQuote>("Quote", QuoteSchema);
