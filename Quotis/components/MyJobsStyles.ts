@@ -90,6 +90,39 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  // New styles for ProviderReview
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  starsContainer: {
+    flexDirection: "row",
+    marginBottom: 20,
+  },
+  star: {
+    fontSize: 30,
+    marginHorizontal: 5,
+  },
+  textArea: {
+    height: 100,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 20,
+    textAlignVertical: "top",
+  },
+  submitButton: {
+    backgroundColor: "#007bff",
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  submitButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
 });
 
 export default styles;
