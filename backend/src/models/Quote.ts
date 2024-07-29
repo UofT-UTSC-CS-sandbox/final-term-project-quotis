@@ -11,6 +11,8 @@ export interface IQuote extends Document {
   provider_date: Date; // Provider's proposed date
   client_date: Date; // Client's preferred date
   alternative_date?: Date; // Provider's alternative date (optional)
+  job_post_title: string;
+  client_name: string; // Add client_name
 }
 
 const QuoteSchema: Schema = new Schema({
@@ -24,6 +26,8 @@ const QuoteSchema: Schema = new Schema({
   provider_date: { type: Date, required: true },
   client_date: { type: Date, required: true },
   alternative_date: { type: Date }, // Optional field for alternative date
+  job_post_title: { type: String, required: true }, // Add this line
+  client_name: { type: String, required: true }, // Add this line
 });
 
 export default mongoose.model<IQuote>("Quote", QuoteSchema);

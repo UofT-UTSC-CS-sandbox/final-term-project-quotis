@@ -17,15 +17,20 @@ interface Quote {
   status: string;
   user_id: string;
   provider_id: string;
+  post_id: string; // Add this field to the Quote interface
+  client_name: string;
+  job_post_title: string;
 }
 
 const MyJobs: React.FC = () => {
   const route = useRoute<MyJobsRouteProp>();
-  const navigation: any = useNavigation();
+  const navigation = useNavigation<any>();
   const { userId } = route.params;
 
   const [quotes, setQuotes] = useState<Quote[]>([]);
-  const [currentFilter, setCurrentFilter] = useState<"accepted" | "completed" | "cancelled">("accepted");
+  const [currentFilter, setCurrentFilter] = useState<
+    "accepted" | "completed" | "cancelled"
+  >("accepted");
 
   const fetchQuotes = async () => {
     try {
@@ -35,6 +40,7 @@ const MyJobs: React.FC = () => {
       setQuotes(response.data);
     } catch (error) {
       console.error(`Error fetching ${currentFilter} quotes:`, error);
+      Alert.alert("Error", "Failed to fetch quotes. Please try again later.");
     }
   };
 
@@ -51,16 +57,23 @@ const MyJobs: React.FC = () => {
     }
   };
 
-  const markAsComplete = async (jobId: string) => {
+  const markAsComplete = async (job: Quote) => {
     try {
-      await axios.patch(`http://localhost:3000/jobs/${jobId}`, {
+      await axios.patch(`http://localhost:3000/jobs/${job._id}`, {
         status: "completed",
       });
       fetchQuotes();
-      Alert.alert("Job Completed", "The job has been marked as completed.");
+      navigation.navigate("ProviderReview", {
+        userId: job.provider_id,
+        clientId: job.user_id,
+        clientName: job.provider_name,
+      });
     } catch (error) {
       console.error("Error completing job:", error);
-      Alert.alert("Error", "Failed to complete the job. Please try again later.");
+      Alert.alert(
+        "Error",
+        "Failed to complete the job. Please try again later."
+      );
     }
   };
 
@@ -123,7 +136,13 @@ const MyJobs: React.FC = () => {
 
       {quotes.length === 0 ? (
         <Text style={styles.noJobsText}>
-          No {currentFilter === "accepted" ? "Accepted" : currentFilter === "completed" ? "Completed" : "Cancelled"} Jobs
+          No{" "}
+          {currentFilter === "accepted"
+            ? "Accepted"
+            : currentFilter === "completed"
+            ? "Completed"
+            : "Cancelled"}{" "}
+          Jobs
         </Text>
       ) : (
         <FlatList
@@ -131,7 +150,8 @@ const MyJobs: React.FC = () => {
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
             <View style={styles.jobItem}>
-              <Text style={styles.jobTitle}>{item.provider_name}</Text>
+              <Text style={styles.jobTitle}>{item.client_name}</Text>
+              <Text>{item.job_post_title}</Text>
               <Text>{new Date(item.date_sent).toLocaleDateString()}</Text>
               <Text>{item.description}</Text>
               <Text>Estimated Price: {item.price_estimate}</Text>
@@ -140,7 +160,7 @@ const MyJobs: React.FC = () => {
                 <View style={styles.actionButtonsContainer}>
                   <TouchableOpacity
                     style={styles.completeButton}
-                    onPress={() => markAsComplete(item._id)}
+                    onPress={() => markAsComplete(item)}
                   >
                     <Text style={styles.completeButtonText}>Complete</Text>
                   </TouchableOpacity>
