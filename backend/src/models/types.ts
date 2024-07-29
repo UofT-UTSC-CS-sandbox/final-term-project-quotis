@@ -33,6 +33,7 @@ export type RootStackParamList = {
     providerId: string;
     userId: string;
     jobDate: string;
+    clientName: string; // Add clientName here
   };
   ProviderReview: { userId: string; clientId: string; clientName: string };
 };

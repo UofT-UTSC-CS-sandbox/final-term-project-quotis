@@ -1,5 +1,3 @@
-// Ensure you have the complete UserDashboard.tsx with proper handling of dates and displaying quotes
-
 import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
@@ -37,7 +35,9 @@ interface Quote {
   price_estimate: string;
   status: string;
   provider_date: string;
-  alternative_date?: string; // Optional alternative date
+  alternative_date?: string;
+  job_post_title: string;
+  client_name: string; // Add client name field
 }
 
 const UserDashboard: React.FC = () => {
@@ -249,6 +249,7 @@ const UserDashboard: React.FC = () => {
         </TouchableOpacity>
         {expanded && (
           <View style={styles.quoteDetails}>
+            <Text>Job Post: {quote.job_post_title}</Text>
             <Text>Description: {quote.description}</Text>
             <Text>
               Date Sent:{" "}
@@ -334,65 +335,87 @@ const UserDashboard: React.FC = () => {
     }
   };
 
-  const renderHeader = () => (
-    <View>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Welcome, {userFirstName}</Text>
-      </View>
-      <Text style={styles.location}>1095 Military Trail, Toronto, ON</Text>
+  const renderHeader = () => {
+    const acceptedQuotes = quotes.filter(
+      (quote) => quote.status === "accepted"
+    );
 
-      <View style={styles.upcomingJob}>
-        <Text style={styles.upcomingJobText}>
-          You have an upcoming electrical job in:
-        </Text>
-        <Text style={styles.jobTime}>3 days: 2 hrs: 25 min</Text>
-        <TouchableOpacity style={styles.jobButton} onPress={() => {}}>
-          <Text style={styles.jobButtonText}>View job details</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.postButton}
-          onPress={navigateToCreatePost}
+    return (
+      <View>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Welcome, {userFirstName}</Text>
+        </View>
+        <Text style={styles.location}>1095 Military Trail, Toronto, ON</Text>
+
+        {acceptedQuotes.length > 0 ? (
+          acceptedQuotes.map((quote) => {
+            const jobDate = new Date(
+              quote.alternative_date || quote.provider_date
+            );
+            const timeLeft = !isNaN(jobDate.getTime())
+              ? formatDistanceToNow(jobDate, { addSuffix: true })
+              : "Invalid date";
+
+            return (
+              <View key={quote._id} style={styles.upcomingJob}>
+                <Text style={styles.upcomingJobText}>
+                  You have an upcoming job with {quote.provider_name} in:
+                </Text>
+                <Text style={styles.jobTime}>{timeLeft}</Text>
+                <Text style={styles.jobPostTitle}>{quote.job_post_title}</Text>
+                <TouchableOpacity style={styles.jobButton} onPress={() => {}}>
+                  <Text style={styles.jobButtonText}>Mark Job as Complete</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })
+        ) : (
+          <Text style={styles.noUpcomingJobsText}>No upcoming jobs</Text>
+        )}
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.postButton}
+            onPress={navigateToCreatePost}
+          >
+            <Text style={styles.postButtonText}>Make a Post</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.sectionHeader}>Current Posts</Text>
+        <ScrollView
+          horizontal
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          contentContainerStyle={styles.postContainer}
         >
-          <Text style={styles.postButtonText}>Make a Post</Text>
-        </TouchableOpacity>
+          {posts.map((post) => (
+            <View key={post._id} style={styles.post}>
+              <Text style={styles.postTitle}>{post.title}</Text>
+              <Text>{post.description}</Text>
+              <Text style={styles.postDate}>
+                {`Job Date: ${format(new Date(post.jobDate), "MMMM d, yyyy")}`}
+              </Text>
+              <TouchableOpacity
+                style={styles.viewButton}
+                onPress={() => navigateToUserPost(post._id, userId)}
+              >
+                <Text style={styles.viewButtonText}>View full post</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleDeletePost(post._id)}
+              >
+                <Text style={styles.deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+        <Text style={[styles.sectionHeader, { marginBottom: 20 }]}>Quotes</Text>
       </View>
-
-      <Text style={styles.sectionHeader}>Current Posts</Text>
-      <ScrollView
-        horizontal
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        contentContainerStyle={styles.postContainer}
-      >
-        {posts.map((post) => (
-          <View key={post._id} style={styles.post}>
-            <Text style={styles.postTitle}>{post.title}</Text>
-            <Text>{post.description}</Text>
-            <Text style={styles.postDate}>
-              {`Job Date: ${format(new Date(post.jobDate), "MMMM d, yyyy")}`}{" "}
-              {/* Format the date */}
-            </Text>
-            <TouchableOpacity
-              style={styles.viewButton}
-              onPress={() => navigateToUserPost(post._id, userId)}
-            >
-              <Text style={styles.viewButtonText}>View full post</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDeletePost(post._id)}
-            >
-              <Text style={styles.deleteButtonText}>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </ScrollView>
-      <Text style={[styles.sectionHeader, { marginBottom: 20 }]}>Quotes</Text>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -401,7 +424,7 @@ const UserDashboard: React.FC = () => {
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => <QuoteItem quote={item} />}
         ListHeaderComponent={renderHeader}
-        contentContainerStyle={styles.scrollContainer} // Add this line to apply padding to FlatList content
+        contentContainerStyle={styles.scrollContainer}
       />
       <View style={styles.navbar}>
         <TouchableOpacity style={styles.navItem} onPress={() => {}}>

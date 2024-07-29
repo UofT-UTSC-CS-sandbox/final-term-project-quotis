@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import Quote, { IQuote } from "../models/Quote";
 import User from "../models/User";
 import Provider from "../models/Provider";
+import Post from "../models/Post";
 import auth from "../middleware/auth";
+import User from "../models/User"; // Import the User model
 
 const router = express.Router();
 
@@ -17,6 +19,7 @@ interface QuoteBody {
   provider_date: Date;
   client_date: Date;
   alternative_date?: Date; // Optional field for alternative date
+  post_id: string; // Add this line to include post_id
 }
 
 // Route to get quotes by user ID
@@ -40,6 +43,7 @@ router.post("/", async (req: Request, res: Response) => {
     provider_date,
     client_date,
     alternative_date,
+    post_id,
   } = req.body;
 
   console.log("Received quote data:", {
@@ -51,13 +55,17 @@ router.post("/", async (req: Request, res: Response) => {
     provider_date,
     client_date,
     alternative_date,
+    post_id,
   });
 
   if (
     !mongoose.Types.ObjectId.isValid(user_id) ||
-    !mongoose.Types.ObjectId.isValid(provider_id)
+    !mongoose.Types.ObjectId.isValid(provider_id) ||
+    !mongoose.Types.ObjectId.isValid(post_id)
   ) {
-    return res.status(400).json({ message: "Invalid user_id or provider_id" });
+    return res
+      .status(400)
+      .json({ message: "Invalid user_id, provider_id, or post_id" });
   }
 
   try {
@@ -67,17 +75,32 @@ router.post("/", async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Provider not found" });
     }
 
+    const post = await Post.findById(post_id);
+    if (!post) {
+      console.log("Post not found for id:", post_id);
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    const user = await User.findById(user_id);
+    if (!user) {
+      console.log("User not found for id:", user_id);
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const quote = new Quote({
       user_id,
       provider_id,
       provider_name: `${provider.firstName} ${provider.lastName}`,
+      client_name: `${user.firstName} ${user.lastName}`, // Add client_name
       description,
       price_estimate,
       status: "pending",
       date_sent: new Date(),
       provider_date,
       client_date,
-      alternative_date, // Add this line
+      alternative_date,
+      job_post_title: post.title,
+      post_id, // Ensure post_id is included
     });
 
     const savedQuote = await quote.save();

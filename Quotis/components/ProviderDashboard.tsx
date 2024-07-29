@@ -142,7 +142,7 @@ const ProviderDashboard: React.FC = () => {
       <View style={styles.navbar}>
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => navigation.navigate("Home")}
+          onPress={() => navigation.navigate("ProviderDashboard", { userId })}
         >
           <FontAwesome name="home" size={24} color="black" />
           <Text>Home</Text>
