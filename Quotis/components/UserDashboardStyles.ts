@@ -39,6 +39,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  jobPostTitle: {
+    fontSize: 18,
+    marginTop: 10,
+  },
   jobButton: {
     marginTop: 10,
     padding: 10,
@@ -48,6 +52,12 @@ const styles = StyleSheet.create({
   jobButtonText: {
     color: "#fff",
     textAlign: "center",
+  },
+  noUpcomingJobsText: {
+    fontSize: 16,
+    color: "#999",
+    textAlign: "center",
+    marginVertical: 20,
   },
   sectionHeader: {
     fontSize: 20,
