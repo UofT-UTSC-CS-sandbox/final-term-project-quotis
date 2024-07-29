@@ -26,6 +26,7 @@ interface PostWithUser {
   description: string;
   photoUrl: string;
   createdAt: string;
+  jobDate: string;
   user: {
     firstName: string;
     lastName: string;
@@ -40,6 +41,7 @@ const ProviderDashboard: React.FC = () => {
   const [posts, setPosts] = useState<PostWithUser[]>([]);
   const [providerName, setProviderName] = useState<string>("");
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchProviderDetails = async () => {
     try {
@@ -75,7 +77,7 @@ const ProviderDashboard: React.FC = () => {
       );
       setPosts(sortedPosts);
     } catch (error) {
-      console.error("Error fetching posts:", error);
+      console.error("Error fetching post:", error);
     }
   };
 
@@ -89,11 +91,16 @@ const ProviderDashboard: React.FC = () => {
     fetchPosts();
   }, [userId]);
 
-  const navigateToQuoteForm = (postId: string, userId: string) => {
+  const navigateToQuoteForm = (
+    postId: string,
+    userId: string,
+    jobDate: string
+  ) => {
     navigation.navigate("QuoteForm", {
       postId,
       providerId: route.params.userId,
       userId,
+      jobDate, // Pass jobDate as client_date
     });
   };
 
@@ -107,9 +114,12 @@ const ProviderDashboard: React.FC = () => {
       <Text style={styles.postTime}>
         {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
       </Text>
+      <Text style={styles.actualPostTime}>{`Posted on: ${new Date(
+        item.createdAt
+      ).toLocaleString()}`}</Text>
       <TouchableOpacity
         style={styles.sendQuoteButton}
-        onPress={() => navigateToQuoteForm(item._id, item.userId)}
+        onPress={() => navigateToQuoteForm(item._id, item.userId, item.jobDate)}
       >
         <Text style={styles.sendQuoteButtonText}>Send Quote</Text>
       </TouchableOpacity>
@@ -119,6 +129,7 @@ const ProviderDashboard: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Welcome, {providerName}</Text>
+      {error && <Text style={styles.errorText}>{error}</Text>}
       <FlatList
         data={posts}
         keyExtractor={(item) => item._id.toString()}
@@ -131,7 +142,7 @@ const ProviderDashboard: React.FC = () => {
       <View style={styles.navbar}>
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => navigation.navigate("Home")}
+          onPress={() => navigation.navigate("ProviderDashboard", { userId })}
         >
           <FontAwesome name="home" size={24} color="black" />
           <Text>Home</Text>

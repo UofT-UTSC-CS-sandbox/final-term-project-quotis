@@ -1,3 +1,13 @@
+import { Request } from "express";
+
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    // Add any other properties you need here
+  };
+}
+
+// Ensure this is exported
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -18,7 +28,14 @@ export type RootStackParamList = {
   ProviderProfile: { userId: string };
   ProviderInbox: { userId: string };
   Services: { userId: string };
-  QuoteForm: { postId: string; providerId: string; userId: string };
+  QuoteForm: {
+    postId: string;
+    providerId: string;
+    userId: string;
+    jobDate: string;
+    clientName: string; // Add clientName here
+  };
+  ProviderReview: { userId: string; clientId: string; clientName: string };
 };
 
 export interface Post {
@@ -29,20 +46,12 @@ export interface Post {
   photoUrl: string;
   createdAt: string;
   likes: number;
+  jobDate: string;
 }
 
 export interface PostWithUser extends Post {
   user: {
     firstName: string;
     lastName: string;
-  };
-}
-
-import { Request } from "express";
-
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    // 필요한 다른 속성들 추가
   };
 }

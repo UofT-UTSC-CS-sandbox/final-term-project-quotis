@@ -1,29 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, Image, TouchableOpacity, StyleSheet, Platform, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import axios from "axios";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Post } from "../../backend/src/models/Post";
+import { IPost as Post } from "../../backend/src/models/Post";
 import { StackNavigationProp } from "@react-navigation/stack";
-import * as ImageManipulator from 'expo-image-manipulator';
+import * as ImageManipulator from "expo-image-manipulator";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { format } from "date-fns";
+import styles from "./UserPostStyles"; // Import styles from the new file
 
 type UserPostRouteProp = RouteProp<RootStackParamList, "UserPost">;
 type NavigationProp = StackNavigationProp<RootStackParamList, "UserPost">;
 
 const UserPost: React.FC = () => {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-
-  const route = useRoute<UserPostRouteProp>();
-  const [post, setPost] = useState<Post | null>(null);
-  const navigation = useNavigation<NavigationProp>();
-  const { postId, userId } = route.params;
-
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [photoUrl, setPhotoUrl] = useState<string>("");
-  const [image, setImage] = useState<any>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [jobDate, setJobDate] = useState<Date>(new Date());
+
+  const route = useRoute<UserPostRouteProp>();
+  const navigation = useNavigation<NavigationProp>();
+  const { postId, userId } = route.params;
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -55,11 +65,11 @@ const UserPost: React.FC = () => {
 
   const getUploadUrl = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/s3Url');
+      const response = await axios.get("http://localhost:3000/s3Url");
       return response.data.url;
     } catch (error) {
-      console.error('Error getting upload URL:', error);
-      Alert.alert('Error', 'Failed to get upload URL.');
+      console.error("Error getting upload URL:", error);
+      Alert.alert("Error", "Failed to get upload URL.");
       return null;
     }
   };
@@ -70,17 +80,17 @@ const UserPost: React.FC = () => {
       const blob = await response.blob();
 
       await fetch(url, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': blob.type,
+          "Content-Type": blob.type,
         },
         body: blob,
       });
 
-      return url.split('?')[0]; // Return the S3 URL without query parameters
+      return url.split("?")[0]; // Return the S3 URL without query parameters
     } catch (error) {
-      console.error('Error uploading image:', error);
-      Alert.alert('Error', 'Failed to upload image.');
+      console.error("Error uploading image:", error);
+      Alert.alert("Error", "Failed to upload image.");
       return null;
     }
   };
@@ -89,47 +99,47 @@ const UserPost: React.FC = () => {
     try {
       const manipResult = await ImageManipulator.manipulateAsync(
         uri,
-        [{ resize: { width: 800 } }], // 원하는 크기로 조정
+        [{ resize: { width: 800 } }],
         { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
       );
       return manipResult.uri;
     } catch (error) {
-      console.error('Error resizing image:', error);
-      Alert.alert('Error', 'Failed to resize image.');
+      console.error("Error resizing image:", error);
+      Alert.alert("Error", "Failed to resize image.");
       return null;
     }
   };
 
-
   const handleUpdatePost = async () => {
-    if (!photoUri || !title || !description) {
-        Alert.alert('Error', 'Please fill in all fields and select an image.');
-        return;
-      }
-  
-      const resizedUri = await resizeImage(photoUri);
-      if (!resizedUri) return;
-  
+    if (!title || !description) {
+      Alert.alert("Error", "Please fill in all fields.");
+      return;
+    }
+
+    let imageUrl = photoUrl;
+    if (photoUri) {
       const uploadUrl = await getUploadUrl();
       if (uploadUrl) {
-        const imageUrl = await uploadImage(uploadUrl, resizedUri);
-        if (imageUrl) {
-          try {
-            await axios.put(`http://localhost:3000/posts/${postId}`, {
-              title: title,
-              photoUrl: imageUrl,
-              description: description,
-            });
-            
-            Alert.alert('Success', 'Post updated successfully!');
-            navigation.navigate("UserDashboard", { userId });
-          } catch (error) {
-            console.error('Error updating post:', error);
-            Alert.alert('Error', 'Failed to update post.');
-          }
-        }
+        imageUrl = await uploadImage(uploadUrl, photoUri);
       }
-    };
+    }
+
+    try {
+      await axios.put(`http://localhost:3000/posts/${postId}`, {
+        title,
+        photoUrl: imageUrl,
+        description,
+        jobDate: jobDate.toISOString(),
+      });
+
+      Alert.alert("Success", "Post updated successfully!");
+      navigation.navigate("UserDashboard", { userId });
+    } catch (error) {
+      console.error("Error updating post:", error);
+      Alert.alert("Error", "Failed to update post.");
+    }
+  };
+
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -140,93 +150,54 @@ const UserPost: React.FC = () => {
         }
 
         const response = await axios.get(
-          `http://localhost:3000/posts/${postId}`, // URL 수정
+          `http://localhost:3000/posts/${postId}`,
           {
-            headers: {
-              "x-auth-token": token,
-            },
+            headers: { "x-auth-token": token },
           }
         );
 
-        setPost(response.data);
-        setTitle(response.data.title);
-        setDescription(response.data.description);
-        setPhotoUrl(response.data.photoUrl);
+        const post = response.data;
+        setTitle(post.title);
+        setDescription(post.description);
+        setPhotoUrl(post.photoUrl);
+        setJobDate(new Date(post.jobDate));
       } catch (error) {
         console.error("Error fetching post:", error);
       }
     };
+
     fetchPost();
   }, [userId, postId]);
 
   return (
     <View style={styles.container}>
-      {post ? (
-        <>
-          <Text style={styles.label}>Title</Text>
-          <TextInput
-            style={styles.input}
-            value={title}
-            onChangeText={setTitle}
-          />
-          <Text style={styles.label}>Description</Text>
-          <TextInput
-            style={styles.input}
-            value={description}
-            onChangeText={setDescription}
-          />
-          <Text style={styles.label}>Photo</Text>
-          {photoUrl ? (
-            <Image source={{ uri: photoUrl }} style={styles.image} />
-          ) : (
-            <Text>No photo available</Text>
-          )}
-          <Button title="Pick an image from camera roll" onPress={pickImage} />
-          {image && <Image source={{ uri: image }} style={styles.image} />}
-          <TouchableOpacity style={styles.updateButton} onPress={handleUpdatePost}>
-            <Text style={styles.buttonText}>Update Post</Text>
-          </TouchableOpacity>
-        </>
+      <Text style={styles.label}>Title</Text>
+      <TextInput style={styles.input} value={title} onChangeText={setTitle} />
+      <Text style={styles.label}>Description</Text>
+      <TextInput
+        style={styles.input}
+        value={description}
+        onChangeText={setDescription}
+      />
+      <Text style={styles.label}>Photo</Text>
+      {photoUrl ? (
+        <Image source={{ uri: photoUrl }} style={styles.image} />
       ) : (
-        <Text>Loading...</Text>
+        <Text>No photo available</Text>
       )}
+      <Button title="Pick an image from camera roll" onPress={pickImage} />
+      <Text style={styles.label}>Select Date and Time of Job</Text>
+      <DateTimePicker
+        value={jobDate}
+        mode="datetime"
+        display="default"
+        onChange={(event, selectedDate) => setJobDate(selectedDate || jobDate)}
+      />
+      <TouchableOpacity style={styles.updateButton} onPress={handleUpdatePost}>
+        <Text style={styles.buttonText}>Update Post</Text>
+      </TouchableOpacity>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  label: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  image: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
-  },
-  updateButton: {
-    backgroundColor: 'blue',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
 
 export default UserPost;
