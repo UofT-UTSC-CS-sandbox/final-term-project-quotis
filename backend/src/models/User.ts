@@ -16,6 +16,9 @@ export interface IUser extends Document {
   updatedAt: Date;
   notifications: Notification[];
   role: string; // Add the role property
+  reviewRatings: number[]; // Add review ratings
+  reviewDescriptions: string[]; // Add review descriptions
+  postCode?: string; // Make postal code optional
 }
 
 const NotificationSchema = new Schema({
@@ -31,8 +34,11 @@ const UserSchema: Schema = new Schema(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    notifications: [NotificationSchema],
+    notifications: { type: [NotificationSchema], default: [] },
     role: { type: String, required: true }, // Add role to the schema
+    reviewRatings: { type: [Number], default: [] }, // Add review ratings to the schema
+    reviewDescriptions: { type: [String], default: [] }, // Add review descriptions to the schema
+    postCode: { type: String, default: "" }, // Make postal code optional with a default value
   },
   { timestamps: true }
 );

@@ -24,7 +24,7 @@ interface Quote {
 
 const MyJobs: React.FC = () => {
   const route = useRoute<MyJobsRouteProp>();
-  const navigation: any = useNavigation();
+  const navigation = useNavigation<any>();
   const { userId } = route.params;
 
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -57,13 +57,17 @@ const MyJobs: React.FC = () => {
     }
   };
 
-  const markAsComplete = async (jobId: string) => {
+  const markAsComplete = async (job: Quote) => {
     try {
-      await axios.patch(`http://localhost:3000/jobs/${jobId}`, {
+      await axios.patch(`http://localhost:3000/jobs/${job._id}`, {
         status: "completed",
       });
       fetchQuotes();
-      Alert.alert("Job Completed", "The job has been marked as completed.");
+      navigation.navigate("ProviderReview", {
+        userId: job.provider_id,
+        clientId: job.user_id,
+        clientName: job.provider_name,
+      });
     } catch (error) {
       console.error("Error completing job:", error);
       Alert.alert(
@@ -156,7 +160,7 @@ const MyJobs: React.FC = () => {
                 <View style={styles.actionButtonsContainer}>
                   <TouchableOpacity
                     style={styles.completeButton}
-                    onPress={() => markAsComplete(item._id)}
+                    onPress={() => markAsComplete(item)}
                   >
                     <Text style={styles.completeButtonText}>Complete</Text>
                   </TouchableOpacity>

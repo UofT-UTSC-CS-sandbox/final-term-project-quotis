@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import Quote, { IQuote } from "../models/Quote";
+import User from "../models/User";
 import Provider from "../models/Provider";
 import Post from "../models/Post";
 import auth from "../middleware/auth";
@@ -149,5 +150,55 @@ router.patch("/:id/status", auth, async (req: Request, res: Response) => {
     }
   }
 });
+
+// Route to add a review to a client
+// Route to add a review to a client
+router.post("/review/:clientId", async (req: Request, res: Response) => {
+  const { clientId } = req.params;
+  const { providerId, rating, description } = req.body;
+
+  console.log("Received review data:", {
+    clientId,
+    providerId,
+    rating,
+    description,
+  });
+
+  if (!providerId || typeof providerId !== "string") {
+    return res.status(400).json({ message: "Invalid providerId" });
+  }
+
+  if (typeof rating !== "number" || rating < 0 || rating > 5) {
+    return res.status(400).json({ message: "Invalid rating value" });
+  }
+
+  if (!description || typeof description !== "string") {
+    return res.status(400).json({ message: "Invalid description" });
+  }
+
+  try {
+    const client = await User.findById(clientId);
+    if (!client) {
+      return res.status(404).json({ message: "Client not found" });
+    }
+
+    client.reviewRatings.push(rating);
+    client.reviewDescriptions.push(description);
+
+    await client.save();
+
+    res.status(200).json({ message: "Review added successfully" });
+  } catch (error) {
+    console.error("Error adding review:", error);
+
+    // Check if the error is an instance of Error and has a message property
+    if (error instanceof Error) {
+      res.status(500).json({ message: "Internal server error", error: error.message });
+    } else {
+      res.status(500).json({ message: "Internal server error", error: String(error) });
+    }
+  }
+});
+
 
 export default router;
