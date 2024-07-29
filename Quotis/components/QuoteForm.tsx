@@ -11,7 +11,7 @@ type QuoteFormRouteProp = RouteProp<RootStackParamList, "QuoteForm">;
 const QuoteForm: React.FC = () => {
   const route = useRoute<QuoteFormRouteProp>();
   const navigation: any = useNavigation();
-  const { postId, providerId, userId, jobDate } = route.params; // Receive jobDate as client_date
+  const { postId, providerId, userId, jobDate, clientName } = route.params; // Receive clientName
 
   const [description, setDescription] = useState("");
   const [priceEstimate, setPriceEstimate] = useState("");
@@ -27,9 +27,11 @@ const QuoteForm: React.FC = () => {
       description,
       price_estimate: priceEstimate,
       provider_date: providerDate,
-      client_date: clientDate, // Add this line
-      alternative_date: alternativeDate, // Include alternative date
+      client_date: clientDate,
+      alternative_date: alternativeDate,
       status: "pending",
+      post_id: postId,
+      client_name: clientName, // Add client_name
     });
 
     try {
@@ -39,9 +41,11 @@ const QuoteForm: React.FC = () => {
         description,
         price_estimate: priceEstimate,
         provider_date: providerDate,
-        client_date: clientDate, // Add this line
-        alternative_date: suggestAlternative ? alternativeDate : null, // Conditional inclusion
+        client_date: clientDate,
+        alternative_date: suggestAlternative ? alternativeDate : null,
         status: "pending",
+        post_id: postId,
+        client_name: clientName, // Add client_name
       });
       console.log("Quote created:", response.data);
 

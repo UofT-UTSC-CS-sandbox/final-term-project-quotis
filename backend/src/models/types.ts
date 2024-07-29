@@ -23,7 +23,8 @@ export type RootStackParamList = {
     providerId: string;
     userId: string;
     jobDate: string;
-  }; // Add jobDate here
+    clientName: string; // Add clientName here
+  };
 };
 
 export interface Post {
@@ -49,6 +50,6 @@ import { Request } from "express";
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
-    // 필요한 다른 속성들 추가
+    // Add other necessary properties here
   };
 }
