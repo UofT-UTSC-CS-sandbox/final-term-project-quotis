@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import * as Location from 'expo-location';
 import { RootStackParamList } from "../../backend/src/models/types";
 import { Ionicons } from '@expo/vector-icons';
 import styles from './ServicesSearchStyles';
@@ -26,13 +27,37 @@ const ServiceSearch: React.FC = () => {
   const [serviceProviders, setServiceProviders] = useState<Provider[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>(serviceType);
   const [showFilterMenu, setShowFilterMenu] = useState<boolean>(false);
+  const [maxDistance, setMaxDistance] = useState<string>(''); // For distance filter input
+  const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
+  const [showDistanceMenu, setShowDistanceMenu] = useState<boolean>(false);
   const providerTypes = ['Plumbing', 'Contractor', 'Electrician'];
+
+  useEffect(() => {
+    const getUserLocation = async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.error('Permission to access location was denied');
+        return;
+      }
+
+      try {
+        let location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+
+        console.log('User location:', location.coords);
+        setUserLocation(location);
+      } catch (error) {
+        console.error('Error getting user location:', error);
+      }
+    };
+
+    getUserLocation();
+  }, []);
 
   const handleFilterPress = (filter: string) => {
     setSelectedFilter(filter);
-    setShowFilterMenu(false); // Hide the filter menu after selecting
-    // Optionally, fetch providers based on the selected filter
-    // Implement fetch logic here
+    setShowFilterMenu(false);
   };
 
   useEffect(() => {
@@ -47,7 +72,36 @@ const ServiceSearch: React.FC = () => {
 
     fetchServiceProviders();
   }, [selectedFilter]);
-  
+
+  const fetchDistanceForProviders = async () => {
+    if (!userLocation || !maxDistance) {
+      console.error('User location or maximum distance is not available');
+      return;
+    }
+
+    try {
+      const destinations = serviceProviders.map(provider => provider.postCode).join('|');
+      const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
+        params: {
+          origins: `${userLocation.coords.latitude},${userLocation.coords.longitude}`,
+          destinations: destinations,
+          key: 'AIzaSyBc-BBqxU210FzvzOJQpg78YcLTeOTjJlk', // Replace with your API key
+        },
+      });
+
+      const distances = response.data.rows[0].elements;
+      const filteredProviders = serviceProviders.filter((provider, index) => {
+        const distanceInMeters = distances[index]?.distance?.value || 0;
+        const distanceInKm = distanceInMeters / 1000;
+        return distanceInKm <= parseFloat(maxDistance);
+      });
+
+      setServiceProviders(filteredProviders);
+    } catch (error) {
+      console.error('Error fetching distance for providers:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.filterContainer}>
@@ -68,6 +122,26 @@ const ServiceSearch: React.FC = () => {
                 <Text style={styles.dropdownItemText}>{type}</Text>
               </TouchableOpacity>
             ))}
+          </View>
+        )}
+        <TouchableOpacity
+          style={styles.distanceButton}
+          onPress={() => setShowDistanceMenu(!showDistanceMenu)}
+        >
+          <Ionicons name="location" size={24} color="black" />
+        </TouchableOpacity>
+        {showDistanceMenu && (
+          <View style={styles.distanceDropdownMenu}>
+            <TextInput
+              style={styles.input}
+              placeholder="Max Distance (km)"
+              value={maxDistance}
+              onChangeText={setMaxDistance}
+              keyboardType="numeric"
+            />
+            <TouchableOpacity style={styles.button} onPress={fetchDistanceForProviders}>
+              <Text style={styles.buttonText}>Filter by Distance</Text>
+            </TouchableOpacity>
           </View>
         )}
       </View>
