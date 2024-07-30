@@ -3,7 +3,7 @@ import { View, Text, Button, StyleSheet, Image, Dimensions } from 'react-native'
 import { useNavigation } from '@react-navigation/native'; 
 import { RouteProp, useRoute } from '@react-navigation/native'; 
 import { RootStackParamList } from '../../backend/src/models/types';
-import { useEffect, useState } from 'react'; 
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 
@@ -19,8 +19,7 @@ const UserInfo: React.FC = () => {
   const [firstName, setFirstName] = useState<string>("default"); 
   const [lastName, setLastName] = useState<string>("User");
   const [address, setAddress] = useState<string>("default Address");
-  const [UserType, setUserType]  = useState<string>("IDK"); 
-  const [photoUri, setPhotoUri]= useState<string>("place");
+  const [UserType, setUserType]  = useState<string>("IDK");  
   const navigation:any = useNavigation();
   const do_nothing: any = ()=> {
 
@@ -34,12 +33,9 @@ const UserInfo: React.FC = () => {
         ); 
         console.log('success');
         setEmail(response.data.email); 
-        setEmail(response.data.email); 
         setUserType(response.data.role);
         setFirstName(response.data.firstName); 
-        setLastName(response.data.lastName); 
-        setPhotoUri(response.data.photoUrl); 
-        setAddress(response.data.postCode); 
+        setLastName(response.data.lastName);
 
       } catch (error) {
         console.log('damn');
@@ -50,54 +46,39 @@ const UserInfo: React.FC = () => {
     fetchUserInfo();
   }, [userId]);
 
+
+
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Profile Information</Text>  
-      <View>
-      {photoUri === "placeholder" ? (
-          <Image 
-            style={styles.image}
+      <Text style={styles.title}>Profile Information</Text> 
+
+      <View style={styles.banner}>  
+      <Image
+        style={styles.image}
             source={{
-              uri: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
+            uri: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
             }}
-          />
-        ) : (
-          <Image source={{ uri: photoUri }} style={styles.image} /> 
-         
-        )} 
-
-      </View>
-
-      <View style={styles.banner}>    
-        
-        <Text style={styles.name}> {firstName} {lastName} </Text>    
-        <View style={styles.buttonHolder}> 
+        />
+        <Text style={styles.name}> {firstName} {lastName} </Text>   
         <Button 
-             color={"#007bff"}
-              title="Edit Profile"
-             onPress={()=>{navigation.navigate('EditUserProfile', {
-              userId: userId})}} 
-              accessibilityLabel="Button to access edit UserInfo"
-         />  
-
-        </View>
-       
+                    color={"lightblue"}
+                    title="Edit Profile"
+                    onPress={()=>{navigation.navigate('EditUserProfile', {
+                      userId: userId})}} 
+                    accessibilityLabel="Button to access edit UserInfo"
+                    />  
 
       </View>
 
       <View style={styles.info}>
-        <Text style={styles.infoTitle}>Email</Text>   
-        <Text style = {styles.infoCont}>{email}</Text> 
-        <View style={styles.line} />
-        { address === '' ? (<view> </view>) : (<Text> Address  {address}</Text>) }
-
-      </View> 
-
-
+        <Text>Email   {email}</Text>
+        <Text>Address   {address}</Text>  
+      </View>
       
     </View>
   );
-};  
+}; 
 
 const {height, width} = Dimensions.get('window')
 
@@ -107,24 +88,17 @@ const styles = StyleSheet.create({
     flexDirection:"column",
     justifyContent: "flex-start",
     alignItems: "center", 
-    backgroundColor: "#f8f8f8", 
+    backgroundColor: "#f8f8f8"
   },   
   title: {
     fontSize: 20, 
-    fontWeight:"bold", 
+    fontWeight:"bold",
   },
   info:{ 
     display: "flex",
     flexDirection:"column",
     justifyContent: "center", 
     alignItems: "flex-start", 
-    width:'45%',
-  }, 
-  infoTitle: { 
-    fontWeight:'light'
-  }, 
-  infoCont: { 
-    fontWeight: 'bold'
   },
   banner: { 
     display: "flex", 
@@ -137,41 +111,21 @@ const styles = StyleSheet.create({
   name:{ 
     padding:10, 
     fontWeight:"bold",
-  },  
-  buttonHolder:{ 
-    borderColor:  "black", 
-    borderWidth: 1,  
-    borderRadius:3,
-
-  },
+  }, 
   image:{ 
     width: 100,
     height: 100,
-    borderRadius: 50, 
-    borderWidth:1, 
-    borderColor: 'black', 
+    borderRadius: 50,
     
 },
 important: {
    fontWeight:"bold",
-}, 
-
-  line: {
-    borderBottomColor: 'black',
-    borderBottomWidth: 1,
-    height:1,
-    marginVertical: 10, // adjust this value to add space above and below the line
-  },
+}
 });
-
 
 
 export default UserInfo;
 
-/*Changes to implement
-1) Make it that you can edit the information all on that page  
-2) Make it that all the information is displayed in a innstagram like way 
-*/
 /*Changes to implement
 1) Make it that you can edit the information all on that page  
 2) Make it that all the information is displayed in a innstagram like way 

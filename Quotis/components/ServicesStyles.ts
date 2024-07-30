@@ -5,17 +5,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff', // White background
+    backgroundColor: '#fff',
   },
   header: {
     fontSize: 24,
     marginBottom: 20,
-    color: '#000', // Black color for the header text
   },
   button: {
-    backgroundColor: '#fff', // White background for the buttons
-    borderColor: '#555', // Darker black border color for the buttons
-    borderWidth: 1,
+    backgroundColor: '#007BFF',
     padding: 15,
     borderRadius: 10,
     marginVertical: 10,
@@ -23,15 +20,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: '#007bff', // Blue text for button labels
+    color: '#fff',
     fontSize: 18,
   },
   navbar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: '#fff', // White background for the navbar
-    borderTopWidth: 1,
-    borderTopColor: '#ddd', // Light border color for the top of the navbar
+    backgroundColor: '#eee',
     paddingVertical: 10,
     width: '100%',
     position: 'absolute',
@@ -39,9 +34,6 @@ const styles = StyleSheet.create({
   },
   navItem: {
     alignItems: 'center',
-  },
-  navItemText: {
-    color: '#007bff', // Blue text for the navbar items
   },
 });
 
