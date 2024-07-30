@@ -29,7 +29,8 @@ const QuoteForm: React.FC = () => {
       provider_date: providerDate,
       client_date: clientDate,
       alternative_date: alternativeDate,
-      status: "pending",
+      client_status: "pending", // Set client_status to pending
+      provider_status: "pending", // Set provider_status to pending
       post_id: postId,
       client_name: clientName, // Add client_name
     });
@@ -43,7 +44,8 @@ const QuoteForm: React.FC = () => {
         provider_date: providerDate,
         client_date: clientDate,
         alternative_date: suggestAlternative ? alternativeDate : null,
-        status: "pending",
+        client_status: "pending", // Set client_status to pending
+        provider_status: "pending", // Set provider_status to pending
         post_id: postId,
         client_name: clientName, // Add client_name
       });

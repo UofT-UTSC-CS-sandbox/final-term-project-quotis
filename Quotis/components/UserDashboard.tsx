@@ -1,12 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  ScrollView,
-  RefreshControl,
-  Alert,
+  View, Text, FlatList, TouchableOpacity, ScrollView,
+  RefreshControl, Alert
 } from "react-native";
 import axios from "axios";
 import { FontAwesome } from "@expo/vector-icons";
@@ -30,10 +25,12 @@ interface Post {
 interface Quote {
   _id: string;
   provider_name: string;
+  provider_id: string;
   date_sent: string;
   description: string;
   price_estimate: string;
-  status: string;
+  client_status: string;
+  provider_status: string;
   provider_date: string;
   alternative_date?: string;
   job_post_title: string;
@@ -48,7 +45,7 @@ const UserDashboard: React.FC = () => {
   const route = useRoute<UserDashboardRouteProp>();
 
   const { userId } = route.params;
-  const navigation: any = useNavigation();
+  const navigation = useNavigation<any>();
 
   const fetchUserDetails = async () => {
     try {
@@ -99,7 +96,7 @@ const UserDashboard: React.FC = () => {
         {
           headers: {
             "x-auth-token": token,
-          },
+          }
         }
       );
       console.log("Fetched quotes:", response.data);
@@ -124,7 +121,8 @@ const UserDashboard: React.FC = () => {
   const handleQuoteAction = async (
     quoteId: string,
     action: string,
-    providerName: string
+    providerName: string,
+    providerId: string
   ) => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -135,41 +133,72 @@ const UserDashboard: React.FC = () => {
 
       const status = action === "accepted" ? "accepted" : "denied";
 
-      const response = await axios.patch(
-        `http://localhost:3000/quotes/${quoteId}/status`,
-        { status },
+      const clientStatusResponse = await axios.patch(
+        `http://localhost:3000/quotes/${quoteId}/client-status`,
+        { client_status: status },
         {
           headers: {
             "x-auth-token": token,
-          },
+          }
         }
       );
 
-      if (response.status === 200) {
+      const providerStatusResponse = await axios.patch(
+        `http://localhost:3000/quotes/${quoteId}/provider-status`,
+        { provider_status: status },
+        {
+          headers: {
+            "x-auth-token": token,
+          }
+        }
+      );
+
+      if (clientStatusResponse.status === 200 && providerStatusResponse.status === 200) {
         console.log(`Quote ${action} successfully.`);
 
-        const message =
+        const clientMessage =
           action === "accepted"
             ? `You have accepted a quote from ${providerName}`
             : `You have denied a quote from ${providerName}`;
 
+        const providerMessage =
+          action === "accepted"
+            ? `Your quote was accepted by ${providerName}`
+            : `Your quote was denied by ${providerName}`;
+
+        // Notify client
         await axios.post(
           `http://localhost:3000/notifications/client/${userId}/notify`,
           {
-            action: "quote",
+            type: "quote",
             entityId: quoteId,
-            message,
+            message: clientMessage,
           },
           {
             headers: {
               "x-auth-token": token,
-            },
+            }
+          }
+        );
+
+        // Notify provider
+        await axios.post(
+          `http://localhost:3000/notifications/provider/${providerId}/notify`,
+          {
+            type: "quote",
+            entityId: quoteId,
+            message: providerMessage,
+          },
+          {
+            headers: {
+              "x-auth-token": token,
+            }
           }
         );
 
         setQuotes((prevQuotes) =>
           prevQuotes.map((quote) =>
-            quote._id === quoteId ? { ...quote, status } : quote
+            quote._id === quoteId ? { ...quote, client_status: status, provider_status: status } : quote
           )
         );
       }
@@ -191,7 +220,7 @@ const UserDashboard: React.FC = () => {
         {
           headers: {
             "x-auth-token": token,
-          },
+          }
         }
       );
       if (response.status === 200) {
@@ -202,6 +231,39 @@ const UserDashboard: React.FC = () => {
       }
     } catch (error) {
       console.error("Error deleting quote:", error);
+    }
+  };
+
+  const markAsComplete = async (quote: Quote) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.patch(
+        `http://localhost:3000/quotes/${quote._id}/client-status`,
+        { client_status: "completed" },
+        {
+          headers: {
+            "x-auth-token": token,
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("Quote marked as completed successfully.");
+        navigation.navigate("ClientReview", {
+          userId,
+          providerId: quote.provider_id,
+          providerName: quote.provider_name,
+        });
+        fetchQuotes(); // Add this line to refresh the quotes
+      }
+    } catch (error) {
+      console.error("Error marking quote as completed:", error);
+      Alert.alert("Error", "Failed to mark the quote as completed.");
     }
   };
 
@@ -220,13 +282,13 @@ const UserDashboard: React.FC = () => {
     };
 
     return (
-      <View style={[styles.quoteContainer, getQuoteStyle(quote.status)]}>
+      <View style={[styles.quoteContainer, getQuoteStyle(quote.client_status)]}>
         <TouchableOpacity onPress={() => setExpanded(!expanded)}>
           <View style={styles.quoteHeader}>
             <Text style={styles.quoteText}>Provider:</Text>
             <Text style={styles.quoteText}>{quote.provider_name}</Text>
             <Text style={styles.quoteText}>Price: {quote.price_estimate}</Text>
-            <Text style={styles.quoteText}>Status: {quote.status}</Text>
+            <Text style={styles.quoteText}>Status: {quote.client_status}</Text>
             <TouchableOpacity
               onPress={() =>
                 Alert.alert(
@@ -270,7 +332,7 @@ const UserDashboard: React.FC = () => {
                 )}
               </Text>
             )}
-            {quote.status === "pending" && (
+            {quote.client_status === "pending" && (
               <>
                 <TouchableOpacity
                   style={styles.acceptButton}
@@ -278,7 +340,8 @@ const UserDashboard: React.FC = () => {
                     handleQuoteAction(
                       quote._id,
                       "accepted",
-                      quote.provider_name
+                      quote.provider_name,
+                      quote.provider_id
                     )
                   }
                 >
@@ -287,12 +350,25 @@ const UserDashboard: React.FC = () => {
                 <TouchableOpacity
                   style={styles.declineButton}
                   onPress={() =>
-                    handleQuoteAction(quote._id, "denied", quote.provider_name)
+                    handleQuoteAction(
+                      quote._id,
+                      "denied",
+                      quote.provider_name,
+                      quote.provider_id
+                    )
                   }
                 >
                   <Text style={styles.buttonText}>Decline Quote</Text>
                 </TouchableOpacity>
               </>
+            )}
+            {quote.client_status === "accepted" && (
+              <TouchableOpacity
+                style={styles.completeButton}
+                onPress={() => markAsComplete(quote)}
+              >
+                <Text style={styles.buttonText}>Mark as Complete</Text>
+              </TouchableOpacity>
             )}
           </View>
         )}
@@ -321,7 +397,7 @@ const UserDashboard: React.FC = () => {
         {
           headers: {
             "x-auth-token": token,
-          },
+          }
         }
       );
       if (response.status === 200) {
@@ -337,7 +413,7 @@ const UserDashboard: React.FC = () => {
 
   const renderHeader = () => {
     const acceptedQuotes = quotes.filter(
-      (quote) => quote.status === "accepted"
+      (quote) => quote.client_status === "accepted"
     );
 
     return (
@@ -363,7 +439,10 @@ const UserDashboard: React.FC = () => {
                 </Text>
                 <Text style={styles.jobTime}>{timeLeft}</Text>
                 <Text style={styles.jobPostTitle}>{quote.job_post_title}</Text>
-                <TouchableOpacity style={styles.jobButton} onPress={() => {}}>
+                <TouchableOpacity
+                  style={styles.jobButton}
+                  onPress={() => markAsComplete(quote)}
+                >
                   <Text style={styles.jobButtonText}>Mark Job as Complete</Text>
                 </TouchableOpacity>
               </View>

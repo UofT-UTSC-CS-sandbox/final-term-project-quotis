@@ -33,9 +33,10 @@ export type RootStackParamList = {
     providerId: string;
     userId: string;
     jobDate: string;
-    clientName: string; // Add clientName here
+    clientName: string; 
   };
   ProviderReview: { userId: string; clientId: string; clientName: string };
+  ClientReview: { userId: string; providerId: string; providerName: string }; // Add this line
 };
 
 export interface Post {
