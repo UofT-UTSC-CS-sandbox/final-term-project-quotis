@@ -7,7 +7,7 @@ import {
   Button,
   Image,
   FlatList,
-  Alert,
+  Alert, 
   Dimensions
 } from "react-native";
 import { RootStackParamList, Post } from "../../backend/src/models/types";
@@ -15,13 +15,12 @@ import { RouteProp, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type ProfileRouteProp = RouteProp<RootStackParamList, "Profile">;
+type ProviderProfileRouteProp = RouteProp<RootStackParamList, "ProviderProfile">;
 
-const Profile: React.FC = () => {
-  /*Do nothing is a void filler function for buttons that allow buttons when pressed to do nothing */
+const ProviderProfile: React.FC = () => {
   const do_nothing: any = () => {};
   const navigation: any = useNavigation(); // this is just to have a short hand for the navigation
-  const route = useRoute<ProfileRouteProp>(); 
+  const route = useRoute<ProviderProfileRouteProp>(); 
   const [photoUri, setPhotoUri] = useState<string>("placeholder");
   const { userId } = route.params;
 
@@ -57,10 +56,10 @@ const Profile: React.FC = () => {
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
+          `http://localhost:3000/providers/${userId}` 
         ); 
         console.log('success');
-        setPhotoUri(response.data.photoUrl)
+        setPhotoUri(response.data.photoUri)
 
       } catch (error) {
         console.log('damn');
@@ -75,7 +74,7 @@ const Profile: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.pfp}>
-      {photoUri === "placeholder" ? (
+      {photoUri === "" ? (
           <Image 
             style={styles.image}
             source={{
@@ -93,7 +92,7 @@ const Profile: React.FC = () => {
             color={"#007bff"}
             title="Personal"
             onPress={() => {
-              navigation.navigate("UserInfo", {
+              navigation.navigate("ProviderInfo", {
                 userId: userId,
               });
             }} // passsing userid to the user information page
@@ -163,4 +162,4 @@ const styles = StyleSheet.create({
 
 })
 
-export default Profile;
+export default ProviderProfile;

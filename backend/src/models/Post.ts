@@ -1,21 +1,25 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IPost extends Document {
-  userId: mongoose.Schema.Types.ObjectId; // 사용자 ID 참조
+  userId: string;
   title: string;
-  description: string;
   photoUrl: string;
+  description: string;
+  likes: number;
   createdAt: Date;
-  likes: number; // 좋아요 수 추가
+  quotes: string[];
+  jobDate: Date; // Add this line
 }
 
-const PostSchema = new Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+const PostSchema: Schema = new Schema({
+  userId: { type: String, required: true },
   title: { type: String, required: true },
-  description: { type: String, required: true },
   photoUrl: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-  likes: { type: Number, default: 0 } // 좋아요 수 초기값 0
+  description: { type: String, required: true },
+  likes: { type: Number, required: true, default: 0 },
+  createdAt: { type: Date, required: true, default: Date.now },
+  quotes: { type: [String], required: true, default: [] },
+  jobDate: { type: Date }, // Add this line
 });
 
-export default mongoose.model<IPost>('Post', PostSchema);
+export default mongoose.model<IPost>("Post", PostSchema);

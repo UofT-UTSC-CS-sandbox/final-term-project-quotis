@@ -13,24 +13,27 @@ import {
 import { RootStackParamList } from "../../backend/src/models/types";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
-import axios from "axios"; 
+import axios from "axios";
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 
-type EditRouteProp = RouteProp<RootStackParamList, "EditUserProfile">;
 
-const EditUserProfile: React.FC = () => {
-  const route: any = useRoute<EditRouteProp>();
+type EditProviderProp = RouteProp<RootStackParamList, "EditProviderInfo">;
+
+const EditProviderInfo: React.FC = () => {
+  const route: any = useRoute<EditProviderProp>();
+  const [profilePic, setProfilePic] = useState(null);
   const [firstName, setFirstName] = useState("default ");
   const [lastName, setLastName] = useState("user");
   const [email, setEmail] = useState("default email");
-  const [address, setAddress] = useState("default address"); 
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const [profilePic, setProfilePic] = useState<string>("placeholder");
+  const [postal, setPostal] = useState("A1A 1A1") ;
+  const [photoUri, setPhotoUri] = useState<string | null>(null); 
+  const [pic, setPic] = useState<string>(""); 
+  const [desc, setDesc] = useState<string>("") 
+  const [contact, setContact] = useState<string>("") 
   const { userId } = route.params;
-  const navigation: any = useNavigation(); 
+  const navigation: any = useNavigation();
 
-  /*This function allows us to pick an image from our gallery */
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -114,21 +117,28 @@ const EditUserProfile: React.FC = () => {
     }
   };
 
-  const fetchUserInfo = async () => {
-    try {
-      const response = await axios.get(`http://localhost:3000/user/${userId}`);
-      setEmail(response.data.email);
-      setFirstName(response.data.firstName);
-      setLastName(response.data.lastName);
-      setProfilePic(response.data.photoUrl);
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
-  };
 
   useEffect(() => {
-    fetchUserInfo(); // 컴포넌트가 마운트될 때 유저 정보 가져오기
-  }, [userId]);
+    const fetchUserInfo = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/providers/${userId}`
+        );
+        console.log("success ");
+        setEmail(response.data.email);
+        setFirstName(response.data.firstName);
+        setLastName(response.data.lastName);
+        setPic(response.data.photoUri); 
+        setDesc(response.data.description); 
+        setContact(response.data.contact); 
+        setPostal(response.data.postCode);
+      } catch (error) {
+        console.log("damn for user");
+        console.error("Error fetching user details:", error);
+      }
+    };
+    fetchUserInfo();
+  }, [userId]); 
 
   useEffect( ()=>{ 
     // here once the photoUri is changed i want this to take the pic resize it get get a url and then store the pic at that URL 
@@ -149,13 +159,13 @@ const profilePicUpload = async ()=> {
     const imageUrl = await uploadImage(uploadUrl, resizedUri);
     if (imageUrl) {
       try {
-        await axios.put(`http://localhost:3000/update/${userId}`, {
-          photoUrl: imageUrl,
+        await axios.put(`http://localhost:3000/updateProvider/${userId}`, {
+          photoUri: imageUrl,
         }, 
         );
         Alert.alert('Success', 'Post created successfully!');
         setPhotoUri(null);
-        navigation.navigate("UserInfo", { userId });
+        navigation.navigate("ProviderInfo", { userId });
       } catch (error) {
         console.error('Error uploading image:', error);
         Alert.alert('Error', 'Failed to upload image.');
@@ -164,25 +174,25 @@ const profilePicUpload = async ()=> {
   }
 }
   
-
-
-
-
   const handleSubmit = async () => {
     const updatedData = {
       email: email,
       firstName: firstName,
-      lastName: lastName,
+      lastName: lastName, 
+      description:desc,
+      contact: contact,
+      postCode: postal,
     };
     try {
       const response = await axios.put(
-        `http://localhost:3000/update/${userId}`,
+        `http://localhost:3000/updateProvider/${userId}`,
         updatedData
       );
       Alert.alert("Successfully Updated UserInfo", response.data.message);
-      fetchUserInfo(); // 유저 정보 업데이트 후 최신 정보 가져오기
-      navigation.navigate("UserInfo", { userId: userId });
+      console.log(response.data.message);
+      navigation.navigate("ProviderInfo", { userId: userId });
     } catch (error: any) {
+      console.log("damn for edit");
       console.error("Error Updating User Information:", error);
       Alert.alert(
         "Error",
@@ -191,13 +201,12 @@ const profilePicUpload = async ()=> {
     }
   };
 
-  const nothing: any = () => {};
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>EDIT PROFILE</Text>
       <View style={styles.profilePicContainer}>
-      {photoUri === "placeholder" ? (
+      {pic === "" ? (
           <Image 
             style={styles.image}
             source={{
@@ -205,13 +214,10 @@ const profilePicUpload = async ()=> {
             }}
           />
         ) : (
-          <Image   style={styles.image} source={{ uri: profilePic }}/> 
+          <Image   style={styles.image} source={{ uri: pic }}/> 
          
         )}
-        <View style={styles.button}> 
-          <Button title="change photo" onPress={pickImage} color={"#007bff"} />
-        </View>
-   
+        <Button title="change photo" onPress={pickImage} color={"#007bff"} />
       </View>
       <Text style={styles.title}>First Name</Text>
       <TextInput
@@ -235,13 +241,27 @@ const profilePicUpload = async ()=> {
         keyboardType="email-address"
         onChangeText={setEmail}
       />
-      <Text style={styles.title}>Address</Text>
+      <Text style={styles.title}>Postal Code</Text>
       <TextInput
         style={styles.input}
-        placeholder={address}
-        value={address}
-        onChangeText={setAddress}
-      />
+        placeholder={postal}
+        value={postal}
+        onChangeText={setPostal}
+      />  
+         <Text style={styles.title}>Description</Text>
+      <TextInput
+        style={styles.input}
+        placeholder={desc}
+        value={desc}
+        onChangeText={setDesc}
+      />  
+         <Text style={styles.title}>Contact</Text>
+      <TextInput
+        style={styles.input}
+        placeholder={contact}
+        value={contact}
+        onChangeText={setContact}
+      /> 
       <View style={styles.submit}>
         <Button title="Submit" color={"#007bff"} onPress={handleSubmit} />
       </View>
@@ -267,13 +287,9 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 20,
   },
-  image: {
+  profilePic: {
     width: 50,
     height: 50,
-    borderRadius: 50, 
-    borderWidth:1 , 
-    borderColor: 'black', 
-
   },
   profilePicPlaceholder: {
     width: 100,
@@ -300,14 +316,16 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     width: width * 0.3, 
-    borderRadius: 5,
-    
-  }, 
-  button:{ 
     borderRadius:5, 
-    borderWidth:1, 
-    borderColor: 'black',
+  }, 
+  image: {
+    width: 50,
+    height: 50,
+    borderRadius: 50, 
+    borderWidth:1 , 
+    borderColor: 'black', 
+
   },
 });
 
-export default EditUserProfile;
+export default EditProviderInfo;

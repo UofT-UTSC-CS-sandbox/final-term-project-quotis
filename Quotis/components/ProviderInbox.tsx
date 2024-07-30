@@ -8,15 +8,15 @@ import { formatDistanceToNow } from "date-fns";
 
 import { RootStackParamList } from "../../backend/src/models/types";
 
-type UserInboxRouteProp = RouteProp<RootStackParamList, "UserInbox">;
+type ProviderInboxRouteProp = RouteProp<RootStackParamList, "ProviderInbox">;
 
-const UserInbox: React.FC = () => {
+const ProviderInbox: React.FC = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
-  const route = useRoute<UserInboxRouteProp>();
+  const route = useRoute<ProviderInboxRouteProp>();
   const navigation: any = useNavigation();
 
   const { userId } = route.params;
-  const userType = "client"; // Assuming the user type is 'client', update this based on your app logic
+  const userType = "provider"; // Assuming the user type is 'provider'
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -88,16 +88,12 @@ const UserInbox: React.FC = () => {
       <View style={styles.navbar}>
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => navigation.navigate("UserDashboard", { userId })}
+          onPress={() => navigation.navigate("ProviderDashboard", { userId })}
         >
           <FontAwesome name="home" size={24} color="black" />
           <Text>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => {
-          navigation.navigate("Services", {
-            userId: userId,
-          });
-        }}>
+        <TouchableOpacity style={styles.navItem} onPress={() => {}}>
           <FontAwesome name="wrench" size={24} color="black" />
           <Text>Services</Text>
         </TouchableOpacity>
@@ -121,4 +117,4 @@ const UserInbox: React.FC = () => {
   );
 };
 
-export default UserInbox;
+export default ProviderInbox;
