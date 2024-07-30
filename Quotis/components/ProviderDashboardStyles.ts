@@ -9,6 +9,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+    fontFamily: "Serif", // Modern and professional font
+    color: "#333", // Darker color for better contrast
   },
   postContainer: {
     backgroundColor: "#fff",
@@ -16,10 +18,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 20,
     alignItems: "center",
+    borderWidth: 1, // Add this line
+    borderColor: "black", // Add this line
   },
   userName: {
     fontSize: 18,
     fontWeight: "bold",
+    marginBottom: 10,
   },
   postImage: {
     width: "100%",
@@ -35,10 +40,17 @@ const styles = StyleSheet.create({
     color: "#888",
     marginBottom: 10,
   },
+  actualPostTime: {
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 10,
+  },
   sendQuoteButton: {
     backgroundColor: "#007bff",
     padding: 10,
     borderRadius: 5,
+    borderColor: "black",
+    borderWidth: 1,
   },
   sendQuoteButtonText: {
     color: "#fff",
@@ -57,6 +69,11 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingBottom: 20,
+  },
+  errorText: {
+    color: "red",
+    textAlign: "center",
+    marginVertical: 10,
   },
 });
 

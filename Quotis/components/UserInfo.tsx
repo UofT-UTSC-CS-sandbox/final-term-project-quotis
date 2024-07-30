@@ -34,6 +34,7 @@ const UserInfo: React.FC = () => {
         ); 
         console.log('success');
         setEmail(response.data.email); 
+        setEmail(response.data.email); 
         setUserType(response.data.role);
         setFirstName(response.data.firstName); 
         setLastName(response.data.lastName); 
@@ -96,7 +97,7 @@ const UserInfo: React.FC = () => {
       
     </View>
   );
-}; 
+};  
 
 const {height, width} = Dimensions.get('window')
 
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
   },   
   title: {
     fontSize: 20, 
-    fontWeight:"bold",
+    fontWeight:"bold", 
   },
   info:{ 
     display: "flex",
@@ -164,8 +165,13 @@ important: {
 });
 
 
+
 export default UserInfo;
 
+/*Changes to implement
+1) Make it that you can edit the information all on that page  
+2) Make it that all the information is displayed in a innstagram like way 
+*/
 /*Changes to implement
 1) Make it that you can edit the information all on that page  
 2) Make it that all the information is displayed in a innstagram like way 

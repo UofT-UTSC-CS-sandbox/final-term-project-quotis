@@ -1,3 +1,4 @@
+import { CurrentRenderContext } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
@@ -28,10 +29,14 @@ const styles = StyleSheet.create({
   },
   upcomingJob: {
     padding: 10,
-    backgroundColor: "#e0f7fa",
+    backgroundColor: "#fff",
     borderRadius: 10,
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#000", // Black border around the upcoming job
+    marginTop: 10, // Added margin
   },
+
   upcomingJobText: {
     fontSize: 16,
   },
@@ -39,15 +44,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  jobPostTitle: {
+    fontSize: 16,
+    marginTop: 10,
+  },
+  jobPostTitleHighlight: {
+    fontSize: 16,
+    textDecorationLine: "underline", // Underline the job title text
+  },
   jobButton: {
     marginTop: 10,
     padding: 10,
     backgroundColor: "#007bff",
     borderRadius: 5,
+    alignSelf: "center", // Center the button
   },
   jobButtonText: {
     color: "#fff",
     textAlign: "center",
+  },
+  noUpcomingJobsText: {
+    fontSize: 16,
+    color: "#999",
+    textAlign: "center",
+    marginVertical: 20,
   },
   sectionHeader: {
     fontSize: 20,
@@ -68,7 +88,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 10,
     marginBottom: 10,
-    width: "100%", // Ensure posts take full width
+    width: "96%", // Ensure posts take full width
+    borderWidth: 1,
+    borderColor: "#000", // Add black border around the post
+    position: "relative", // For absolute positioning of delete button
+    marginTop: 10,
   },
   postTitle: {
     fontSize: 18,
@@ -80,12 +104,34 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#007bff",
     borderRadius: 5,
-    width: "80%",
+    width: "50%",
     margin: "auto",
+    borderColor: "black",
+    borderWidth: 1,
   },
   viewButtonText: {
     color: "#fff",
     textAlign: "center",
+  },
+  deletePostButton: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    padding: 5,
+    backgroundColor: "white",
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: "black",
+    width: 30,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deletePostButtonText: {
+    color: "black",
+    fontWeight: "bold",
+    textAlign: "center",
+    fontSize: 16,
   },
   deleteButton: {
     backgroundColor: "red",
@@ -123,6 +169,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderWidth: 1,
     borderColor: "#000", // Black border around the quote
+    position: "relative", // Add this line for absolute positioning of the delete button
   },
   pendingQuote: {
     backgroundColor: "#fff", // White background for pending quotes
@@ -199,6 +246,31 @@ const styles = StyleSheet.create({
   notificationDate: {
     fontSize: 14,
     color: "#666",
+  },
+  deleteQuoteButton: {
+    position: "absolute",
+    top: -18,
+    right: -12,
+    padding: 5,
+    backgroundColor: "white",
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: "black",
+    width: 30,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteQuoteButtonText: {
+    color: "black",
+    fontWeight: "bold",
+    textAlign: "center",
+    fontSize: 16,
+  },
+  postDate: {
+    fontSize: 15,
+    color: "black",
+    marginBottom: 10, // Adjust the margin as needed
   },
 });
 

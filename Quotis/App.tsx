@@ -16,12 +16,13 @@ import MyJobs from "./components/MyJobs";
 import ProviderInfo from "./components/ProviderInfo";
 import Verification from "./components/Verification";
 import EditProviderInfo from "./components/EditProviderInfo";
-import PostList from "./components/PostList";
 import ProviderInbox from "./components/ProviderInbox";
 import ProviderProfile from "./components/ProviderProfile";
 import QuoteForm from "./components/QuoteForm";
 import Services from "./components/Services";
-import ServiceSearch from "./components/ServiceSearch"; // Import the ServiceSearch component
+import ServiceSearch from "./components/ServiceSearch";
+import ProviderReview from "./components/ProviderReview"; // Import the ProviderReview component 
+import CustomerService from "./components/CustomerService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
@@ -44,13 +45,15 @@ export default function App() {
         <Stack.Screen name="ProviderInfo" component={ProviderInfo} />
         <Stack.Screen name="Verification" component={Verification} />
         <Stack.Screen name="EditProviderInfo" component={EditProviderInfo} />
-        <Stack.Screen name="PostList" component={PostList} />
         <Stack.Screen name="UserPost" component={UserPost} />
         <Stack.Screen name="ProviderInbox" component={ProviderInbox} />
         <Stack.Screen name="ProviderProfile" component={ProviderProfile} />
         <Stack.Screen name="QuoteForm" component={QuoteForm} />
         <Stack.Screen name="Services" component={Services} />
         <Stack.Screen name="ServiceSearch" component={ServiceSearch} />
+        <Stack.Screen name="ProviderReview" component={ProviderReview} />  
+        <Stack.Screen name="CustomerService" component={CustomerService} /> 
+
       </Stack.Navigator>
     </NavigationContainer>
   );

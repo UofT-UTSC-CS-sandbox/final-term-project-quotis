@@ -4,7 +4,7 @@ import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { RootStackParamList } from "../../backend/src/models/types";
 import styles from "./MyJobsStyles";
-import { FontAwesome } from "@expo/vector-icons"; // Import FontAwesome
+import { FontAwesome } from "@expo/vector-icons";
 
 type MyJobsRouteProp = RouteProp<RootStackParamList, "MyJobs">;
 
@@ -17,28 +17,30 @@ interface Quote {
   status: string;
   user_id: string;
   provider_id: string;
+  post_id: string; // Add this field to the Quote interface
+  client_name: string;
+  job_post_title: string;
 }
 
 const MyJobs: React.FC = () => {
   const route = useRoute<MyJobsRouteProp>();
-  const navigation: any = useNavigation();
+  const navigation = useNavigation<any>();
   const { userId } = route.params;
 
-  const [acceptedQuotes, setAcceptedQuotes] = useState<Quote[]>([]);
-  const [showAcceptedJobs, setShowAcceptedJobs] = useState<boolean>(true); // Toggle state
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [currentFilter, setCurrentFilter] = useState<
+    "accepted" | "completed" | "cancelled"
+  >("accepted");
 
-  const fetchAcceptedQuotes = async () => {
+  const fetchQuotes = async () => {
     try {
-      let status = showAcceptedJobs ? "accepted" : "cancelled"; // Determine which status to fetch
       const response = await axios.get(
-        `http://localhost:3000/jobs?provider_id=${userId}&status=${status}`
+        `http://localhost:3000/jobs?provider_id=${userId}&status=${currentFilter}`
       );
-      setAcceptedQuotes(response.data);
+      setQuotes(response.data);
     } catch (error) {
-      console.error(
-        `Error fetching ${showAcceptedJobs ? "accepted" : "cancelled"} quotes:`,
-        error
-      );
+      console.error(`Error fetching ${currentFilter} quotes:`, error);
+      Alert.alert("Error", "Failed to fetch quotes. Please try again later.");
     }
   };
 
@@ -47,7 +49,7 @@ const MyJobs: React.FC = () => {
       await axios.patch(`http://localhost:3000/jobs/${jobId}`, {
         status: "cancelled",
       });
-      fetchAcceptedQuotes(); // Refresh the list of accepted or cancelled quotes
+      fetchQuotes();
       Alert.alert("Job Cancelled", "The job has been successfully cancelled.");
     } catch (error) {
       console.error("Error cancelling job:", error);
@@ -55,9 +57,29 @@ const MyJobs: React.FC = () => {
     }
   };
 
+  const markAsComplete = async (job: Quote) => {
+    try {
+      await axios.patch(`http://localhost:3000/jobs/${job._id}`, {
+        status: "completed",
+      });
+      fetchQuotes();
+      navigation.navigate("ProviderReview", {
+        userId: job.provider_id,
+        clientId: job.user_id,
+        clientName: job.provider_name,
+      });
+    } catch (error) {
+      console.error("Error completing job:", error);
+      Alert.alert(
+        "Error",
+        "Failed to complete the job. Please try again later."
+      );
+    }
+  };
+
   useEffect(() => {
-    fetchAcceptedQuotes();
-  }, [showAcceptedJobs]); // Refresh quotes when showAcceptedJobs state changes
+    fetchQuotes();
+  }, [currentFilter]);
 
   return (
     <View style={styles.container}>
@@ -65,14 +87,14 @@ const MyJobs: React.FC = () => {
         <TouchableOpacity
           style={[
             styles.toggleButton,
-            showAcceptedJobs ? styles.activeToggle : null,
+            currentFilter === "accepted" ? styles.activeToggle : null,
           ]}
-          onPress={() => setShowAcceptedJobs(true)}
+          onPress={() => setCurrentFilter("accepted")}
         >
           <Text
             style={[
               styles.toggleButtonText,
-              showAcceptedJobs ? styles.activeToggleText : null,
+              currentFilter === "accepted" ? styles.activeToggleText : null,
             ]}
           >
             Accepted Jobs
@@ -81,14 +103,30 @@ const MyJobs: React.FC = () => {
         <TouchableOpacity
           style={[
             styles.toggleButton,
-            !showAcceptedJobs ? styles.activeToggle : null,
+            currentFilter === "completed" ? styles.activeToggle : null,
           ]}
-          onPress={() => setShowAcceptedJobs(false)}
+          onPress={() => setCurrentFilter("completed")}
         >
           <Text
             style={[
               styles.toggleButtonText,
-              !showAcceptedJobs ? styles.activeToggleText : null,
+              currentFilter === "completed" ? styles.activeToggleText : null,
+            ]}
+          >
+            Completed Jobs
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.toggleButton,
+            currentFilter === "cancelled" ? styles.activeToggle : null,
+          ]}
+          onPress={() => setCurrentFilter("cancelled")}
+        >
+          <Text
+            style={[
+              styles.toggleButtonText,
+              currentFilter === "cancelled" ? styles.activeToggleText : null,
             ]}
           >
             Cancelled Jobs
@@ -96,28 +134,43 @@ const MyJobs: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {acceptedQuotes.length === 0 ? (
+      {quotes.length === 0 ? (
         <Text style={styles.noJobsText}>
-          No {showAcceptedJobs ? "Accepted" : "Cancelled"} Jobs
+          No{" "}
+          {currentFilter === "accepted"
+            ? "Accepted"
+            : currentFilter === "completed"
+            ? "Completed"
+            : "Cancelled"}{" "}
+          Jobs
         </Text>
       ) : (
         <FlatList
-          data={acceptedQuotes}
+          data={quotes}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
             <View style={styles.jobItem}>
-              <Text style={styles.jobTitle}>{item.provider_name}</Text>
+              <Text style={styles.jobTitle}>{item.client_name}</Text>
+              <Text>{item.job_post_title}</Text>
               <Text>{new Date(item.date_sent).toLocaleDateString()}</Text>
               <Text>{item.description}</Text>
               <Text>Estimated Price: {item.price_estimate}</Text>
               <Text>Status: {item.status}</Text>
-              {showAcceptedJobs && (
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => cancelJob(item._id)}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
+              {currentFilter === "accepted" && (
+                <View style={styles.actionButtonsContainer}>
+                  <TouchableOpacity
+                    style={styles.completeButton}
+                    onPress={() => markAsComplete(item)}
+                  >
+                    <Text style={styles.completeButtonText}>Complete</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => cancelJob(item._id)}
+                  >
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
               )}
             </View>
           )}

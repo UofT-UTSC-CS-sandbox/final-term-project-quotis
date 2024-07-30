@@ -26,10 +26,11 @@ const EditProviderInfo: React.FC = () => {
   const [firstName, setFirstName] = useState("default ");
   const [lastName, setLastName] = useState("user");
   const [email, setEmail] = useState("default email");
-  const [address, setAddress] = useState("default address"); 
   const [postal, setPostal] = useState("A1A 1A1") ;
-  const [phone, setPhone] = useState('12345678'); 
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [photoUri, setPhotoUri] = useState<string | null>(null); 
+  const [pic, setPic] = useState<string>(""); 
+  const [desc, setDesc] = useState<string>("") 
+  const [contact, setContact] = useState<string>("") 
   const { userId } = route.params;
   const navigation: any = useNavigation();
 
@@ -121,13 +122,16 @@ const EditProviderInfo: React.FC = () => {
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
+          `http://localhost:3000/providers/${userId}`
         );
         console.log("success ");
         setEmail(response.data.email);
         setFirstName(response.data.firstName);
         setLastName(response.data.lastName);
-        setProfilePic(response.data.photoUrl);
+        setPic(response.data.photoUri); 
+        setDesc(response.data.description); 
+        setContact(response.data.contact); 
+        setPostal(response.data.postCode);
       } catch (error) {
         console.log("damn for user");
         console.error("Error fetching user details:", error);
@@ -155,13 +159,13 @@ const profilePicUpload = async ()=> {
     const imageUrl = await uploadImage(uploadUrl, resizedUri);
     if (imageUrl) {
       try {
-        await axios.put(`http://localhost:3000/update/${userId}`, {
-          photoUrl: imageUrl,
+        await axios.put(`http://localhost:3000/updateProvider/${userId}`, {
+          photoUri: imageUrl,
         }, 
         );
         Alert.alert('Success', 'Post created successfully!');
         setPhotoUri(null);
-        navigation.navigate("UserInfo", { userId });
+        navigation.navigate("ProviderInfo", { userId });
       } catch (error) {
         console.error('Error uploading image:', error);
         Alert.alert('Error', 'Failed to upload image.');
@@ -170,34 +174,18 @@ const profilePicUpload = async ()=> {
   }
 }
   
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
-        );
-        console.log("success ");
-        setEmail(response.data.email);
-        setFirstName(response.data.firstName);
-        setLastName(response.data.lastName);
-      } catch (error) {
-        console.log("damn for user");
-        console.error("Error fetching user details:", error);
-      }
-    };
-    fetchUserInfo();
-  }, [userId]);
-
   const handleSubmit = async () => {
     const updatedData = {
       email: email,
       firstName: firstName,
-      lastName: lastName,
+      lastName: lastName, 
+      description:desc,
+      contact: contact,
+      postCode: postal,
     };
     try {
       const response = await axios.put(
-        `http://localhost:3000/update/${userId}`,
+        `http://localhost:3000/updateProvider/${userId}`,
         updatedData
       );
       Alert.alert("Successfully Updated UserInfo", response.data.message);
@@ -213,19 +201,23 @@ const profilePicUpload = async ()=> {
     }
   };
 
-  const nothing: any = () => {};
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>EDIT PROFILE</Text>
       <View style={styles.profilePicContainer}>
-        <Image
-          style={styles.profilePic}
-          source={{
-            uri: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
-          }}
-        />
-        <Button title="change photo" onPress={nothing} color={"lightblue"} />
+      {pic === "" ? (
+          <Image 
+            style={styles.image}
+            source={{
+              uri: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
+            }}
+          />
+        ) : (
+          <Image   style={styles.image} source={{ uri: pic }}/> 
+         
+        )}
+        <Button title="change photo" onPress={pickImage} color={"#007bff"} />
       </View>
       <Text style={styles.title}>First Name</Text>
       <TextInput
@@ -255,16 +247,23 @@ const profilePicUpload = async ()=> {
         placeholder={postal}
         value={postal}
         onChangeText={setPostal}
-      /> 
-       <Text style={styles.title}>Phone Number</Text>
+      />  
+         <Text style={styles.title}>Description</Text>
       <TextInput
         style={styles.input}
-        placeholder={phone}
-        value={phone}
-        onChangeText={setPhone}
-      />
+        placeholder={desc}
+        value={desc}
+        onChangeText={setDesc}
+      />  
+         <Text style={styles.title}>Contact</Text>
+      <TextInput
+        style={styles.input}
+        placeholder={contact}
+        value={contact}
+        onChangeText={setContact}
+      /> 
       <View style={styles.submit}>
-        <Button title="Submit" color={"lightblue"} onPress={handleSubmit} />
+        <Button title="Submit" color={"#007bff"} onPress={handleSubmit} />
       </View>
     </View>
   );
@@ -316,7 +315,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
-    width: width * 0.3,
+    width: width * 0.3, 
+    borderRadius:5, 
+  }, 
+  image: {
+    width: 50,
+    height: 50,
+    borderRadius: 50, 
+    borderWidth:1 , 
+    borderColor: 'black', 
+
   },
 });
 

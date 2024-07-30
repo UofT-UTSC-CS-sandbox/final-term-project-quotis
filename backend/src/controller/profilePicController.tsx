@@ -1,5 +1,6 @@
 import Post from '../models/Post';
-import User from '../models/User'
+import User from '../models/User' 
+import Provider from '../models/Provider'
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../models/types';
 import AWS from 'aws-sdk';
@@ -31,7 +32,16 @@ export const getUser = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
-};
+}; 
+export const getProvider = async (req: Request, res: Response) => {
+    try {
+      const providerId = req.params.providerId;
+      const user = await Provider.find({ providerId });
+      res.status(200).json(user);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
  
 /*This function given a valid userId and valid photoUrl will update the photoUrl field of the user to the new photoURL */
 export const updateProfile = async (req: Request, res: Response) => {
@@ -60,7 +70,33 @@ export const updateProfile = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
-
+ 
+export const updateProviderProfile = async (req: Request, res: Response) => {
+    try {
+      const providerId = req.params.providerId;
+      const updateData = req.body; // get data to update 
+      const provider = await Provider.findById(providerId);
+  
+      if (!provider) {
+        return res.status(404).json({ error: 'Provider not found' });
+      }
+  
+      // If photo URL is not included in update data, keep existing photo URL
+      if (!updateData.photoUrl) {
+        updateData.photoUrl = provider.photoUri;
+      } else {
+        const key = provider.photoUri.split('/').pop()!;
+        await deleteS3Object(key);
+      }
+  
+      // post update
+      const updatedProfile = await Provider.findByIdAndUpdate(providerId, updateData, { new: true });
+  
+      res.status(200).json(updatedProfile);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
 
 
 
@@ -88,5 +124,31 @@ export const deletePost = async (req: Request, res: Response) => {
     console.error('Error deleting profile pic:', error); // 에러 로그 추가
     res.status(500).json({ error: error.message });
   }
-};
+};  
+
+export const deleteProviderPost = async (req: Request, res: Response) => {
+    try {
+      const providerId = req.params.providerId;
+      const provider = await Provider.findById(providerId);
+  
+      if (!provider) {
+        return res.status(404).json({ error: 'Provider not found' });
+      }
+  
+      // S3에서 이미지 삭제
+      const key = provider.photoUri.split('/').pop()!;
+      console.log('Deleting from S3 with key:', key); // 디버깅을 위한 로그 추가
+  
+      await deleteS3Object(key); 
+  
+      //Now I want to replace this with the URL of the default image  
+  
+      res.status(200).json({ message: 'Profile Pic was deleted successfully' });
+    } catch (error: any) {
+      console.error('Error deleting profile pic:', error); // 에러 로그 추가
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+
 
