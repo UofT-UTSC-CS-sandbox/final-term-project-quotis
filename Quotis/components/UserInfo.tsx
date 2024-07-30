@@ -11,7 +11,7 @@ import { FontAwesome } from "@expo/vector-icons";
 
 // I need to pass this page a prop of the basic info of who logged in 
 type UserInfoRouteProp = RouteProp<RootStackParamList, "UserInfo">;
-
+//change for pull request
 const UserInfo: React.FC = () => {  
   
 
