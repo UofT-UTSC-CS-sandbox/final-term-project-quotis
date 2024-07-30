@@ -27,7 +27,8 @@ export type RootStackParamList = {
   UserPost: { postId: string; userId: string };
   ProviderProfile: { userId: string };
   ProviderInbox: { userId: string };
-  Services: { userId: string };
+  Services: { userId: string }; 
+  CustomerService: undefined;
   QuoteForm: {
     postId: string;
     providerId: string;

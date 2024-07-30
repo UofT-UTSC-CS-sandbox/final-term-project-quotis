@@ -18,9 +18,12 @@ const ProviderInfo: React.FC = () => {
   const [email, setEmail] = useState<string>("defaultEmail");
   const [firstName, setFirstName] = useState<string>("default"); 
   const [lastName, setLastName] = useState<string>("User");
-  const [address, setAddress] = useState<string>("default Address");
-  const [UserType, setUserType]  = useState<string>("IDK");  
-  const navigation:any = useNavigation();
+  const [postCode, setPostCode] = useState<string>("default Post"); 
+  const [photoUri, setPhotoUri] = useState<string>(""); 
+  const [desc, setDesc] = useState<string>("") 
+  const [contact, setContact] = useState<string>("")
+  const navigation:any = useNavigation(); 
+
   const do_nothing: any = ()=> {
 
   } 
@@ -29,13 +32,16 @@ const ProviderInfo: React.FC = () => {
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
+          `http://localhost:3000/providers/${userId}`
         ); 
         console.log('success');
         setEmail(response.data.email); 
-        setUserType(response.data.role);
         setFirstName(response.data.firstName); 
-        setLastName(response.data.lastName);
+        setLastName(response.data.lastName); 
+        setPhotoUri(response.data.photoUri); 
+        setDesc(response.data.description); 
+        setContact(response.data.contact); 
+        setPostCode(response.data.postCode);
 
       } catch (error) {
         console.log('damn');
@@ -52,33 +58,64 @@ const ProviderInfo: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile Information</Text> 
-
-      <View style={styles.banner}>  
-      <Image
-        style={styles.image}
+      <View style = {styles.picHolder}> 
+      <View>
+      {photoUri === "" ? (
+          <Image 
+            style={styles.image}
             source={{
-            uri: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
+              uri: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
             }}
-        />
-        <Text style={styles.name}> {firstName} {lastName} </Text>   
+          />
+        ) : (
+          <Image source={{ uri: photoUri }} style={styles.image} /> 
+         
+        )} 
+
+      </View>
+      </View>
+      <View style={styles.banner}>  
+        <Text style={styles.name}> {firstName} {lastName} </Text> 
+        <View style={styles.editButton}>  
         <Button 
-                    color={"lightblue"}
+                    color={"#007bff"}
                     title="Edit Profile"
                     onPress={()=>{navigation.navigate('EditProviderInfo', {
                       userId: userId})}} 
                     accessibilityLabel="Button to access edit UserInfo"
                     />  
+        
+        </View>   
+       
 
       </View>
 
       <View style={styles.info}>
-        <Text>Email   {email}</Text>
-        <Text>Address   {address}</Text>  
+        <Text style={styles.infoTitle}>Email</Text> 
+        <Text style = {styles.infoCont}> 
+        {email}
+        </Text>
+        <Text style={styles.infoTitle}>PostCode</Text> 
+        <Text  style = {styles.infoCont}> 
+        {postCode}
+        </Text>
+        <Text style={styles.infoTitle} > 
+          Description
+        </Text> 
+        <Text style = {styles.infoCont}> 
+          {desc}
+        </Text> 
+        <Text style={styles.infoTitle}> 
+          Contact
+        </Text> 
+        <Text style = {styles.infoCont}> 
+          {contact}
+        </Text>
       </View> 
       <View style={styles.verifybutton}>
 
         <Button
-        color={'lightblue'}
+        color={'#007bff'}
         title='Get Verified' 
         onPress={()=>{navigation.navigate('Verification')}}
         />
@@ -107,7 +144,8 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection:"column",
     justifyContent: "center", 
-    alignItems: "flex-start", 
+    alignItems: "flex-start",  
+    paddingBottom: 10,
   },
   banner: { 
     display: "flex", 
@@ -116,6 +154,11 @@ const styles = StyleSheet.create({
     alignItems:"center", 
     padding:20,
 
+  },  
+  picHolder:{
+     borderRadius: 50, 
+     borderWidth:1, 
+     borderColor: 'black', 
   }, 
   name:{ 
     padding:10, 
@@ -131,8 +174,21 @@ important: {
    fontWeight:"bold",
 }, 
 verifybutton:{ 
-    padding: 10,
-}
+    borderRadius:5, 
+    borderWidth:1, 
+    borderColor: "black",
+}, 
+editButton:{ 
+  borderRadius:5, 
+  borderWidth:1, 
+  borderColor: "black",
+}, 
+infoTitle: { 
+  fontWeight:'light'
+}, 
+infoCont: { 
+  fontWeight: 'bold'
+},
 });
 
 
