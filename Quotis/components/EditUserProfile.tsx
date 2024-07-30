@@ -114,25 +114,21 @@ const EditUserProfile: React.FC = () => {
     }
   };
 
+  const fetchUserInfo = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/user/${userId}`);
+      setEmail(response.data.email);
+      setFirstName(response.data.firstName);
+      setLastName(response.data.lastName);
+      setProfilePic(response.data.photoUrl);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
-        );
-        console.log("success ");
-        setEmail(response.data.email);
-        setFirstName(response.data.firstName);
-        setLastName(response.data.lastName);
-        setProfilePic(response.data.photoUrl);
-      } catch (error) {
-        console.log("damn for user");
-        console.error("Error fetching user details:", error);
-      }
-    };
-    fetchUserInfo();
-  }, [userId]); 
+    fetchUserInfo(); // 컴포넌트가 마운트될 때 유저 정보 가져오기
+  }, [userId]);
 
   useEffect( ()=>{ 
     // here once the photoUri is changed i want this to take the pic resize it get get a url and then store the pic at that URL 
@@ -184,10 +180,9 @@ const profilePicUpload = async ()=> {
         updatedData
       );
       Alert.alert("Successfully Updated UserInfo", response.data.message);
-      console.log(response.data.message);
+      fetchUserInfo(); // 유저 정보 업데이트 후 최신 정보 가져오기
       navigation.navigate("UserInfo", { userId: userId });
     } catch (error: any) {
-      console.log("damn for edit");
       console.error("Error Updating User Information:", error);
       Alert.alert(
         "Error",
