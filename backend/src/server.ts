@@ -20,7 +20,6 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-
 app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
@@ -67,63 +66,59 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-
 // Update User information endpoint
 app.put("/update/:id", async (req: Request, res: Response) => {
   const updatedData = req.body;
-    try {
-      const user = await User.findByIdAndUpdate(
-        req.params.id,
-        { $set: updatedData },
-        { new: true }
-      );
-      if (!user) {
-        return res.status(404).send({ message: "User to update not found" });
-      }
-      res.status(200).json({ message: "Update Successful", user });
-    } catch (err) {
-      console.error("Error updating user:", err);
-      if (err instanceof Error) {
-        res
-          .status(500)
-          .json({ message: "Error updating user", error: err.message });
-      } else {
-        res
-          .status(500)
-          .json({ message: "Error updating user", error: "Unknown error" });
-      }
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatedData },
+      { new: true }
+    );
+    if (!user) {
       return res.status(404).send({ message: "User to update not found" });
     }
-}); 
+    res.status(200).json({ message: "Update Successful", user });
+  } catch (err) {
+    console.error("Error updating user:", err);
+    if (err instanceof Error) {
+      res
+        .status(500)
+        .json({ message: "Error updating user", error: err.message });
+    } else {
+      res
+        .status(500)
+        .json({ message: "Error updating user", error: "Unknown error" });
+    }
+    return res.status(404).send({ message: "User to update not found" });
+  }
+});
 app.put("/updateProvider/:id", async (req: Request, res: Response) => {
   const updatedData = req.body;
-    try {
-      const provider = await Provider.findByIdAndUpdate(
-        req.params.id,
-        { $set: updatedData },
-        { new: true }
-      );
-      if (!provider) {
-        return res.status(404).send({ message: "Provider to update not found" });
-      }
-      res.status(200).json({ message: "Update Successful", provider });
-    } catch (err) {
-      console.error("Error updating user:", err);
-      if (err instanceof Error) {
-        res
-          .status(500)
-          .json({ message: "Error updating user", error: err.message });
-      } else {
-        res
-          .status(500)
-          .json({ message: "Error updating user", error: "Unknown error" });
-      }
+  try {
+    const provider = await Provider.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatedData },
+      { new: true }
+    );
+    if (!provider) {
       return res.status(404).send({ message: "Provider to update not found" });
     }
+    res.status(200).json({ message: "Update Successful", provider });
+  } catch (err) {
+    console.error("Error updating user:", err);
+    if (err instanceof Error) {
+      res
+        .status(500)
+        .json({ message: "Error updating user", error: err.message });
+    } else {
+      res
+        .status(500)
+        .json({ message: "Error updating user", error: "Unknown error" });
+    }
+    return res.status(404).send({ message: "Provider to update not found" });
+  }
 });
-
-
-
 
 // Get all posts endpoint
 app.use("/api", postRoutes);
@@ -159,14 +154,18 @@ app.get("/user/:id", async (req: Request, res: Response) => {
 app.get("/providers", async (req: Request, res: Response) => {
   const { services } = req.query;
 
-  if (!services) {
-    return res.status(400).json({ error: "Service type is required" });
-  }
-
   try {
-    const providers = await Provider.find({ services: services });
+    let providers;
+    if (!services || services === "Any") {
+      // Fetch all providers if 'Any' or no service type is provided
+      providers = await Provider.find();
+    } else {
+      // Fetch providers based on the specified service type
+      providers = await Provider.find({ services: { $in: [services] } });
+    }
     res.status(200).json(providers);
   } catch (error) {
+    console.error("Error fetching service providers:", error);
     res.status(500).json({ error: "Error fetching service providers" });
   }
 });
@@ -263,9 +262,7 @@ app.patch("/jobs/:id", async (req: Request, res: Response) => {
 app.use("/posts", postRoutes);
 
 // Quote routes
-app.use("/quotes", quoteRoutes); 
-
-
+app.use("/quotes", quoteRoutes);
 
 // Login and Register routes
 app.use("/", loginRegisterRoutes);
@@ -276,4 +273,3 @@ app.use("/notifications", notificationRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
-
