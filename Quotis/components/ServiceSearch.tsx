@@ -16,7 +16,7 @@ interface Provider {
   description?: string;
   services?: string[];
   contact?: string;
-  postCode: string;
+  postCode?: string;
 }
 
 const ServiceSearch: React.FC = () => {
@@ -84,7 +84,9 @@ const ServiceSearch: React.FC = () => {
     }
 
     try {
-      const destinations = serviceProviders.map(provider => provider.postCode).join('|');
+      // Filter out providers without a postCode
+      const providersWithPostCode = serviceProviders.filter(provider => provider.postCode);
+      const destinations = providersWithPostCode.map(provider => provider.postCode).join('|');
       const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
         params: {
           origins: `${userLocation.coords.latitude},${userLocation.coords.longitude}`,
@@ -94,7 +96,7 @@ const ServiceSearch: React.FC = () => {
       });
 
       const distances = response.data.rows[0].elements;
-      const filteredProviders = serviceProviders.filter((provider, index) => {
+      const filteredProviders = providersWithPostCode.filter((provider, index) => {
         const distanceInMeters = distances[index]?.distance?.value || 0;
         const distanceInKm = distanceInMeters / 1000;
         return distanceInKm <= parseFloat(maxDistance);
