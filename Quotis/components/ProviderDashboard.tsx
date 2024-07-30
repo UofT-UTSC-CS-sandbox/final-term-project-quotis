@@ -94,13 +94,15 @@ const ProviderDashboard: React.FC = () => {
   const navigateToQuoteForm = (
     postId: string,
     userId: string,
-    jobDate: string
+    jobDate: string,
+    clientName: string
   ) => {
     navigation.navigate("QuoteForm", {
       postId,
       providerId: route.params.userId,
       userId,
       jobDate, // Pass jobDate as client_date
+      clientName,
     });
   };
 
@@ -119,7 +121,14 @@ const ProviderDashboard: React.FC = () => {
       ).toLocaleString()}`}</Text>
       <TouchableOpacity
         style={styles.sendQuoteButton}
-        onPress={() => navigateToQuoteForm(item._id, item.userId, item.jobDate)}
+        onPress={() =>
+          navigateToQuoteForm(
+            item._id,
+            item.userId,
+            item.jobDate,
+            `${item.user.firstName} ${item.user.lastName}`
+          )
+        }
       >
         <Text style={styles.sendQuoteButtonText}>Send Quote</Text>
       </TouchableOpacity>
