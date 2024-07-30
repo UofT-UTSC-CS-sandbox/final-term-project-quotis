@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert, Switch } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Switch,
+} from "react-native";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import axios from "axios";
@@ -69,12 +76,13 @@ const QuoteForm: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Send Quote</Text>
+      <Text style={styles.header}>Send Quote to {clientName}</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, styles.descriptionInput]}
         placeholder="Description"
         value={description}
         onChangeText={setDescription}
+        multiline
       />
       <TextInput
         style={styles.input}
@@ -83,32 +91,40 @@ const QuoteForm: React.FC = () => {
         onChangeText={setPriceEstimate}
         keyboardType="numeric"
       />
-      <DateTimePicker
-        value={providerDate}
-        mode="datetime"
-        display="default"
-        onChange={(event, selectedDate) =>
-          setProviderDate(selectedDate || providerDate)
-        }
-      />
+      <View style={styles.dateTimePickerContainer}>
+        <DateTimePicker
+          value={providerDate}
+          mode="datetime"
+          display="default"
+          onChange={(event, selectedDate) =>
+            setProviderDate(selectedDate || providerDate)
+          }
+        />
+      </View>
       <View style={styles.alternativeSwitchContainer}>
-        <Text>Suggest an alternative time?</Text>
+        <Text style={styles.alternativeSwitchText}>
+          Suggest an alternative time?
+        </Text>
         <Switch
           value={suggestAlternative}
           onValueChange={(value) => setSuggestAlternative(value)}
         />
       </View>
       {suggestAlternative && (
-        <DateTimePicker
-          value={alternativeDate || new Date()}
-          mode="datetime"
-          display="default"
-          onChange={(event, selectedDate) =>
-            setAlternativeDate(selectedDate || alternativeDate)
-          }
-        />
+        <View style={styles.dateTimePickerContainer}>
+          <DateTimePicker
+            value={alternativeDate || new Date()}
+            mode="datetime"
+            display="default"
+            onChange={(event, selectedDate) =>
+              setAlternativeDate(selectedDate || alternativeDate)
+            }
+          />
+        </View>
       )}
-      <Button title="Submit" onPress={handleSubmit} />
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Submit</Text>
+      </TouchableOpacity>
     </View>
   );
 };

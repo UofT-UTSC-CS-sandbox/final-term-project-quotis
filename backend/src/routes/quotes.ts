@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import Quote, { IQuote } from "../models/Quote";
-import User from "../models/User";
 import Provider from "../models/Provider";
 import Post from "../models/Post";
 import auth from "../middleware/auth";
@@ -193,12 +192,15 @@ router.post("/review/:clientId", async (req: Request, res: Response) => {
 
     // Check if the error is an instance of Error and has a message property
     if (error instanceof Error) {
-      res.status(500).json({ message: "Internal server error", error: error.message });
+      res
+        .status(500)
+        .json({ message: "Internal server error", error: error.message });
     } else {
-      res.status(500).json({ message: "Internal server error", error: String(error) });
+      res
+        .status(500)
+        .json({ message: "Internal server error", error: String(error) });
     }
   }
 });
-
 
 export default router;
