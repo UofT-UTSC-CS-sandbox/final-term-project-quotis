@@ -30,7 +30,7 @@ const ServiceSearch: React.FC = () => {
   const [maxDistance, setMaxDistance] = useState<string>(''); // For distance filter input
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [showDistanceMenu, setShowDistanceMenu] = useState<boolean>(false);
-  const providerTypes = ['Plumbing', 'Contractor', 'Electrician'];
+  const providerTypes = ['Any', 'Plumbing', 'Contractor', 'Electrician'];
 
   useEffect(() => {
     const getUserLocation = async () => {
@@ -63,7 +63,11 @@ const ServiceSearch: React.FC = () => {
   useEffect(() => {
     const fetchServiceProviders = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/providers?services=${selectedFilter}`);
+        const endpoint = selectedFilter === 'Any'
+          ? 'http://localhost:3000/providers'
+          : `http://localhost:3000/providers?services=${selectedFilter}`;
+
+        const response = await axios.get(endpoint);
         setServiceProviders(response.data);
       } catch (error) {
         console.error('Error fetching service providers:', error);
