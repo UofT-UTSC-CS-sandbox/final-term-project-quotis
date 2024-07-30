@@ -19,8 +19,7 @@ export interface IProvider extends Document {
   createdAt: Date;
   updatedAt: Date;
   notifications: Notification[];
-  role: string; // Add the role property, 
-  photoUri: string;
+  role: string; // Add the role property
 }
 
 const NotificationSchema = new Schema({
@@ -42,8 +41,7 @@ const ProviderSchema: Schema = new Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   notifications: [NotificationSchema],
-  role: { type: String, required: true }, // Add role to the schema 
-  photoUri:{ type:String, required: true},
+  role: { type: String, required: true }, // Add role to the schema
 });
 
 export default mongoose.model<IProvider>("Provider", ProviderSchema);
