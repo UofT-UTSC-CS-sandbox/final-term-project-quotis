@@ -7,6 +7,7 @@ import { useRoute, RouteProp } from "@react-navigation/native";
 import styles from "./ServicesStyles";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
+
 type ServicesRouteProp = RouteProp<RootStackParamList, "Services">;
 
 const Services: React.FC = () => {
@@ -19,9 +20,7 @@ const Services: React.FC = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
-        );
+        const response = await axios.get(`http://localhost:3000/user/${userId}`);
         setUserEmail(response.data.email);
       } catch (error) {
         console.error("Error fetching user details:", error);
@@ -66,6 +65,17 @@ const Services: React.FC = () => {
         }
       >
         <Text style={styles.buttonText}>Electrician</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          navigation.navigate("ServiceSearch", {
+            userId,
+            serviceType: "Any",
+          })
+        }
+      >
+        <Text style={styles.buttonText}>Any</Text>
       </TouchableOpacity>
 
       <View style={styles.navbar}>

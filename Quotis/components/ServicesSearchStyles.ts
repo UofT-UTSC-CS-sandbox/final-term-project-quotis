@@ -4,7 +4,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff', // Keeping the original white background
   },
   filterContainer: {
     flexDirection: 'row',
@@ -16,11 +16,19 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginRight: 10,
+    backgroundColor: '#fff', // Keeping the original button background
+  },
+  filterIcon: {
+    color: '#007bff', // Blue color matching the headers for filter icon
   },
   distanceButton: {
     padding: 10,
     borderRadius: 5,
     marginRight: 10,
+    backgroundColor: '#fff', // Keeping the original button background
+  },
+  distanceIcon: {
+    color: '#007bff', // Blue color matching the headers for distance icon
   },
   dropdownMenu: {
     position: 'absolute',
@@ -51,6 +59,7 @@ const styles = StyleSheet.create({
   },
   dropdownItemText: {
     fontSize: 16,
+    color: '#007bff', // Blue text for dropdown items
   },
   noProvidersText: {
     textAlign: 'center',
@@ -59,7 +68,7 @@ const styles = StyleSheet.create({
     color: '#888',
   },
   providerItem: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff', // White card background
     padding: 15,
     marginVertical: 8,
     borderRadius: 10,
@@ -67,17 +76,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
+    borderColor: '#aaa', // Light black border color
+    borderWidth: 1, // Adding border width
   },
   providerName: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#007bff', // Blue text for provider names
   },
   distanceContainer: {
     marginVertical: 20,
   },
   input: {
     height: 40,
-    borderColor: '#ccc',
+    borderColor: '#007bff', // Blue border for input
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
@@ -97,6 +109,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#007bff', // Blue text for distance info
   },
 });
 

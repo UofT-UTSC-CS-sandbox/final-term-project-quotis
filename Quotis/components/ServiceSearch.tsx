@@ -13,10 +13,10 @@ interface Provider {
   _id: string;
   firstName: string;
   lastName: string;
-  description: string;
-  services: string[];
-  contact: string;
-  postCode: string;
+  description?: string;
+  services?: string[];
+  contact?: string;
+  postCode?: string;
 }
 
 const ServiceSearch: React.FC = () => {
@@ -30,7 +30,7 @@ const ServiceSearch: React.FC = () => {
   const [maxDistance, setMaxDistance] = useState<string>(''); // For distance filter input
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [showDistanceMenu, setShowDistanceMenu] = useState<boolean>(false);
-  const providerTypes = ['Plumbing', 'Contractor', 'Electrician'];
+  const providerTypes = ['Any', 'Plumbing', 'Contractor', 'Electrician'];
 
   useEffect(() => {
     const getUserLocation = async () => {
@@ -63,7 +63,11 @@ const ServiceSearch: React.FC = () => {
   useEffect(() => {
     const fetchServiceProviders = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/providers?services=${selectedFilter}`);
+        const endpoint = selectedFilter === 'Any'
+          ? 'http://localhost:3000/providers'
+          : `http://localhost:3000/providers?services=${selectedFilter}`;
+
+        const response = await axios.get(endpoint);
         setServiceProviders(response.data);
       } catch (error) {
         console.error('Error fetching service providers:', error);
@@ -80,7 +84,9 @@ const ServiceSearch: React.FC = () => {
     }
 
     try {
-      const destinations = serviceProviders.map(provider => provider.postCode).join('|');
+      // Filter out providers without a postCode
+      const providersWithPostCode = serviceProviders.filter(provider => provider.postCode);
+      const destinations = providersWithPostCode.map(provider => provider.postCode).join('|');
       const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
         params: {
           origins: `${userLocation.coords.latitude},${userLocation.coords.longitude}`,
@@ -90,7 +96,7 @@ const ServiceSearch: React.FC = () => {
       });
 
       const distances = response.data.rows[0].elements;
-      const filteredProviders = serviceProviders.filter((provider, index) => {
+      const filteredProviders = providersWithPostCode.filter((provider, index) => {
         const distanceInMeters = distances[index]?.distance?.value || 0;
         const distanceInKm = distanceInMeters / 1000;
         return distanceInKm <= parseFloat(maxDistance);
@@ -154,9 +160,9 @@ const ServiceSearch: React.FC = () => {
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.providerItem} onPress={() => { /* Handle provider selection */ }}>
               <Text style={styles.providerName}>{item.firstName} {item.lastName}</Text>
-              <Text>{item.description}</Text>
-              <Text>{item.services.join(', ')}</Text>
-              <Text>{item.contact}</Text>
+              <Text>{item.description || "No Description Provided"}</Text>
+              <Text>{item.services?.join(', ') || "No Services Listed"}</Text>
+              <Text>{item.contact || "No Contact Provided"}</Text>
             </TouchableOpacity>
           )}
         />
