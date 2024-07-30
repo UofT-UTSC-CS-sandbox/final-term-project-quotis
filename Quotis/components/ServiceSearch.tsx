@@ -13,9 +13,9 @@ interface Provider {
   _id: string;
   firstName: string;
   lastName: string;
-  description: string;
-  services: string[];
-  contact: string;
+  description?: string;
+  services?: string[];
+  contact?: string;
   postCode: string;
 }
 
@@ -158,9 +158,9 @@ const ServiceSearch: React.FC = () => {
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.providerItem} onPress={() => { /* Handle provider selection */ }}>
               <Text style={styles.providerName}>{item.firstName} {item.lastName}</Text>
-              <Text>{item.description}</Text>
-              <Text>{item.services.join(', ')}</Text>
-              <Text>{item.contact}</Text>
+              <Text>{item.description || "No Description Provided"}</Text>
+              <Text>{item.services?.join(', ') || "No Services Listed"}</Text>
+              <Text>{item.contact || "No Contact Provided"}</Text>
             </TouchableOpacity>
           )}
         />
