@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, Text, Button, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; 
 import { RouteProp, useRoute } from '@react-navigation/native'; 
 import { RootStackParamList } from '../../backend/src/models/types';
 import { useEffect, useState } from 'react'; 
 import axios from 'axios';
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Location from 'expo-location';
+import { FontAwesome } from "@expo/vector-icons";
 
 // I need to pass this page a prop of the basic info of who logged in 
 type UserInfoRouteProp = RouteProp<RootStackParamList, "UserInfo">;
@@ -18,13 +20,28 @@ const UserInfo: React.FC = () => {
   const [email, setEmail] = useState<string>("defaultEmail");
   const [firstName, setFirstName] = useState<string>("default"); 
   const [lastName, setLastName] = useState<string>("User");
-  const [address, setAddress] = useState<string>("default Address");
+  const [address, setAddress] = useState<string | null>(null); // 주소 상태 추가
   const [UserType, setUserType]  = useState<string>("IDK"); 
   const [photoUri, setPhotoUri]= useState<string>("place");
   const navigation:any = useNavigation();
   const do_nothing: any = ()=> {
 
   } 
+
+  const fetchAddress = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.error("Permission to access location was denied");
+      return;
+    }
+
+    const location = await Location.getCurrentPositionAsync({});
+    const { latitude, longitude } = location.coords;
+
+    // 주소 변환 API 호출
+    const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=en`);
+    setAddress(response.data.display_name); // 주소 상태 업데이트
+  };
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -34,13 +51,10 @@ const UserInfo: React.FC = () => {
         ); 
         console.log('success');
         setEmail(response.data.email); 
-        setEmail(response.data.email); 
-        setUserType(response.data.role);
         setFirstName(response.data.firstName); 
         setLastName(response.data.lastName); 
         setPhotoUri(response.data.photoUrl); 
-        setAddress(response.data.postCode); 
-
+        await fetchAddress(); // 주소 가져오기
       } catch (error) {
         console.log('damn');
         console.error("Error fetching user details:", error);
@@ -89,8 +103,9 @@ const UserInfo: React.FC = () => {
         <Text style={styles.infoTitle}>Email</Text>   
         <Text style = {styles.infoCont}>{email}</Text> 
         <View style={styles.line} />
-        { address === '' ? (<view> </view>) : (<Text> Address  {address}</Text>) }
-
+        <Text style={styles.infoTitle}>Address</Text> {/* 주소 섹션 추가 */}
+        <Text style={styles.infoCont}>{address || "Address loading..."}</Text> {/* 주소 표시 */}
+        <View style={styles.line} />
       </View> 
 
 
@@ -167,12 +182,3 @@ important: {
 
 
 export default UserInfo;
-
-/*Changes to implement
-1) Make it that you can edit the information all on that page  
-2) Make it that all the information is displayed in a innstagram like way 
-*/
-/*Changes to implement
-1) Make it that you can edit the information all on that page  
-2) Make it that all the information is displayed in a innstagram like way 
-*/
