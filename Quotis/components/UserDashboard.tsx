@@ -359,10 +359,13 @@ const UserDashboard: React.FC = () => {
             return (
               <View key={quote._id} style={styles.upcomingJob}>
                 <Text style={styles.upcomingJobText}>
-                  You have an upcoming job with {quote.provider_name} in:
+                  You have a job with {quote.provider_name} in:
                 </Text>
                 <Text style={styles.jobTime}>{timeLeft}</Text>
-                <Text style={styles.jobPostTitle}>{quote.job_post_title}</Text>
+                <Text style={styles.jobPostTitle}>
+                  <Text style={styles.jobPostTitleHighlight}>Job Title:</Text>{" "}
+                  {quote.job_post_title}
+                </Text>
                 <TouchableOpacity style={styles.jobButton} onPress={() => {}}>
                   <Text style={styles.jobButtonText}>Mark Job as Complete</Text>
                 </TouchableOpacity>
@@ -392,8 +395,26 @@ const UserDashboard: React.FC = () => {
         >
           {posts.map((post) => (
             <View key={post._id} style={styles.post}>
+              <TouchableOpacity
+                style={styles.deletePostButton}
+                onPress={() =>
+                  Alert.alert(
+                    "Confirm Delete",
+                    "Are you sure you want to delete this post?",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Yes",
+                        onPress: () => handleDeletePost(post._id),
+                      },
+                    ]
+                  )
+                }
+              >
+                <Text style={styles.deletePostButtonText}>X</Text>
+              </TouchableOpacity>
               <Text style={styles.postTitle}>{post.title}</Text>
-              <Text>{post.description}</Text>
+              <Text>{`Description: ${post.description}`}</Text>
               <Text style={styles.postDate}>
                 {`Job Date: ${format(new Date(post.jobDate), "MMMM d, yyyy")}`}
               </Text>
@@ -402,12 +423,6 @@ const UserDashboard: React.FC = () => {
                 onPress={() => navigateToUserPost(post._id, userId)}
               >
                 <Text style={styles.viewButtonText}>View full post</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => handleDeletePost(post._id)}
-              >
-                <Text style={styles.deleteButtonText}>Delete</Text>
               </TouchableOpacity>
             </View>
           ))}
