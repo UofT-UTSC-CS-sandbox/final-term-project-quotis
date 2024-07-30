@@ -8,53 +8,33 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'flex-start', // Align filter button to the left
     marginBottom: 20,
+    zIndex: 1, // Ensure buttons are displayed in front of other content
   },
   filterButton: {
     padding: 10,
-    backgroundColor: '#007bff',
-    borderRadius: 5,
-  },
-  filterButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  searchInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
     borderRadius: 5,
     marginRight: 10,
   },
-  distanceFilterContainer: {
-    marginBottom: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  postalCodeInput: {
-    flex: 1,
+  dropdownMenu: {
+    position: 'absolute',
+    top: 50, // Adjust as needed based on your design
+    left: 0, // Align with the left edge of the filter button
+    width: 200, // Adjust width as needed
+    backgroundColor: '#fff',
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginRight: 10,
+    zIndex: 2, // Ensure dropdown is above other content
   },
-  distanceInput: {
-    width: 100,
-    borderWidth: 1,
-    borderColor: '#ccc',
+  dropdownItem: {
     padding: 10,
-    borderRadius: 5,
-    marginRight: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  dropdownItemText: {
+    fontSize: 16,
   },
   noProvidersText: {
     textAlign: 'center',
@@ -75,20 +55,6 @@ const styles = StyleSheet.create({
   providerName: {
     fontSize: 20,
     fontWeight: 'bold',
-  },
-  providerDescription: {
-    fontSize: 16,
-    marginTop: 5,
-  },
-  providerServices: {
-    fontSize: 14,
-    marginTop: 5,
-    color: '#666',
-  },
-  providerContact: {
-    fontSize: 14,
-    marginTop: 5,
-    color: '#666',
   },
 });
 

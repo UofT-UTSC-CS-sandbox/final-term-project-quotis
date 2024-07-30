@@ -1,5 +1,4 @@
 import Post from '../models/Post';
-import Notification from '../models/Notification';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../models/types';
 import AWS from 'aws-sdk';
@@ -30,6 +29,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 export const getPIDPost = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
@@ -39,6 +39,7 @@ export const getPIDPost = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 export const updatePost = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
@@ -52,8 +53,7 @@ export const updatePost = async (req: Request, res: Response) => {
     // 사진 URL이 업데이트 데이터에 포함되지 않은 경우, 기존 사진 URL 유지
     if (!updateData.photoUrl) {
       updateData.photoUrl = post.photoUrl;
-    }
-    else{
+    } else {
       const key = post.photoUrl.split('/').pop()!;
       await deleteS3Object(key);
     }
@@ -66,6 +66,7 @@ export const updatePost = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 // 모든 포스트 가져오기
 export const getAllPosts = async (req: Request, res: Response) => {
   try {
@@ -87,24 +88,11 @@ export const likePost = async (req: AuthenticatedRequest, res: Response) => {
     post.likes += 1;
     await post.save();
 
-    // 알림 생성
-    await Notification.create({
-      creator: req.user,
-      type: "Like",
-      title: post.title,
-      userId: post.userId,
-      postId: postId,
-    });
-
     res.status(200).json({ message: 'Post liked successfully' });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 };
-
-
-
-
 
 // 포스트 삭제
 export const deletePost = async (req: Request, res: Response) => {
@@ -154,6 +142,6 @@ export const deletePost = async (req: Request, res: Response) => {
 //     res.status(200).json({ message: 'All posts and images deleted successfully' });
 //   } catch (error: any) {
 //     console.error('Error deleting all posts:', error); // 에러 로그 추가
-//     res.status(500).json({ error: error.message });
+//     res.status{500}.json({ error: error.message });
 //   }
 // };
