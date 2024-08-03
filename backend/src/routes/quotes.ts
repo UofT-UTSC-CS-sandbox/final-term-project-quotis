@@ -4,6 +4,7 @@ import Quote, { IQuote } from "../models/Quote";
 import Provider from "../models/Provider";
 import Post from "../models/Post";
 import auth from "../middleware/auth";
+import User from "../models/User";
 
 const router = express.Router();
 
