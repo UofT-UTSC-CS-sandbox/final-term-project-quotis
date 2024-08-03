@@ -19,14 +19,14 @@ import * as ImageManipulator from "expo-image-manipulator";
 type EditRouteProp = RouteProp<RootStackParamList, "EditUserProfile">;
 
 const EditUserProfile: React.FC = () => {
-  const route: any = useRoute<EditRouteProp>();
-  const [profilePic, setProfilePic] = useState(null);
-  const [photoUri, setPhotoUri] = useState<string | null>(null); // Add this line
+  const route = useRoute<EditRouteProp>();
+  const { userId } = route.params;
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [firstName, setFirstName] = useState("default ");
   const [lastName, setLastName] = useState("user");
   const [email, setEmail] = useState("default email");
   const [address, setAddress] = useState("default address");
-  const { userId } = route.params;
   const navigation: any = useNavigation();
 
   const pickImage = async () => {
