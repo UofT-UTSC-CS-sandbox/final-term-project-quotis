@@ -41,6 +41,7 @@ const EditUserProfile: React.FC = () => {
       const selectedImage = result.assets[0];
       if (selectedImage.uri) {
         setPhotoUri(selectedImage.uri);
+        console.log("got image");
       }
     }
   };
@@ -60,6 +61,7 @@ const EditUserProfile: React.FC = () => {
   const getUploadUrl = async () => {
     try {
       const response = await axios.get("http://localhost:3000/s3Url");
+      console.log("Got the image URL");
       return response.data.url;
     } catch (error) {
       console.error("Error getting upload URL:", error);
@@ -80,6 +82,7 @@ const EditUserProfile: React.FC = () => {
         },
         body: blob,
       });
+      console.log("Uploaded Image");
 
       return url.split("?")[0]; // Return the S3 URL without query parameters
     } catch (error) {
@@ -93,9 +96,10 @@ const EditUserProfile: React.FC = () => {
     try {
       const manipResult = await ImageManipulator.manipulateAsync(
         uri,
-        [{ resize: { width: 200, height: 200 } }],
+        [{ resize: { width: 200, height: 200 } }], // desired size
         { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
       );
+      console.log("Manipulated Image Size");
       return manipResult.uri;
     } catch (error) {
       console.error("Error resizing image:", error);
@@ -134,7 +138,7 @@ const EditUserProfile: React.FC = () => {
     const resizedUri = await resizeImage(photoUri);
     if (!resizedUri) return;
 
-    const uploadUrl = await getUploadUrl();
+    const uploadUrl = await getUploadUrl(); // gets signed url to upload into the S3 database
     if (uploadUrl) {
       const imageUrl = await uploadImage(uploadUrl, resizedUri);
       if (imageUrl) {

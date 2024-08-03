@@ -21,11 +21,10 @@ type ProviderProfileRouteProp = RouteProp<
 >;
 
 const ProviderProfile: React.FC = () => {
-  const navigation: any = useNavigation();
+  const navigation: any = useNavigation(); // this is just to have a shorthand for navigation
   const route = useRoute<ProviderProfileRouteProp>();
-  const [photoUri, setPhotoUri] = useState<string>("placeholder");
   const { userId } = route.params;
-
+  const [photoUri, setPhotoUri] = useState<string>("placeholder");
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
@@ -54,6 +53,7 @@ const ProviderProfile: React.FC = () => {
         Alert.alert("Error", "Failed to fetch posts");
       }
     };
+
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get(
@@ -62,7 +62,6 @@ const ProviderProfile: React.FC = () => {
         console.log("success");
         setPhotoUri(response.data.photoUri);
       } catch (error) {
-        console.log("damn");
         console.error("Error fetching user details:", error);
       }
     };
@@ -94,7 +93,7 @@ const ProviderProfile: React.FC = () => {
               navigation.navigate("ProviderInfo", {
                 userId: userId,
               });
-            }} // passsing userid to the user information page
+            }} // passing userId to the user information page
             accessibilityLabel="Button to access Personal Info"
           />
         </View>
@@ -105,7 +104,7 @@ const ProviderProfile: React.FC = () => {
             onPress={() => {
               navigation.navigate("CustomerService");
             }}
-            accessibilityLabel="Button to access Personal Info"
+            accessibilityLabel="Button to access Customer Service"
           />
         </View>
         <View style={styles.buttonHolder}>
@@ -115,7 +114,7 @@ const ProviderProfile: React.FC = () => {
             onPress={() => {
               navigation.navigate("Login");
             }}
-            accessibilityLabel="Button to access Personal Info"
+            accessibilityLabel="Button to log out"
           />
         </View>
       </View>

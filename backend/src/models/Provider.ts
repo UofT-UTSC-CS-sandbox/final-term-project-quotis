@@ -22,6 +22,7 @@ export interface IProvider extends Document {
   role: string; // Add the role property
   reviewRatings: number[]; // Add review ratings
   reviewDescriptions: string[]; // Add review descriptions
+  photoUri: string;
 }
 
 const NotificationSchema = new Schema({
@@ -47,6 +48,7 @@ const ProviderSchema: Schema = new Schema(
     role: { type: String, required: true }, // Add role to the schema
     reviewRatings: { type: [Number], default: [] }, // Add review ratings to the schema
     reviewDescriptions: { type: [String], default: [] }, // Add review descriptions to the schema
+    photoUri: { type: String, required: true }, // Add photoUri to the schema
   },
   { timestamps: true }
 );

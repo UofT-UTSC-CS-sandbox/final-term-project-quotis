@@ -21,7 +21,7 @@ import ProviderProfile from "./components/ProviderProfile";
 import QuoteForm from "./components/QuoteForm";
 import Services from "./components/Services";
 import ServiceSearch from "./components/ServiceSearch";
-import ProviderReview from "./components/ProviderReview"; // Import the ProviderReview component
+import ProviderReview from "./components/ProviderReview";
 import CustomerService from "./components/CustomerService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -32,20 +32,20 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen name="UserInfo" component={UserInfo} />
-        <Stack.Screen name="Profile" component={Profile} />
-        <Stack.Screen name="UserInbox" component={UserInbox} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="UserDashboard" component={UserDashboard} />
         <Stack.Screen name="ProviderDashboard" component={ProviderDashboard} />
         <Stack.Screen name="CreatePost" component={CreatePost} />
+        <Stack.Screen name="UserPost" component={UserPost} />
+        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="UserInfo" component={UserInfo} />
+        <Stack.Screen name="UserInbox" component={UserInbox} />
         <Stack.Screen name="EditUserProfile" component={EditUserProfile} />
         <Stack.Screen name="MyJobs" component={MyJobs} />
         <Stack.Screen name="ProviderInfo" component={ProviderInfo} />
         <Stack.Screen name="Verification" component={Verification} />
         <Stack.Screen name="EditProviderInfo" component={EditProviderInfo} />
-        <Stack.Screen name="UserPost" component={UserPost} />
         <Stack.Screen name="ProviderInbox" component={ProviderInbox} />
         <Stack.Screen name="ProviderProfile" component={ProviderProfile} />
         <Stack.Screen name="QuoteForm" component={QuoteForm} />

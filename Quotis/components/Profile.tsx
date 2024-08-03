@@ -44,7 +44,6 @@ const Profile: React.FC = () => {
         );
         setPosts(response.data);
       } catch (error: any) {
-        // 타입을 any로 명시
         console.error(
           "Error fetching posts:",
           error.response ? error.response.data : error.message
@@ -52,6 +51,7 @@ const Profile: React.FC = () => {
         Alert.alert("Error", "Failed to fetch posts");
       }
     };
+
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get(
@@ -60,7 +60,6 @@ const Profile: React.FC = () => {
         console.log("success");
         setPhotoUri(response.data.photoUrl);
       } catch (error) {
-        console.log("damn");
         console.error("Error fetching user details:", error);
       }
     };
@@ -92,7 +91,7 @@ const Profile: React.FC = () => {
               navigation.navigate("UserInfo", {
                 userId: userId,
               });
-            }} // passsing userid to the user information page
+            }}
             accessibilityLabel="Button to access Personal Info"
           />
         </View>

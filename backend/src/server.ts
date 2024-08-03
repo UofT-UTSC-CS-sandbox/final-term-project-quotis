@@ -4,15 +4,15 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import AWS from "aws-sdk";
-import User from "./models/User"; // User model import
-import Post from "./models/Post"; // Post model import
-import Provider from "./models/Provider"; // Provider model import
-import Quote from "./models/Quote"; // Quote model import
-import postRoutes from "./routes/posts"; // Post routes import
-import bcrypt from "bcrypt";
+import User from "./models/User";
+import Post from "./models/Post";
+import Provider from "./models/Provider";
+import Quote from "./models/Quote";
+import postRoutes from "./routes/posts";
 import quoteRoutes from "./routes/quotes";
+import bcrypt from "bcrypt";
 import loginRegisterRoutes from "./routes/loginregister";
-import notificationRoutes from "./routes/notifications"; // Import notification routes
+import notificationRoutes from "./routes/notifications";
 import { generateUploadURL } from "./s3";
 
 dotenv.config();
@@ -58,6 +58,7 @@ const mongoURI = process.env.DATABASE_URL;
 if (!mongoURI) {
   throw new Error("MongoDB connection URL is missing in environment variables");
 }
+
 mongoose
   .connect(mongoURI, {})
   .then(() => console.log("MongoDB connected"))
@@ -87,9 +88,9 @@ app.put("/update/:id", async (req: Request, res: Response) => {
         .status(500)
         .json({ message: "Error updating user", error: "Unknown error" });
     }
-    return res.status(404).send({ message: "User to update not found" });
   }
 });
+
 app.put("/updateProvider/:id", async (req: Request, res: Response) => {
   const updatedData = req.body;
   try {
@@ -103,17 +104,16 @@ app.put("/updateProvider/:id", async (req: Request, res: Response) => {
     }
     res.status(200).json({ message: "Update Successful", provider });
   } catch (err) {
-    console.error("Error updating user:", err);
+    console.error("Error updating provider:", err);
     if (err instanceof Error) {
       res
         .status(500)
-        .json({ message: "Error updating user", error: err.message });
+        .json({ message: "Error updating provider", error: err.message });
     } else {
       res
         .status(500)
-        .json({ message: "Error updating user", error: "Unknown error" });
+        .json({ message: "Error updating provider", error: "Unknown error" });
     }
-    return res.status(404).send({ message: "Provider to update not found" });
   }
 });
 
@@ -152,10 +152,8 @@ app.get("/providers", async (req: Request, res: Response) => {
   try {
     let providers;
     if (!services || services === "Any") {
-      // Fetch all providers if 'Any' or no service type is provided
       providers = await Provider.find();
     } else {
-      // Fetch providers based on the specified service type
       providers = await Provider.find({ services: { $in: [services] } });
     }
     res.status(200).json(providers);
@@ -177,6 +175,35 @@ app.get("/providers/:id", async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error("Error fetching provider by ID:", err);
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Get all jobs based on provider_id and status
+app.get("/jobs", async (req: Request, res: Response) => {
+  const { provider_id, status } = req.query;
+
+  try {
+    const jobs = await Quote.find({ provider_id, status });
+    res.status(200).json(jobs);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching jobs", error });
+  }
+});
+
+// Update job status
+app.patch("/jobs/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    const updatedJob = await Quote.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+    res.status(200).json(updatedJob);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating job status" });
   }
 });
 

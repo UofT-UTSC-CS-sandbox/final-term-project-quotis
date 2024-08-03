@@ -75,7 +75,8 @@ router.post("/register/user", async (req: Request, res: Response) => {
       lastName,
       email,
       password: hashedPassword,
-      role: "client",
+      role: "client", 
+      photoUrl: "placeholder",
     });
     await newUser.save();
     res.status(201).json({ message: "Registration successful", user: newUser });
@@ -118,7 +119,8 @@ router.post("/register/provider", async (req: Request, res: Response) => {
       services: [], // Initialize with an empty services array or populate as needed
       description: '', // Add any default value or initialize as needed
       contact: '', // Add any default value or initialize as needed
-      postCode: '', // Add any default value or initialize as needed
+      postCode: '', // Add any default value or initialize as needed 
+      photoUri:''
     });
     await newProvider.save();
     res.status(201).json({ message: "Registration successful", user: newProvider });

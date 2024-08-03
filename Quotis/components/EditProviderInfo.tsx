@@ -14,6 +14,8 @@ import { RootStackParamList } from "../../backend/src/models/types";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import * as ImageManipulator from "expo-image-manipulator";
+import * as ImagePicker from "expo-image-picker";
 
 type EditProviderProp = RouteProp<RootStackParamList, "EditProviderInfo">;
 
@@ -23,22 +25,111 @@ const EditProviderInfo: React.FC = () => {
   const [firstName, setFirstName] = useState("default ");
   const [lastName, setLastName] = useState("user");
   const [email, setEmail] = useState("default email");
-  const [address, setAddress] = useState("default address"); 
-  const [postal, setPostal] = useState("A1A 1A1") ;
-  const [phone, setPhone] = useState('12345678');
+  const [postal, setPostal] = useState("A1A 1A1");
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [pic, setPic] = useState<string>("");
+  const [desc, setDesc] = useState<string>("");
+  const [contact, setContact] = useState<string>("");
   const { userId } = route.params;
   const navigation: any = useNavigation();
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const selectedImage = result.assets[0];
+      if (selectedImage.uri) {
+        setPhotoUri(selectedImage.uri);
+        console.log("got image");
+      }
+    }
+  };
+  /*This function allows the user to directly take a picture from their phone to upload */
+  const takePhoto = async () => {
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setPhotoUri(result.assets[0].uri);
+    }
+  };
+
+  /*This function gets a presigned url 
+    for an image in the S3 database */
+  const getUploadUrl = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/s3Url");
+      console.log("Got the image URL");
+      return response.data.url;
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      Alert.alert("Error", "Failed to get upload URL.");
+      return null;
+    }
+  };
+
+  /*THis functionn using a presigned url and the uri location of the image uploads the image to the database with some metadata  */
+  const uploadImage = async (url: string, uri: string) => {
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": blob.type,
+        },
+        body: blob,
+      });
+      console.log("Uploaded Image");
+
+      return url.split("?")[0]; // Return the S3 URL without query parameters
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      Alert.alert("Error", "Failed to upload image.");
+      return null;
+    }
+  };
+
+  /*This function resizes the image to  */
+  const resizeImage = async (uri: string) => {
+    try {
+      const manipResult = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 200, height: 200 } }], // 원하는 크기로 조정
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+      );
+      console.log("Manipulated Image Size");
+      return manipResult.uri;
+    } catch (error) {
+      console.error("Error resizing image:", error);
+      Alert.alert("Error", "Failed to resize image.");
+      return null;
+    }
+  };
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
+          `http://localhost:3000/providers/${userId}`
         );
         console.log("success ");
         setEmail(response.data.email);
         setFirstName(response.data.firstName);
         setLastName(response.data.lastName);
+        setPic(response.data.photoUri);
+        setDesc(response.data.description);
+        setContact(response.data.contact);
+        setPostal(response.data.postCode);
       } catch (error) {
         console.log("damn for user");
         console.error("Error fetching user details:", error);
@@ -47,15 +138,50 @@ const EditProviderInfo: React.FC = () => {
     fetchUserInfo();
   }, [userId]);
 
+  useEffect(() => {
+    // here once the photoUri is changed i want this to take the pic resize it get get a url and then store the pic at that URL
+    profilePicUpload();
+  }, [photoUri]);
+
+  const profilePicUpload = async () => {
+    if (photoUri == null) {
+      Alert.alert("Please pick an image.");
+      return;
+    }
+    const resizedUri = await resizeImage(photoUri);
+    if (!resizedUri) return;
+
+    const uploadUrl = await getUploadUrl(); // gets signed url to uplaod into the S3 database
+    if (uploadUrl) {
+      const imageUrl = await uploadImage(uploadUrl, resizedUri);
+      if (imageUrl) {
+        try {
+          await axios.put(`http://localhost:3000/updateProvider/${userId}`, {
+            photoUri: imageUrl,
+          });
+          Alert.alert("Success", "Post created successfully!");
+          setPhotoUri(null);
+          navigation.navigate("ProviderInfo", { userId });
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          Alert.alert("Error", "Failed to upload image.");
+        }
+      }
+    }
+  };
+
   const handleSubmit = async () => {
     const updatedData = {
       email: email,
       firstName: firstName,
       lastName: lastName,
+      description: desc,
+      contact: contact,
+      postCode: postal,
     };
     try {
       const response = await axios.put(
-        `http://localhost:3000/update/${userId}`,
+        `http://localhost:3000/updateProvider/${userId}`,
         updatedData
       );
       Alert.alert("Successfully Updated UserInfo", response.data.message);
@@ -71,19 +197,21 @@ const EditProviderInfo: React.FC = () => {
     }
   };
 
-  const nothing: any = () => {};
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>EDIT PROFILE</Text>
       <View style={styles.profilePicContainer}>
-        <Image
-          style={styles.profilePic}
-          source={{
-            uri: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
-          }}
-        />
-        <Button title="change photo" onPress={nothing} color={"lightblue"} />
+        {pic === "" ? (
+          <Image
+            style={styles.image}
+            source={{
+              uri: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
+            }}
+          />
+        ) : (
+          <Image style={styles.image} source={{ uri: pic }} />
+        )}
+        <Button title="change photo" onPress={pickImage} color={"#007bff"} />
       </View>
       <Text style={styles.title}>First Name</Text>
       <TextInput
@@ -113,16 +241,23 @@ const EditProviderInfo: React.FC = () => {
         placeholder={postal}
         value={postal}
         onChangeText={setPostal}
-      /> 
-       <Text style={styles.title}>Phone Number</Text>
+      />
+      <Text style={styles.title}>Description</Text>
       <TextInput
         style={styles.input}
-        placeholder={phone}
-        value={phone}
-        onChangeText={setPhone}
+        placeholder={desc}
+        value={desc}
+        onChangeText={setDesc}
+      />
+      <Text style={styles.title}>Contact</Text>
+      <TextInput
+        style={styles.input}
+        placeholder={contact}
+        value={contact}
+        onChangeText={setContact}
       />
       <View style={styles.submit}>
-        <Button title="Submit" color={"lightblue"} onPress={handleSubmit} />
+        <Button title="Submit" color={"#007bff"} onPress={handleSubmit} />
       </View>
     </View>
   );
@@ -175,6 +310,14 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     width: width * 0.3,
+    borderRadius: 5,
+  },
+  image: {
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: "black",
   },
 });
 

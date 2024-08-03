@@ -22,7 +22,7 @@ const UserInfo: React.FC = () => {
   const [firstName, setFirstName] = useState<string>("default");
   const [lastName, setLastName] = useState<string>("User");
   const [address, setAddress] = useState<string | null>(null);
-  const [photoUri, setPhotoUri] = useState<string>("place");
+  const [photoUri, setPhotoUri] = useState<string>("placeholder");
   const navigation: any = useNavigation();
 
   const fetchAddress = async () => {
@@ -62,28 +62,32 @@ const UserInfo: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile Information</Text>
-      <View style={styles.profilePicContainer}>
+      <View>
         <Image
-          style={styles.profilePic}
+          style={styles.image}
           source={{
             uri:
               photoUri ||
               "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
           }}
         />
+      </View>
+      <View style={styles.banner}>
         <Text style={styles.name}>
           {firstName} {lastName}
         </Text>
-        <Button
-          color={"lightblue"}
-          title="Edit Profile"
-          onPress={() => {
-            navigation.navigate("EditUserProfile", {
-              userId: userId,
-            });
-          }}
-          accessibilityLabel="Button to access edit UserInfo"
-        />
+        <View style={styles.buttonHolder}>
+          <Button
+            color={"#007bff"}
+            title="Edit Profile"
+            onPress={() => {
+              navigation.navigate("EditUserProfile", {
+                userId: userId,
+              });
+            }}
+            accessibilityLabel="Button to access edit UserInfo"
+          />
+        </View>
       </View>
       <View style={styles.info}>
         <Text style={styles.infoTitle}>Email</Text>
@@ -106,33 +110,31 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   title: {
-    fontWeight: "bold",
     fontSize: 20,
-    marginBottom: 20,
-    textAlign: "center",
+    fontWeight: "bold",
   },
-  profilePicContainer: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#eeeeee",
-    padding: 20,
-    margin: 10,
-    borderRadius: 20,
-  },
-  profilePic: {
+  image: {
     width: 100,
     height: 100,
     borderRadius: 50,
     borderWidth: 1,
     borderColor: "black",
-    marginBottom: 10,
+  },
+  banner: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    padding: 20,
   },
   name: {
+    padding: 10,
     fontWeight: "bold",
-    fontSize: 18,
-    marginBottom: 10,
+  },
+  buttonHolder: {
+    borderColor: "black",
+    borderWidth: 1,
+    borderRadius: 3,
   },
   info: {
     display: "flex",
@@ -143,12 +145,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   infoTitle: {
-    fontWeight: "bold",
-    fontSize: 16,
+    fontWeight: "normal",
   },
   infoCont: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontWeight: "bold",
   },
   line: {
     borderBottomColor: "black",
