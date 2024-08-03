@@ -16,13 +16,10 @@ export interface IUser extends Document {
   updatedAt: Date;
   notifications: Notification[];
   role: string; // Add the role property
-  photoUrl: string;
   reviewRatings: number[]; // Add review ratings
   reviewDescriptions: string[]; // Add review descriptions
   postCode?: string; // Make postal code optional
 }
-
-
 
 const NotificationSchema = new Schema({
   type: { type: String, required: true },
@@ -41,8 +38,7 @@ const UserSchema: Schema = new Schema(
     role: { type: String, required: true }, // Add role to the schema
     reviewRatings: { type: [Number], default: [] }, // Add review ratings to the schema
     reviewDescriptions: { type: [String], default: [] }, // Add review descriptions to the schema
-    postCode: { type: String, default: "" }, // Make postal code optional with a default value 
-    photoUrl: { type: String, required: true },
+    postCode: { type: String, default: "" }, // Make postal code optional with a default value
   },
   { timestamps: true }
 );

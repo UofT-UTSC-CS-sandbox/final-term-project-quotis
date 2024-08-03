@@ -21,8 +21,8 @@ import ProviderProfile from "./components/ProviderProfile";
 import QuoteForm from "./components/QuoteForm";
 import Services from "./components/Services";
 import ServiceSearch from "./components/ServiceSearch";
-import ProviderReview from "./components/ProviderReview"; // Import the ProviderReview component 
-import CustomerService from "./components/CustomerService";
+import ProviderReview from "./components/ProviderReview"; 
+import ClientReview from "./components/ClientReview"; // Import the ClientReview component
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
@@ -51,9 +51,8 @@ export default function App() {
         <Stack.Screen name="QuoteForm" component={QuoteForm} />
         <Stack.Screen name="Services" component={Services} />
         <Stack.Screen name="ServiceSearch" component={ServiceSearch} />
-        <Stack.Screen name="ProviderReview" component={ProviderReview} />  
-        <Stack.Screen name="CustomerService" component={CustomerService} /> 
-
+        <Stack.Screen name="ProviderReview" component={ProviderReview} />
+        <Stack.Screen name="ClientReview" component={ClientReview} />
       </Stack.Navigator>
     </NavigationContainer>
   );

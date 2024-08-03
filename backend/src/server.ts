@@ -9,8 +9,8 @@ import Post from "./models/Post"; // Post model import
 import Provider from "./models/Provider"; // Provider model import
 import Quote from "./models/Quote"; // Quote model import
 import postRoutes from "./routes/posts"; // Post routes import
-import quoteRoutes from "./routes/quotes";
 import bcrypt from "bcrypt";
+import quoteRoutes from "./routes/quotes";
 import loginRegisterRoutes from "./routes/loginregister";
 import notificationRoutes from "./routes/notifications"; // Import notification routes
 import { generateUploadURL } from "./s3";
@@ -20,10 +20,7 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-
 app.use(cors());
-app.use(bodyParser.json({ limit: "10mb" }));
-app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
@@ -61,69 +58,64 @@ const mongoURI = process.env.DATABASE_URL;
 if (!mongoURI) {
   throw new Error("MongoDB connection URL is missing in environment variables");
 }
-
 mongoose
   .connect(mongoURI, {})
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-
 // Update User information endpoint
 app.put("/update/:id", async (req: Request, res: Response) => {
   const updatedData = req.body;
-    try {
-      const user = await User.findByIdAndUpdate(
-        req.params.id,
-        { $set: updatedData },
-        { new: true }
-      );
-      if (!user) {
-        return res.status(404).send({ message: "User to update not found" });
-      }
-      res.status(200).json({ message: "Update Successful", user });
-    } catch (err) {
-      console.error("Error updating user:", err);
-      if (err instanceof Error) {
-        res
-          .status(500)
-          .json({ message: "Error updating user", error: err.message });
-      } else {
-        res
-          .status(500)
-          .json({ message: "Error updating user", error: "Unknown error" });
-      }
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatedData },
+      { new: true }
+    );
+    if (!user) {
       return res.status(404).send({ message: "User to update not found" });
     }
-}); 
+    res.status(200).json({ message: "Update Successful", user });
+  } catch (err) {
+    console.error("Error updating user:", err);
+    if (err instanceof Error) {
+      res
+        .status(500)
+        .json({ message: "Error updating user", error: err.message });
+    } else {
+      res
+        .status(500)
+        .json({ message: "Error updating user", error: "Unknown error" });
+    }
+    return res.status(404).send({ message: "User to update not found" });
+  }
+});
 app.put("/updateProvider/:id", async (req: Request, res: Response) => {
   const updatedData = req.body;
-    try {
-      const provider = await Provider.findByIdAndUpdate(
-        req.params.id,
-        { $set: updatedData },
-        { new: true }
-      );
-      if (!provider) {
-        return res.status(404).send({ message: "Provider to update not found" });
-      }
-      res.status(200).json({ message: "Update Successful", provider });
-    } catch (err) {
-      console.error("Error updating user:", err);
-      if (err instanceof Error) {
-        res
-          .status(500)
-          .json({ message: "Error updating user", error: err.message });
-      } else {
-        res
-          .status(500)
-          .json({ message: "Error updating user", error: "Unknown error" });
-      }
+  try {
+    const provider = await Provider.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatedData },
+      { new: true }
+    );
+    if (!provider) {
       return res.status(404).send({ message: "Provider to update not found" });
     }
+    res.status(200).json({ message: "Update Successful", provider });
+  } catch (err) {
+    console.error("Error updating user:", err);
+    if (err instanceof Error) {
+      res
+        .status(500)
+        .json({ message: "Error updating user", error: err.message });
+    } else {
+      res
+        .status(500)
+        .json({ message: "Error updating user", error: "Unknown error" });
+    }
+    return res.status(404).send({ message: "Provider to update not found" });
+  }
 });
-
-
-
 
 // Get all posts endpoint
 app.use("/api", postRoutes);
@@ -139,7 +131,6 @@ app.get("/s3Url", async (req, res) => {
 });
 
 // Return the user
-// Return the user
 app.get("/user/:id", async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id);
@@ -150,7 +141,6 @@ app.get("/user/:id", async (req: Request, res: Response) => {
     }
   } catch (err: any) {
     console.error("Error fetching user by ID:", err);
-    console.error("Error fetching user by ID:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -159,14 +149,18 @@ app.get("/user/:id", async (req: Request, res: Response) => {
 app.get("/providers", async (req: Request, res: Response) => {
   const { services } = req.query;
 
-  if (!services) {
-    return res.status(400).json({ error: "Service type is required" });
-  }
-
   try {
-    const providers = await Provider.find({ services: services });
+    let providers;
+    if (!services || services === "Any") {
+      // Fetch all providers if 'Any' or no service type is provided
+      providers = await Provider.find();
+    } else {
+      // Fetch providers based on the specified service type
+      providers = await Provider.find({ services: { $in: [services] } });
+    }
     res.status(200).json(providers);
   } catch (error) {
+    console.error("Error fetching service providers:", error);
     res.status(500).json({ error: "Error fetching service providers" });
   }
 });
@@ -186,86 +180,11 @@ app.get("/providers/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Get all jobs based on provider_id and status
-app.get("/jobs", async (req: Request, res: Response) => {
-  const { provider_id, status } = req.query;
-
-  try {
-    const jobs = await Quote.find({ provider_id, status });
-    res.status(200).json(jobs);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching jobs", error });
-  }
-});
-
-// Update job status
-app.patch("/jobs/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { status } = req.body;
-
-  try {
-    const updatedJob = await Quote.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
-    res.status(200).json(updatedJob);
-  } catch (error) {
-    res.status(500).json({ message: "Error updating job status" });
-  }
-});
-
-// Get provider details by ID
-app.get("/providers/:id", async (req: Request, res: Response) => {
-  try {
-    const provider = await Provider.findById(req.params.id);
-    if (provider) {
-      res.status(200).json(provider);
-    } else {
-      res.status(404).json({ message: "Provider not found" });
-    }
-  } catch (err: any) {
-    console.error("Error fetching provider by ID:", err);
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Get all jobs based on provider_id and status
-app.get("/jobs", async (req: Request, res: Response) => {
-  const { provider_id, status } = req.query;
-
-  try {
-    const jobs = await Quote.find({ provider_id, status });
-    res.status(200).json(jobs);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching jobs", error });
-  }
-});
-
-// Update job status
-app.patch("/jobs/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { status } = req.body;
-
-  try {
-    const updatedJob = await Quote.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
-    res.status(200).json(updatedJob);
-  } catch (error) {
-    res.status(500).json({ message: "Error updating job status" });
-  }
-});
-
 // Post routes
 app.use("/posts", postRoutes);
 
 // Quote routes
-app.use("/quotes", quoteRoutes); 
-
-
+app.use("/quotes", quoteRoutes);
 
 // Login and Register routes
 app.use("/", loginRegisterRoutes);
@@ -276,4 +195,3 @@ app.use("/notifications", notificationRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
-

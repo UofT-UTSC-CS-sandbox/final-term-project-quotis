@@ -27,16 +27,16 @@ export type RootStackParamList = {
   UserPost: { postId: string; userId: string };
   ProviderProfile: { userId: string };
   ProviderInbox: { userId: string };
-  Services: { userId: string }; 
-  CustomerService: undefined;
+  Services: { userId: string };
   QuoteForm: {
     postId: string;
     providerId: string;
     userId: string;
     jobDate: string;
-    clientName: string; // Add clientName here
+    clientName: string; 
   };
   ProviderReview: { userId: string; clientId: string; clientName: string };
+  ClientReview: { userId: string; providerId: string; providerName: string }; // Add this line
 };
 
 export interface Post {

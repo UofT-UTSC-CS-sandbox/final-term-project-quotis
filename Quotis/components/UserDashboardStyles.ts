@@ -272,6 +272,14 @@ const styles = StyleSheet.create({
     color: "black",
     marginBottom: 10, // Adjust the margin as needed
   },
+  completeButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#007bff",
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#000", // Black border around the button
+  },
 });
 
 export default styles;
