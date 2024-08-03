@@ -14,7 +14,7 @@ interface Quote {
   date_sent: string;
   description: string;
   price_estimate: string;
-  status: string;
+  provider_status: string;
   user_id: string;
   provider_id: string;
   post_id: string; // Add this field to the Quote interface
@@ -35,7 +35,7 @@ const MyJobs: React.FC = () => {
   const fetchQuotes = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/jobs?provider_id=${userId}&status=${currentFilter}`
+        `http://localhost:3000/quotes?provider_id=${userId}&provider_status=${currentFilter}`
       );
       setQuotes(response.data);
     } catch (error) {
@@ -46,8 +46,11 @@ const MyJobs: React.FC = () => {
 
   const cancelJob = async (jobId: string) => {
     try {
-      await axios.patch(`http://localhost:3000/jobs/${jobId}`, {
-        status: "cancelled",
+      await axios.patch(`http://localhost:3000/quotes/${jobId}/client-status`, {
+        client_status: "cancelled",
+      });
+      await axios.patch(`http://localhost:3000/quotes/${jobId}/provider-status`, {
+        provider_status: "cancelled",
       });
       fetchQuotes();
       Alert.alert("Job Cancelled", "The job has been successfully cancelled.");
@@ -59,14 +62,14 @@ const MyJobs: React.FC = () => {
 
   const markAsComplete = async (job: Quote) => {
     try {
-      await axios.patch(`http://localhost:3000/jobs/${job._id}`, {
-        status: "completed",
+      await axios.patch(`http://localhost:3000/quotes/${job._id}/provider-status`, {
+        provider_status: "completed",
       });
       fetchQuotes();
       navigation.navigate("ProviderReview", {
         userId: job.provider_id,
         clientId: job.user_id,
-        clientName: job.provider_name,
+        clientName: job.client_name,
       });
     } catch (error) {
       console.error("Error completing job:", error);
@@ -155,7 +158,7 @@ const MyJobs: React.FC = () => {
               <Text>{new Date(item.date_sent).toLocaleDateString()}</Text>
               <Text>{item.description}</Text>
               <Text>Estimated Price: {item.price_estimate}</Text>
-              <Text>Status: {item.status}</Text>
+              <Text>Status: {item.provider_status}</Text>
               {currentFilter === "accepted" && (
                 <View style={styles.actionButtonsContainer}>
                   <TouchableOpacity

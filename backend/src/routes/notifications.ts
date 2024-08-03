@@ -32,9 +32,9 @@ router.get("/:userType/:userId/notifications", async (req: Request, res: Respons
 
 // Add notification route
 router.post("/:userType/:userId/notify", async (req: Request, res: Response) => {
-  const { action, entityId, message } = req.body;
+  const { type, entityId, message } = req.body;
   const { userType, userId } = req.params;
-  console.log(`Adding notification for userType: ${userType}, userId: ${userId}, action: ${action}`);
+  console.log(`Adding notification for userType: ${userType}, userId: ${userId}, action: ${type}`);
 
   try {
     let user;
@@ -46,7 +46,7 @@ router.post("/:userType/:userId/notify", async (req: Request, res: Response) => 
 
     if (user) {
       user.notifications.push({
-        type: action,
+        type: type,
         entity_id: entityId,
         date_created: new Date(),
         message: message,

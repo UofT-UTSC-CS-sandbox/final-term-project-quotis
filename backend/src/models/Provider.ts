@@ -20,6 +20,8 @@ export interface IProvider extends Document {
   updatedAt: Date;
   notifications: Notification[];
   role: string; // Add the role property
+  reviewRatings: number[]; // Add review ratings
+  reviewDescriptions: string[]; // Add review descriptions
 }
 
 const NotificationSchema = new Schema({
@@ -29,19 +31,24 @@ const NotificationSchema = new Schema({
   message: { type: String, required: true },
 });
 
-const ProviderSchema: Schema = new Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  services: { type: [String], required: false },
-  description: { type: String, required: false },
-  contact: { type: String, required: false },
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  postCode: { type: String, required: false },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-  notifications: [NotificationSchema],
-  role: { type: String, required: true }, // Add role to the schema
-});
+const ProviderSchema: Schema = new Schema(
+  {
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    services: { type: [String], required: false },
+    description: { type: String, required: false },
+    contact: { type: String, required: false },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    postCode: { type: String, required: false },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
+    notifications: { type: [NotificationSchema], default: [] },
+    role: { type: String, required: true }, // Add role to the schema
+    reviewRatings: { type: [Number], default: [] }, // Add review ratings to the schema
+    reviewDescriptions: { type: [String], default: [] }, // Add review descriptions to the schema
+  },
+  { timestamps: true }
+);
 
 export default mongoose.model<IProvider>("Provider", ProviderSchema);

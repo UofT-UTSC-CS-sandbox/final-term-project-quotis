@@ -180,35 +180,6 @@ app.get("/providers/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Get all jobs based on provider_id and status
-app.get("/jobs", async (req: Request, res: Response) => {
-  const { provider_id, status } = req.query;
-
-  try {
-    const jobs = await Quote.find({ provider_id, status });
-    res.status(200).json(jobs);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching jobs", error });
-  }
-});
-
-// Update job status
-app.patch("/jobs/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { status } = req.body;
-
-  try {
-    const updatedJob = await Quote.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
-    res.status(200).json(updatedJob);
-  } catch (error) {
-    res.status(500).json({ message: "Error updating job status" });
-  }
-});
-
 // Post routes
 app.use("/posts", postRoutes);
 
