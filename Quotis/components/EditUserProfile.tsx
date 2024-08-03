@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,25 +12,23 @@ import {
 } from "react-native";
 import { RootStackParamList } from "../../backend/src/models/types";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
-import axios from "axios"; 
-import * as ImageManipulator from 'expo-image-manipulator';
-import * as ImagePicker from 'expo-image-picker';
+import axios from "axios";
+import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 
 type EditRouteProp = RouteProp<RootStackParamList, "EditUserProfile">;
 
 const EditUserProfile: React.FC = () => {
   const route: any = useRoute<EditRouteProp>();
+  const [profilePic, setProfilePic] = useState(null);
+  const [photoUri, setPhotoUri] = useState<string | null>(null); // Add this line
   const [firstName, setFirstName] = useState("default ");
   const [lastName, setLastName] = useState("user");
   const [email, setEmail] = useState("default email");
-  const [address, setAddress] = useState("default address"); 
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const [profilePic, setProfilePic] = useState<string>("placeholder");
+  const [address, setAddress] = useState("default address");
   const { userId } = route.params;
-  const navigation: any = useNavigation(); 
+  const navigation: any = useNavigation();
 
-  /*This function allows us to pick an image from our gallery */
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -46,8 +44,8 @@ const EditUserProfile: React.FC = () => {
         console.log("got image");
       }
     }
-  }; 
-  /*This function allows the user to directly take a picture from their phone to upload */
+  };
+
   const takePhoto = async () => {
     let result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
@@ -60,56 +58,52 @@ const EditUserProfile: React.FC = () => {
     }
   };
 
-  /*This function gets a presigned url 
-    for an image in the S3 database */
   const getUploadUrl = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/s3Url'); 
-      console.log('Got the image URL');
+      const response = await axios.get("http://localhost:3000/s3Url");
+      console.log("Got the image URL");
       return response.data.url;
     } catch (error) {
-      console.error('Error getting upload URL:', error);
-      Alert.alert('Error', 'Failed to get upload URL.');
+      console.error("Error getting upload URL:", error);
+      Alert.alert("Error", "Failed to get upload URL.");
       return null;
     }
   };
 
-/*THis functionn using a presigned url and the uri location of the image uploads the image to the database with some metadata  */
   const uploadImage = async (url: string, uri: string) => {
     try {
       const response = await fetch(uri);
       const blob = await response.blob();
 
       await fetch(url, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': blob.type,
+          "Content-Type": blob.type,
         },
         body: blob,
-      }); 
-      console.log('Uploaded Image');
+      });
+      console.log("Uploaded Image");
 
-      return url.split('?')[0]; // Return the S3 URL without query parameters
+      return url.split("?")[0]; // Return the S3 URL without query parameters
     } catch (error) {
-      console.error('Error uploading image:', error);
-      Alert.alert('Error', 'Failed to upload image.');
+      console.error("Error uploading image:", error);
+      Alert.alert("Error", "Failed to upload image.");
       return null;
     }
   };
 
-  /*This function resizes the image to  */
   const resizeImage = async (uri: string) => {
     try {
       const manipResult = await ImageManipulator.manipulateAsync(
         uri,
-        [{ resize: { width: 200, height:200 } }], // 원하는 크기로 조정
+        [{ resize: { width: 200, height: 200 } }],
         { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
       );
-      console.log('Manipulated Image Size'); 
+      console.log("Manipulated Image Size");
       return manipResult.uri;
     } catch (error) {
-      console.error('Error resizing image:', error);
-      Alert.alert('Error', 'Failed to resize image.');
+      console.error("Error resizing image:", error);
+      Alert.alert("Error", "Failed to resize image.");
       return null;
     }
   };
@@ -127,46 +121,39 @@ const EditUserProfile: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchUserInfo(); // 컴포넌트가 마운트될 때 유저 정보 가져오기
+    fetchUserInfo();
   }, [userId]);
 
-  useEffect( ()=>{ 
-    // here once the photoUri is changed i want this to take the pic resize it get get a url and then store the pic at that URL 
-   profilePicUpload();
-  }, [photoUri]); 
+  useEffect(() => {
+    profilePicUpload();
+  }, [photoUri]);
 
+  const profilePicUpload = async () => {
+    if (photoUri == null) {
+      Alert.alert("Please pick an image.");
+      return;
+    }
+    const resizedUri = await resizeImage(photoUri);
+    if (!resizedUri) return;
 
-const profilePicUpload = async ()=> { 
-  if (photoUri == null){ 
-    Alert.alert("Please pick an image.") ;
-    return; 
-  }
-  const resizedUri = await resizeImage(photoUri);
-  if (!resizedUri) return; 
-
-  const uploadUrl = await getUploadUrl(); // gets signed url to uplaod into the S3 database 
-  if (uploadUrl) {
-    const imageUrl = await uploadImage(uploadUrl, resizedUri);
-    if (imageUrl) {
-      try {
-        await axios.put(`http://localhost:3000/update/${userId}`, {
-          photoUrl: imageUrl,
-        }, 
-        );
-        Alert.alert('Success', 'Post created successfully!');
-        setPhotoUri(null);
-        navigation.navigate("UserInfo", { userId });
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        Alert.alert('Error', 'Failed to upload image.');
+    const uploadUrl = await getUploadUrl();
+    if (uploadUrl) {
+      const imageUrl = await uploadImage(uploadUrl, resizedUri);
+      if (imageUrl) {
+        try {
+          await axios.put(`http://localhost:3000/update/${userId}`, {
+            photoUrl: imageUrl,
+          });
+          Alert.alert("Success", "Post created successfully!");
+          setPhotoUri(null);
+          navigation.navigate("UserInfo", { userId });
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          Alert.alert("Error", "Failed to upload image.");
+        }
       }
     }
-  }
-}
-  
-
-
-
+  };
 
   const handleSubmit = async () => {
     const updatedData = {
@@ -180,7 +167,7 @@ const profilePicUpload = async ()=> {
         updatedData
       );
       Alert.alert("Successfully Updated UserInfo", response.data.message);
-      fetchUserInfo(); // 유저 정보 업데이트 후 최신 정보 가져오기
+      fetchUserInfo();
       navigation.navigate("UserInfo", { userId: userId });
     } catch (error: any) {
       console.error("Error Updating User Information:", error);
@@ -191,27 +178,19 @@ const profilePicUpload = async ()=> {
     }
   };
 
-  const nothing: any = () => {};
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>EDIT PROFILE</Text>
       <View style={styles.profilePicContainer}>
-      {photoUri === "placeholder" ? (
-          <Image 
-            style={styles.image}
-            source={{
-              uri: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
-            }}
-          />
-        ) : (
-          <Image   style={styles.image} source={{ uri: profilePic }}/> 
-         
-        )}
-        <View style={styles.button}> 
-          <Button title="change photo" onPress={pickImage} color={"#007bff"} />
-        </View>
-   
+        <Image
+          style={styles.profilePic}
+          source={{
+            uri:
+              profilePic ||
+              "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
+          }}
+        />
+        <Button title="Change Photo" onPress={pickImage} color={"lightblue"} />
       </View>
       <Text style={styles.title}>First Name</Text>
       <TextInput
@@ -243,7 +222,7 @@ const profilePicUpload = async ()=> {
         onChangeText={setAddress}
       />
       <View style={styles.submit}>
-        <Button title="Submit" color={"#007bff"} onPress={handleSubmit} />
+        <Button title="Submit" color={"lightblue"} onPress={handleSubmit} />
       </View>
     </View>
   );
@@ -267,13 +246,9 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 20,
   },
-  image: {
+  profilePic: {
     width: 50,
     height: 50,
-    borderRadius: 50, 
-    borderWidth:1 , 
-    borderColor: 'black', 
-
   },
   profilePicPlaceholder: {
     width: 100,
@@ -299,14 +274,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
-    width: width * 0.3, 
-    borderRadius: 5,
-    
-  }, 
-  button:{ 
-    borderRadius:5, 
-    borderWidth:1, 
-    borderColor: 'black',
+    width: width * 0.3,
   },
 });
 
