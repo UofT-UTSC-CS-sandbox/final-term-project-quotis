@@ -65,13 +65,12 @@ const Register: React.FC = () => {
       return;
     }
     try {
-      const endpoint = role === "client" ? "user" : "provider";
-      const response = await axios.post(`http://localhost:3000/register/${endpoint}`, {
+      const response = await axios.post("http://localhost:3000/register", {
         firstName,
         lastName,
         email: email.toLowerCase(),
         password,
-        role, // Include role in the request body
+        role,
       });
       Alert.alert("Success", response.data.message);
       navigation.navigate("Login");

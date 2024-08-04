@@ -1,20 +1,15 @@
 import express, { Request as ExpressRequest, Response } from "express";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"; // AWS SDK v3 import
-import Post from "../models/Post";
+import AWS from "aws-sdk";
+import Post from "../models/Post"; // Post model import
 import dotenv from "dotenv";
 import {
   getUserPosts,
   getAllPosts,
   likePost,
-  deletePost,
-  getPIDPost,
-  updatePost,
 } from "../controller/postController"; // Removed .ts extension
 import authenticateToken from "../middleware/auth"; // Corrected import statement
-import AWS from "aws-sdk";
-import mongoose from "mongoose"; // Add this import statement
 
 dotenv.config();
 
@@ -58,22 +53,16 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 // Post creation endpoint
 router.post("/create-post", async (req, res) => {
   try {
-    const { userId, title, photoUrl, description, jobDate } = req.body;
+    const { userId, title, photoUrl, description } = req.body;
     const newPost = new Post({
-      _id: new mongoose.Types.ObjectId(),
       userId,
       title,
       photoUrl,
       description,
-      likes: 0,
       createdAt: new Date(),
-      quotes: [],
-      jobDate: new Date(jobDate), // Add this line
     });
     await newPost.save();
-    res
-      .status(201)
-      .send({ message: "Post created successfully", post: newPost });
+    res.status(201).send(newPost);
   } catch (error) {
     res.status(500).send({ error: (error as Error).message });
   }
@@ -91,7 +80,6 @@ interface AuthenticatedRequest extends Request {
 
 router.delete(
   "/delete-post/:id",
-  authenticateToken,
   async (req: AuthenticatedRequest & Request, res) => {
     const { id } = req.params;
     const userId = req.user?.id; // Extract user ID after authentication
@@ -132,11 +120,5 @@ router.put(
     }
   }
 );
-
-// Delete post endpoint
-router.delete("/:postId", authenticateToken, deletePost);
-//get post by postId,  for UserPost.tsx
-router.get("/:postId", authenticateToken, getPIDPost);
-router.put("/:postId", authenticateToken, updatePost);
 
 export default router;

@@ -54,7 +54,6 @@ const Login: React.FC = () => {
         email: email.toLowerCase(),
         password,
       });
-
       console.log("Login response:", response.data); // Log the response data
 
       const token = response.data.token;

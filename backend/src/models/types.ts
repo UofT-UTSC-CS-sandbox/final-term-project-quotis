@@ -1,58 +1,31 @@
-import { Request } from "express";
-
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    // Add any other properties you need here
-  };
-}
-
-// Ensure this is exported
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   UserDashboard: { userId: string };
   ProviderDashboard: { userId: string };
-  CreatePost: { userId: string };
+  CreatePost: { userId: string }; // 여기서 userId를 매개변수로 정의합니다.
   PostList: { userId: string };
   Profile: { userId: string };
   UserInfo: { userId: string };
-  ServiceSearch: { userId: string; serviceType: string };
+  Services: { userId: string };
+  ServiceSearch: { userId: number; serviceType: string };
   UserInbox: { userId: string };
-  EditUserProfile: { userId: string };
-  MyJobs: { userId: string };
-  ProviderInfo: { userId: string };
-  Verification: undefined;
-  EditProviderInfo: { userId: string };
-  UserPost: { postId: string; userId: string };
-  ProviderProfile: { userId: string };
-  ProviderInbox: { userId: string };
-  Services: { userId: string }; 
-  CustomerService: undefined;
-  QuoteForm: {
-    postId: string;
-    providerId: string;
-    userId: string;
-    jobDate: string;
-    clientName: string; // Add clientName here
-  };
-  ProviderReview: { userId: string; clientId: string; clientName: string };
+  EditUserProfile: { userId: string }; // Added this line
 };
 
 export interface Post {
   _id: string;
-  userId: string;
   title: string;
   description: string;
-  photoUrl: string;
+  author: string;
   createdAt: string;
-  likes: number;
-  jobDate: string;
 }
 
-export interface PostWithUser extends Post {
-  user: {
-    firstName: string;
-    lastName: string;
+import { Request } from 'express';
+
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    // 필요한 다른 속성들 추가
   };
 }
