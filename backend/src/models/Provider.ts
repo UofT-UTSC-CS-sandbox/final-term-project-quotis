@@ -1,27 +1,56 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
-interface IProvider extends Document {
+interface Notification {
+  type: string;
+  entity_id?: string; // Rename quote_id to entity_id
+  date_created: Date;
+  message: string;
+}
+
+export interface IProvider extends Document {
   email: string;
+  password: string;
   services: string[];
   description: string;
   contact: string;
   firstName: string;
   lastName: string;
-  postCode: string; // Added postal code field
+  postCode: string;
   createdAt: Date;
   updatedAt: Date;
+  notifications: Notification[];
+  role: string; // Add the role property
+  reviewRatings: number[]; // Add review ratings
+  reviewDescriptions: string[]; // Add review descriptions
+  photoUri: string;
 }
 
-const ProviderSchema: Schema = new Schema({
-  email: { type: String, required: true, unique: true },
-  services: { type: [String], required: true },
-  description: { type: String, required: true },
-  contact: { type: String, required: true },
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  postCode: { type: String, required: true }, // Added postal code field
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+const NotificationSchema = new Schema({
+  type: { type: String, required: true },
+  entity_id: { type: String, required: false }, // Rename quote_id to entity_id
+  date_created: { type: Date, required: true },
+  message: { type: String, required: true },
 });
 
-export default mongoose.model<IProvider>('Provider', ProviderSchema);
+const ProviderSchema: Schema = new Schema(
+  {
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    services: { type: [String], required: false },
+    description: { type: String, required: false },
+    contact: { type: String, required: false },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    postCode: { type: String, required: false },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
+    notifications: { type: [NotificationSchema], default: [] },
+    role: { type: String, required: true }, // Add role to the schema
+    reviewRatings: { type: [Number], default: [] }, // Add review ratings to the schema
+    reviewDescriptions: { type: [String], default: [] }, // Add review descriptions to the schema
+    photoUri: { type: String, required: true }, // Add photoUri to the schema
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model<IProvider>("Provider", ProviderSchema);

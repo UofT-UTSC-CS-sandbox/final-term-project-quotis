@@ -15,14 +15,16 @@ import { RouteProp, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type ProfileRouteProp = RouteProp<RootStackParamList, "Profile">;
+type ProviderProfileRouteProp = RouteProp<
+  RootStackParamList,
+  "ProviderProfile"
+>;
 
-const Profile: React.FC = () => {
-  const navigation: any = useNavigation(); // this is just to have a short hand for the navigation
-  const route = useRoute<ProfileRouteProp>();
-  const [photoUri, setPhotoUri] = useState<string>("placeholder");
+const ProviderProfile: React.FC = () => {
+  const navigation: any = useNavigation(); // this is just to have a shorthand for navigation
+  const route = useRoute<ProviderProfileRouteProp>();
   const { userId } = route.params;
-
+  const [photoUri, setPhotoUri] = useState<string>("placeholder");
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
@@ -55,10 +57,10 @@ const Profile: React.FC = () => {
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/user/${userId}`
+          `http://localhost:3000/providers/${userId}`
         );
         console.log("success");
-        setPhotoUri(response.data.photoUrl);
+        setPhotoUri(response.data.photoUri);
       } catch (error) {
         console.error("Error fetching user details:", error);
       }
@@ -71,7 +73,7 @@ const Profile: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.pfp}>
-        {photoUri === "placeholder" ? (
+        {photoUri === "" ? (
           <Image
             style={styles.image}
             source={{
@@ -88,10 +90,10 @@ const Profile: React.FC = () => {
             color={"#007bff"}
             title="Personal"
             onPress={() => {
-              navigation.navigate("UserInfo", {
+              navigation.navigate("ProviderInfo", {
                 userId: userId,
               });
-            }}
+            }} // passing userId to the user information page
             accessibilityLabel="Button to access Personal Info"
           />
         </View>
@@ -102,7 +104,7 @@ const Profile: React.FC = () => {
             onPress={() => {
               navigation.navigate("CustomerService");
             }}
-            accessibilityLabel="Button to access Personal Info"
+            accessibilityLabel="Button to access Customer Service"
           />
         </View>
         <View style={styles.buttonHolder}>
@@ -112,7 +114,7 @@ const Profile: React.FC = () => {
             onPress={() => {
               navigation.navigate("Login");
             }}
-            accessibilityLabel="Button to access Personal Info"
+            accessibilityLabel="Button to log out"
           />
         </View>
       </View>
@@ -156,4 +158,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Profile;
+export default ProviderProfile;

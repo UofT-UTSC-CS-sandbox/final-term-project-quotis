@@ -1,23 +1,26 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Button, Image, TextInput, Alert } from "react-native";
 import { RootStackParamList } from "../../backend/src/models/types";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
-import { styles } from "./EditUserProfileStyles"; // Import the styles
+import { styles } from "./EditProfileInfoStyles"; // Import the styles
 
-type EditRouteProp = RouteProp<RootStackParamList, "EditUserProfile">;
+type EditProviderProp = RouteProp<RootStackParamList, "EditProviderInfo">;
 
-const EditUserProfile: React.FC = () => {
-  const route: any = useRoute<EditRouteProp>();
+const EditProviderInfo: React.FC = () => {
+  const route: any = useRoute<EditProviderProp>();
+  const [profilePic, setProfilePic] = useState(null);
   const [firstName, setFirstName] = useState("default ");
   const [lastName, setLastName] = useState("user");
   const [email, setEmail] = useState("default email");
-  const [address, setAddress] = useState("default address");
+  const [postal, setPostal] = useState("A1A 1A1");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const [profilePic, setProfilePic] = useState<string>("placeholder");
+  const [pic, setPic] = useState<string>("");
+  const [desc, setDesc] = useState<string>("");
+  const [contact, setContact] = useState<string>("");
   const { userId } = route.params;
   const navigation: any = useNavigation();
 
@@ -76,7 +79,7 @@ const EditUserProfile: React.FC = () => {
       });
       console.log("Uploaded Image");
 
-      return url.split("?")[0]; // Return the S3 URL without query parameters
+      return url.split("?")[0];
     } catch (error) {
       console.error("Error uploading image:", error);
       Alert.alert("Error", "Failed to upload image.");
@@ -88,7 +91,7 @@ const EditUserProfile: React.FC = () => {
     try {
       const manipResult = await ImageManipulator.manipulateAsync(
         uri,
-        [{ resize: { width: 200, height: 200 } }], // desired size
+        [{ resize: { width: 200, height: 200 } }],
         { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
       );
       console.log("Manipulated Image Size");
@@ -100,19 +103,25 @@ const EditUserProfile: React.FC = () => {
     }
   };
 
-  const fetchUserInfo = async () => {
-    try {
-      const response = await axios.get(`http://localhost:3000/user/${userId}`);
-      setEmail(response.data.email);
-      setFirstName(response.data.firstName);
-      setLastName(response.data.lastName);
-      setProfilePic(response.data.photoUrl);
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
-  };
-
   useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/providers/${userId}`
+        );
+        console.log("success ");
+        setEmail(response.data.email);
+        setFirstName(response.data.firstName);
+        setLastName(response.data.lastName);
+        setPic(response.data.photoUri);
+        setDesc(response.data.description);
+        setContact(response.data.contact);
+        setPostal(response.data.postCode);
+      } catch (error) {
+        console.log("damn for user");
+        console.error("Error fetching user details:", error);
+      }
+    };
     fetchUserInfo();
   }, [userId]);
 
@@ -129,15 +138,14 @@ const EditUserProfile: React.FC = () => {
     const resizedUri = await resizeImage(photoUri);
     if (!resizedUri) return;
 
-    const uploadUrl = await getUploadUrl(); // gets signed url to upload into the S3 database
+    const uploadUrl = await getUploadUrl();
     if (uploadUrl) {
       const imageUrl = await uploadImage(uploadUrl, resizedUri);
       if (imageUrl) {
         try {
-          await axios.put(`http://localhost:3000/update/${userId}`, {
-            photoUrl: imageUrl,
+          await axios.put(`http://localhost:3000/updateProvider/${userId}`, {
+            photoUri: imageUrl,
           });
-          setProfilePic(imageUrl);
           setPhotoUri(null);
         } catch (error) {
           console.error("Error uploading image:", error);
@@ -152,16 +160,20 @@ const EditUserProfile: React.FC = () => {
       email: email,
       firstName: firstName,
       lastName: lastName,
-      address: address,
+      description: desc,
+      contact: contact,
+      postCode: postal,
     };
     try {
       const response = await axios.put(
-        `http://localhost:3000/update/${userId}`,
+        `http://localhost:3000/updateProvider/${userId}`,
         updatedData
       );
       Alert.alert("Successfully Updated UserInfo", response.data.message);
-      navigation.navigate("UserInfo", { userId: userId });
+      console.log(response.data.message);
+      navigation.navigate("ProviderInfo", { userId: userId });
     } catch (error: any) {
+      console.log("damn for edit");
       console.error("Error Updating User Information:", error);
       Alert.alert(
         "Error",
@@ -174,7 +186,7 @@ const EditUserProfile: React.FC = () => {
     <View style={styles.container}>
       <Text style={styles.title}>EDIT PROFILE</Text>
       <View style={styles.profilePicContainer}>
-        {profilePic === "placeholder" ? (
+        {pic === "" ? (
           <Image
             style={styles.image}
             source={{
@@ -182,11 +194,9 @@ const EditUserProfile: React.FC = () => {
             }}
           />
         ) : (
-          <Image style={styles.image} source={{ uri: profilePic }} />
+          <Image style={styles.image} source={{ uri: pic }} />
         )}
-        <View style={styles.button}>
-          <Button title="Change Photo" onPress={pickImage} color={"#007bff"} />
-        </View>
+        <Button title="Change Photo" onPress={pickImage} color={"#007bff"} />
       </View>
       <View style={styles.info}>
         <Text style={styles.infoTitle}>First Name</Text>
@@ -211,12 +221,26 @@ const EditUserProfile: React.FC = () => {
           keyboardType="email-address"
           onChangeText={setEmail}
         />
-        <Text style={styles.infoTitle}>Address</Text>
+        <Text style={styles.infoTitle}>Postal Code</Text>
         <TextInput
           style={styles.input}
-          placeholder={address}
-          value={address}
-          onChangeText={setAddress}
+          placeholder={postal}
+          value={postal}
+          onChangeText={setPostal}
+        />
+        <Text style={styles.infoTitle}>Description</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={desc}
+          value={desc}
+          onChangeText={setDesc}
+        />
+        <Text style={styles.infoTitle}>Contact</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={contact}
+          value={contact}
+          onChangeText={setContact}
         />
         <View style={styles.submit}>
           <Button title="Submit" color={"#007bff"} onPress={handleSubmit} />
@@ -226,4 +250,4 @@ const EditUserProfile: React.FC = () => {
   );
 };
 
-export default EditUserProfile;
+export default EditProviderInfo;

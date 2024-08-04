@@ -1,36 +1,51 @@
-import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; 
-import { RouteProp, useRoute } from '@react-navigation/native'; 
-import { RootStackParamList } from '../../backend/src/models/types';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { View, Text, Button, Image } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useRoute } from "@react-navigation/native";
+import axios from "axios";
+import * as Location from "expo-location";
+import { RootStackParamList } from "../../backend/src/models/types";
+import { styles } from "./UserInfoStyles"; // Adjust the path according to your folder structure
 
-
-// I need to pass this page a prop of the basic info of who logged in 
 type UserInfoRouteProp = RouteProp<RootStackParamList, "UserInfo">;
 
-const UserInfo: React.FC = () => {  
-  
-
+const UserInfo: React.FC = () => {
   const route = useRoute<UserInfoRouteProp>();
-  const { userId } = route.params;  
-  const [email, setEmail] = useState<string>("defaultEmail") 
-  const [username, setUsername] = useState<string>("defaultUser")
-  const [address, setAddress] = useState<string>("default Address")
-  const [UserType, setUserType]  = useState<string>("IDK")
+  const { userId } = route.params;
+  const [email, setEmail] = useState<string>("defaultEmail");
+  const [firstName, setFirstName] = useState<string>("default");
+  const [lastName, setLastName] = useState<string>("User");
+  const [address, setAddress] = useState<string | null>(null);
+  const [photoUri, setPhotoUri] = useState<string>("placeholder");
+  const navigation: any = useNavigation();
+
+  const fetchAddress = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      console.error("Permission to access location was denied");
+      return;
+    }
+
+    const location = await Location.getCurrentPositionAsync({});
+    const { latitude, longitude } = location.coords;
+    const response = await axios.get(
+      `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=en`
+    );
+    setAddress(response.data.display_name);
+  };
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get(
           `http://localhost:3000/user/${userId}`
-        ); 
-        console.log('success');
+        );
         setEmail(response.data.email);
-        setUserType(response.data.role);
+        setFirstName(response.data.firstName);
+        setLastName(response.data.lastName);
+        setPhotoUri(response.data.photoUrl);
+        await fetchAddress();
       } catch (error) {
-        console.log('damn');
         console.error("Error fetching user details:", error);
       }
     };
@@ -38,35 +53,44 @@ const UserInfo: React.FC = () => {
     fetchUserInfo();
   }, [userId]);
 
-
-
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile Information</Text>
-      <View style={styles.info}></View>
-      <Text>User Name: {email} </Text> 
-      <Text>Address {address}</Text>  
-      <Text>User Type: {UserType} </Text>
+      <Image
+        style={styles.image}
+        source={{
+          uri:
+            photoUri ||
+            "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
+        }}
+      />
+      <View style={styles.banner}>
+        <Text style={styles.name}>
+          {firstName} {lastName}
+        </Text>
+        <View style={styles.buttonHolder}>
+          <Button
+            color={"#007bff"}
+            title="Edit Profile"
+            onPress={() => {
+              navigation.navigate("EditUserProfile", {
+                userId: userId,
+              });
+            }}
+            accessibilityLabel="Button to access edit UserInfo"
+          />
+        </View>
+      </View>
+      <View style={styles.info}>
+        <Text style={styles.infoTitle}>Email</Text>
+        <Text style={styles.infoCont}>{email}</Text>
+        <View style={styles.line} />
+        <Text style={styles.infoTitle}>Address</Text>
+        <Text style={styles.infoCont}>{address || "Address loading..."}</Text>
+        <View style={styles.line} />
+      </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center', 
-    backgroundColor: "lightblue"
-  },   
-  title: {
-    fontSize: 20,
-  },
-  info:{ 
-    display: "flex" ,
-    justifyContent: "space-around", 
-    alignItems: "center", 
-  }
-});
 
 export default UserInfo;
