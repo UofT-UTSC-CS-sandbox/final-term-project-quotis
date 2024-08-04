@@ -1,20 +1,12 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Button,
-  Image,
-  Dimensions,
-  TextInput,
-  Alert,
-} from "react-native";
+import { View, Text, Button, Image, TextInput, Alert } from "react-native";
 import { RootStackParamList } from "../../backend/src/models/types";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
+import { styles } from "./EditUserProfileStyles"; // Import the styles
 
 type EditRouteProp = RouteProp<RootStackParamList, "EditUserProfile">;
 
@@ -132,7 +124,6 @@ const EditUserProfile: React.FC = () => {
 
   const profilePicUpload = async () => {
     if (photoUri == null) {
-      Alert.alert("Please pick an image.");
       return;
     }
     const resizedUri = await resizeImage(photoUri);
@@ -148,7 +139,6 @@ const EditUserProfile: React.FC = () => {
           });
           setProfilePic(imageUrl);
           setPhotoUri(null);
-          navigation.navigate("UserInfo", { userId });
         } catch (error) {
           console.error("Error uploading image:", error);
           Alert.alert("Error", "Failed to upload image.");
@@ -198,99 +188,42 @@ const EditUserProfile: React.FC = () => {
           <Button title="Change Photo" onPress={pickImage} color={"#007bff"} />
         </View>
       </View>
-      <Text style={styles.title}>First Name</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={firstName}
-        value={firstName}
-        onChangeText={setFirstName}
-      />
-      <Text style={styles.title}>Last Name</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={lastName}
-        value={lastName}
-        onChangeText={setLastName}
-      />
-      <Text style={styles.title}>Email</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={email}
-        value={email}
-        keyboardType="email-address"
-        onChangeText={setEmail}
-      />
-      <Text style={styles.title}>Address</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={address}
-        value={address}
-        onChangeText={setAddress}
-      />
-      <View style={styles.submit}>
-        <Button title="Submit" color={"#007bff"} onPress={handleSubmit} />
+      <View style={styles.info}>
+        <Text style={styles.infoTitle}>First Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={firstName}
+          value={firstName}
+          onChangeText={setFirstName}
+        />
+        <Text style={styles.infoTitle}>Last Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={lastName}
+          value={lastName}
+          onChangeText={setLastName}
+        />
+        <Text style={styles.infoTitle}>Email</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={email}
+          value={email}
+          keyboardType="email-address"
+          onChangeText={setEmail}
+        />
+        <Text style={styles.infoTitle}>Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={address}
+          value={address}
+          onChangeText={setAddress}
+        />
+        <View style={styles.submit}>
+          <Button title="Submit" color={"#007bff"} onPress={handleSubmit} />
+        </View>
       </View>
     </View>
   );
 };
-
-const { height, width } = Dimensions.get("window");
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "white",
-  },
-  profilePicContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#eeeeee",
-    padding: 20,
-    margin: 10,
-    borderRadius: 20,
-  },
-  image: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: "black",
-  },
-  profilePicPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#ccc",
-    textAlign: "center",
-    lineHeight: 100,
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderRadius: 10,
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 10,
-  },
-  title: {
-    fontWeight: "bold",
-  },
-  submit: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    width: width * 0.3,
-    borderRadius: 5,
-  },
-  button: {
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "black",
-  },
-});
 
 export default EditUserProfile;

@@ -14,30 +14,41 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20, // Space between title and image
   },
+  profilePicContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#eeeeee",
+    padding: 20,
+    margin: 10,
+    borderRadius: 20,
+    width: "90%",
+  },
   image: {
     width: 100,
     height: 100,
     borderRadius: 50,
     borderWidth: 1,
     borderColor: "black",
-    marginBottom: 20, // Space between image and banner
   },
-  banner: {
+  input: {
+    height: 40,
+    borderColor: "gray",
+    borderRadius: 10,
+    borderWidth: 1,
+    marginBottom: 12,
+    paddingHorizontal: 10,
+    width: "100%",
+  },
+  submit: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
     alignItems: "center",
-    padding: 20,
-    width: "90%",
-  },
-  name: {
-    padding: 10,
-    fontWeight: "bold",
-  },
-  buttonHolder: {
-    borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 3,
+    borderRadius: 5,
+    marginRight: "auto",
+    marginLeft: "auto",
   },
   info: {
     display: "flex",
@@ -49,7 +60,8 @@ export const styles = StyleSheet.create({
     marginTop: 20, // Space between banner and info
   },
   infoTitle: {
-    fontWeight: "normal",
+    fontWeight: "bold",
+    marginBottom: 4,
   },
   infoCont: {
     fontWeight: "bold",
@@ -60,5 +72,10 @@ export const styles = StyleSheet.create({
     height: 1,
     width: "100%",
     marginVertical: 10,
+  },
+  button: {
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "black",
   },
 });

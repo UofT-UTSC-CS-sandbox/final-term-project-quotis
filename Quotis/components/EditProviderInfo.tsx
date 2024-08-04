@@ -1,21 +1,12 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Button,
-  Image,
-  Dimensions,
-  TextInput,
-  Alert,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Button, Image, TextInput, Alert } from "react-native";
 import { RootStackParamList } from "../../backend/src/models/types";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
 import axios from "axios";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
+import { styles } from "./EditProfileInfoStyles"; // Import the styles
 
 type EditProviderProp = RouteProp<RootStackParamList, "EditProviderInfo">;
 
@@ -49,7 +40,7 @@ const EditProviderInfo: React.FC = () => {
       }
     }
   };
-  /*This function allows the user to directly take a picture from their phone to upload */
+
   const takePhoto = async () => {
     let result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
@@ -62,8 +53,6 @@ const EditProviderInfo: React.FC = () => {
     }
   };
 
-  /*This function gets a presigned url 
-    for an image in the S3 database */
   const getUploadUrl = async () => {
     try {
       const response = await axios.get("http://localhost:3000/s3Url");
@@ -76,7 +65,6 @@ const EditProviderInfo: React.FC = () => {
     }
   };
 
-  /*THis functionn using a presigned url and the uri location of the image uploads the image to the database with some metadata  */
   const uploadImage = async (url: string, uri: string) => {
     try {
       const response = await fetch(uri);
@@ -91,7 +79,7 @@ const EditProviderInfo: React.FC = () => {
       });
       console.log("Uploaded Image");
 
-      return url.split("?")[0]; // Return the S3 URL without query parameters
+      return url.split("?")[0];
     } catch (error) {
       console.error("Error uploading image:", error);
       Alert.alert("Error", "Failed to upload image.");
@@ -99,12 +87,11 @@ const EditProviderInfo: React.FC = () => {
     }
   };
 
-  /*This function resizes the image to  */
   const resizeImage = async (uri: string) => {
     try {
       const manipResult = await ImageManipulator.manipulateAsync(
         uri,
-        [{ resize: { width: 200, height: 200 } }], // 원하는 크기로 조정
+        [{ resize: { width: 200, height: 200 } }],
         { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
       );
       console.log("Manipulated Image Size");
@@ -139,19 +126,19 @@ const EditProviderInfo: React.FC = () => {
   }, [userId]);
 
   useEffect(() => {
-    // here once the photoUri is changed i want this to take the pic resize it get get a url and then store the pic at that URL
-    profilePicUpload();
+    if (photoUri) {
+      profilePicUpload();
+    }
   }, [photoUri]);
 
   const profilePicUpload = async () => {
     if (photoUri == null) {
-      Alert.alert("Please pick an image.");
       return;
     }
     const resizedUri = await resizeImage(photoUri);
     if (!resizedUri) return;
 
-    const uploadUrl = await getUploadUrl(); // gets signed url to uplaod into the S3 database
+    const uploadUrl = await getUploadUrl();
     if (uploadUrl) {
       const imageUrl = await uploadImage(uploadUrl, resizedUri);
       if (imageUrl) {
@@ -159,9 +146,7 @@ const EditProviderInfo: React.FC = () => {
           await axios.put(`http://localhost:3000/updateProvider/${userId}`, {
             photoUri: imageUrl,
           });
-          Alert.alert("Success", "Post created successfully!");
           setPhotoUri(null);
-          navigation.navigate("ProviderInfo", { userId });
         } catch (error) {
           console.error("Error uploading image:", error);
           Alert.alert("Error", "Failed to upload image.");
@@ -211,114 +196,58 @@ const EditProviderInfo: React.FC = () => {
         ) : (
           <Image style={styles.image} source={{ uri: pic }} />
         )}
-        <Button title="change photo" onPress={pickImage} color={"#007bff"} />
+        <Button title="Change Photo" onPress={pickImage} color={"#007bff"} />
       </View>
-      <Text style={styles.title}>First Name</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={firstName}
-        value={firstName}
-        onChangeText={setFirstName}
-      />
-      <Text style={styles.title}>Last Name</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={lastName}
-        value={lastName}
-        onChangeText={setLastName}
-      />
-      <Text style={styles.title}>Email</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={email}
-        value={email}
-        keyboardType="email-address"
-        onChangeText={setEmail}
-      />
-      <Text style={styles.title}>Postal Code</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={postal}
-        value={postal}
-        onChangeText={setPostal}
-      />
-      <Text style={styles.title}>Description</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={desc}
-        value={desc}
-        onChangeText={setDesc}
-      />
-      <Text style={styles.title}>Contact</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={contact}
-        value={contact}
-        onChangeText={setContact}
-      />
-      <View style={styles.submit}>
-        <Button title="Submit" color={"#007bff"} onPress={handleSubmit} />
+      <View style={styles.info}>
+        <Text style={styles.infoTitle}>First Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={firstName}
+          value={firstName}
+          onChangeText={setFirstName}
+        />
+        <Text style={styles.infoTitle}>Last Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={lastName}
+          value={lastName}
+          onChangeText={setLastName}
+        />
+        <Text style={styles.infoTitle}>Email</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={email}
+          value={email}
+          keyboardType="email-address"
+          onChangeText={setEmail}
+        />
+        <Text style={styles.infoTitle}>Postal Code</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={postal}
+          value={postal}
+          onChangeText={setPostal}
+        />
+        <Text style={styles.infoTitle}>Description</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={desc}
+          value={desc}
+          onChangeText={setDesc}
+        />
+        <Text style={styles.infoTitle}>Contact</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={contact}
+          value={contact}
+          onChangeText={setContact}
+        />
+        <View style={styles.submit}>
+          <Button title="Submit" color={"#007bff"} onPress={handleSubmit} />
+        </View>
       </View>
     </View>
   );
 };
-
-const { height, width } = Dimensions.get("window");
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "white",
-  },
-  profilePicContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#eeeeee",
-    padding: 20,
-    margin: 10,
-    borderRadius: 20,
-  },
-  profilePic: {
-    width: 50,
-    height: 50,
-  },
-  profilePicPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#ccc",
-    textAlign: "center",
-    lineHeight: 100,
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderRadius: 10,
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 10,
-  },
-  title: {
-    fontWeight: "bold",
-  },
-  submit: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    width: width * 0.3,
-    borderRadius: 5,
-  },
-  image: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: "black",
-  },
-});
 
 export default EditProviderInfo;

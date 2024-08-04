@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Button,
-  StyleSheet,
-  Image,
-  Dimensions,
-} from "react-native";
+import { View, Text, Button, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "../../backend/src/models/types";
 import axios from "axios";
+import { styles } from "./ProviderInfoStyles"; // Import the styles
 
 type ProviderInfoRouteProp = RouteProp<RootStackParamList, "ProviderInfo">;
 
@@ -21,9 +15,9 @@ const ProviderInfo: React.FC = () => {
   const [firstName, setFirstName] = useState<string>("default");
   const [lastName, setLastName] = useState<string>("User");
   const [postCode, setPostCode] = useState<string>("default Post");
-  const [photoUri, setPhotoUri] = useState<string>("");
-  const [desc, setDesc] = useState<string>("");
-  const [contact, setContact] = useState<string>("");
+  const [photoUri, setPhotoUri] = useState<string>("placeholder");
+  const [desc, setDesc] = useState<string>("default description");
+  const [contact, setContact] = useState<string>("default contact");
   const navigation: any = useNavigation();
 
   useEffect(() => {
@@ -52,7 +46,7 @@ const ProviderInfo: React.FC = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Profile Information</Text>
       <View style={styles.picHolder}>
-        {photoUri === "" ? (
+        {photoUri === "placeholder" ? (
           <Image
             style={styles.image}
             source={{
@@ -84,12 +78,16 @@ const ProviderInfo: React.FC = () => {
       <View style={styles.info}>
         <Text style={styles.infoTitle}>Email</Text>
         <Text style={styles.infoCont}>{email}</Text>
+        <View style={styles.line} />
         <Text style={styles.infoTitle}>PostCode</Text>
         <Text style={styles.infoCont}>{postCode}</Text>
+        <View style={styles.line} />
         <Text style={styles.infoTitle}>Description</Text>
         <Text style={styles.infoCont}>{desc}</Text>
+        <View style={styles.line} />
         <Text style={styles.infoTitle}>Contact</Text>
         <Text style={styles.infoCont}>{contact}</Text>
+        <View style={styles.line} />
       </View>
       <View style={styles.verifybutton}>
         <Button
@@ -103,68 +101,5 @@ const ProviderInfo: React.FC = () => {
     </View>
   );
 };
-
-const { height, width } = Dimensions.get("window");
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    backgroundColor: "#f8f8f8",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  info: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "flex-start",
-    paddingBottom: 10,
-  },
-  banner: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    padding: 20,
-  },
-  picHolder: {
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: "black",
-  },
-  name: {
-    padding: 10,
-    fontWeight: "bold",
-  },
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  important: {
-    fontWeight: "bold",
-  },
-  verifybutton: {
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "black",
-  },
-  editButton: {
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "black",
-  },
-  infoTitle: {
-    fontWeight: "light",
-  },
-  infoCont: {
-    fontWeight: "bold",
-  },
-});
 
 export default ProviderInfo;
