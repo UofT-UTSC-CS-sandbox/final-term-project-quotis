@@ -1,0 +1,24 @@
+build-docker:
+  image: docker:latest
+  stage: build
+
+  services:
+    - docker:dind
+
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+
+  before_script:
+    - apk update
+    - apk add --no-cache docker-cli
+
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+    - docker build -t $DOCKER_USER/quotis:latest .
+    - docker push $DOCKER_USER/quotis:latest
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+이ㅣ코드는 내가 친구한테받은건데 그친구한테는 작동해 근데 내꺼는:
+https://gitlab.com/ji24077/quotis/-/pipelines/1403480431/failures
