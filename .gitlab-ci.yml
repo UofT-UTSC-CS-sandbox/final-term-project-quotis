@@ -1,23 +1,40 @@
 build-docker:
   image: docker:latest
   stage: build
-
   services:
     - docker:dind
-
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
-
   before_script:
     - apk update
     - apk add --no-cache docker-cli
-
   script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - docker build -t $DOCKER_USER/quotis:latest .
     - docker push $DOCKER_USER/quotis:latest
-
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-    #..
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker pull $DOCKER_USER/quotis:latest
+    - docker run -d -p 80:3000 --name webapp $DOCKER_USER/quotis:latest
+  only:
+    - main
+  environment:
+    name: production
+
+test:
+  stage: test
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker exec webapp npm test
+  only:
+    - main
