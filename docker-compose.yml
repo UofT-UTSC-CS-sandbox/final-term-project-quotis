@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  webapp:
+    image: ji24077/quotis:1.0.0
+    ports:
+      - "80:3000"
+    environment:
+      NODE_ENV: production
+    restart: always
+
+  test:
+    image: ji24077/quotis:1.0.0
+    environment:
+      NODE_ENV: test
+    command: npm test
+    depends_on:
+      - webapp
