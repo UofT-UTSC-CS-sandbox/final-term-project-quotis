@@ -20,5 +20,3 @@ build-docker:
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-이ㅣ코드는 내가 친구한테받은건데 그친구한테는 작동해 근데 내꺼는:
-https://gitlab.com/ji24077/quotis/-/pipelines/1403480431/failures
