@@ -1,40 +1,38 @@
-build-docker:
+stages:
+  - build
+  - deploy
+  - test
+  - sync
+
+build-deploy-test:
   image: docker:latest
   stage: build
   services:
     - docker:dind
-  variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - apk update
-    - apk add --no-cache docker-cli
   script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
-    - docker build -t $DOCKER_USER/quotis:latest .
-    - docker push $DOCKER_USER/quotis:latest
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-
-deploy:
-  stage: deploy
-  image: docker:latest
-  services:
-    - docker:dind
-  script:
-    - docker pull $DOCKER_USER/quotis:latest
-    - docker run -d -p 80:3000 --name webapp $DOCKER_USER/quotis:latest
+    # 이미지 빌드 시 버전 태그를 사용
+    - docker build -t $DOCKER_USER/quotis:1.0.0 -f CICD/Dockerfile .
+    - docker push $DOCKER_USER/quotis:1.0.0
+    - docker pull $DOCKER_USER/quotis:1.0.0
+    - docker run -d -p 80:3000 --name webapp $DOCKER_USER/quotis:1.0.0
+    - sleep 120  # 컨테이너가 정상적으로 시작되도록 충분한 시간을 제공
+    - docker logs webapp  # 컨테이너 로그 출력.
+    - docker exec webapp npm test
   only:
     - main
   environment:
     name: production
 
-test:
-  stage: test
-  image: docker:latest
-  services:
-    - docker:dind
+sync_to_github:
+  stage: sync
+  before_script:
+    - git config --global user.email "yhs24077@gmail.com"
+    - git config --global user.name "ji24077"
+    - git remote add github https://ji24077:$PAT@github.com/UofT-UTSC-CS-sandbox/final-term-project-quotis.git
+    - git fetch github
+    - git checkout --track github/main
   script:
-    - docker exec webapp npm test
+    - git push github main
   only:
     - main

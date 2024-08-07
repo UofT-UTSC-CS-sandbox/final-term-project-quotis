@@ -1,5 +1,5 @@
 # Use an official Node runtime as a parent image
-FROM node:14
+FROM node:18
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -8,8 +8,9 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install any needed packages specified in package.json
-RUN npm install
-
+RUN npm install --legacy-peer-deps
+# Install Jest globally to make it available as a command
+RUN npm install jest --global
 # Bundle the source code inside the Docker image
 COPY . .
 
